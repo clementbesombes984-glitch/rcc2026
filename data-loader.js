@@ -1,17 +1,18 @@
-(() => {
+(function () {
   const dataCache = new Map();
-  const dataPath = (name) => './data/' + name + '.json';
-  const escapeHtml = (value = '') => String(value).replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
-  const formatDate = (value) => {
-    if (!value) return '';
-    const date = new Date(value + 'T00:00:00');
-    if (Number.isNaN(date.getTime())) return value;
-    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '').toUpperCase();
-  };
+
+  const dataPath = (name) => `./data/${name}.json?v=${Date.now()}`;
+
   const fetchData = async (name) => {
     if (dataCache.has(name)) return dataCache.get(name);
+
     const response = await fetch(dataPath(name), { cache: 'no-store' });
-    if (!response.ok) throw new Error('Données introuvables: ' + name);
+
+    if (!response.ok) {
+      console.error('Données introuvables :', name, response.status);
+      return {};
+    }
+
     const data = await response.json();
     dataCache.set(name, data);
     return data;
