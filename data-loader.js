@@ -24,7 +24,8 @@
   async function renderMatches() {
     const container = document.querySelector('.matches');
     if (!container) return;
-    const { matches = [] } = await fetchData('matches');
+    const data = await fetchData('matches');
+const matches = Array.isArray(data) ? data : (data.matches || []);
     container.innerHTML = matches.map((match, index) => {
       const status = match.status || 'muted';
       const result = match.result || (status === 'upcoming' ? 'À venir' : 'Résultat');
