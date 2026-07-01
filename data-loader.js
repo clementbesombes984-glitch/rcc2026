@@ -16,7 +16,9 @@
     dataCache.set(name, data);
     return data;
   };
-  const imageStyle = (url) => url ? ' style="background-image:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.5)),url('' + escapeHtml(url) + '')"' : '';
+  const imageStyle = (url) => url
+  ? ` style="background-image:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.5)),url('${escapeHtml(url)}')"`
+  : '';
 
   async function renderMatches() {
     const container = document.querySelector('.matches');
