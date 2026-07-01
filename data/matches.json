@@ -19,6 +19,16 @@
       "competition": "amical",
       "status": "upcoming",
       "result": "A venir"
+    },
+    {
+      "date": "2026-07-31",
+      "time": "15h00",
+      "home": "STT",
+      "away": "RCC",
+      "venue": "ici",
+      "competition": "ok",
+      "status": "upcoming",
+      "result": "a venur"
     }
   ]
 }
