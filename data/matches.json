@@ -1,16 +1,6 @@
 {
   "matches": [
     {
-      "date": "2026-07-12",
-      "time": "15h00",
-      "home": "RC Cubzaguais",
-      "away": "US Bordeaux",
-      "venue": "Plaine des sports Lionel Ricci",
-      "competition": "Championnat",
-      "status": "upcoming",
-      "result": "À venir"
-    },
-    {
       "date": "2026-07-19",
       "time": "20h30",
       "home": "AS Montpellier",
@@ -49,6 +39,16 @@
       "competition": "Championnat",
       "status": "loss",
       "result": "Défaite 18-23"
+    },
+    {
+      "date": "2026-07-01",
+      "time": "19h00",
+      "home": "RC Cubzaguais",
+      "away": "La Pimpine",
+      "venue": "Plaine des sports Lionel Ricci",
+      "competition": "Amical",
+      "status": "upcoming",
+      "result": "A venir"
     }
   ]
 }
