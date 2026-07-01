@@ -1,5 +1,5 @@
-site_url: https://rcc2026.netlify.app
-display_url: https://rcc2026.netlify.app
+site_url: https://effulgent-pastelito-29441e.netlify.app
+display_url: https://effulgent-pastelito-29441e.netlify.app
 backend:
   name: git-gateway
   branch: main
