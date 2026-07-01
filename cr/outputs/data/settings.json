@@ -1,0 +1,28 @@
+{
+  "clubName": "Racing Club Cubzaguais",
+  "stadium": "Plaine des sports Lionel Ricci",
+  "city": "Saint-André-de-Cubzac",
+  "address": "Plaine des sports Lionel Ricci, Saint-André-de-Cubzac",
+  "joinTitle": "Porte nos couleurs",
+  "joinText": "Joueur, joueuse, parent, éducateur ou bénévole : viens rencontrer le club à la Plaine des sports Lionel Ricci, à Saint-André-de-Cubzac.",
+  "parameters": [
+    {
+      "title": "Adresse du stade",
+      "text": "Plaine des sports Lionel Ricci, Saint-André-de-Cubzac",
+      "linkLabel": "Nous rejoindre",
+      "linkUrl": "./index.html#rejoindre"
+    },
+    {
+      "title": "Horaires seniors",
+      "text": "Mardi et vendredi à 19h30",
+      "linkLabel": "Voir effectif senior",
+      "linkUrl": "./senior.html"
+    },
+    {
+      "title": "École de rugby",
+      "text": "U6 samedi 10h. U8, U10 et U12 mercredi 18h et samedi 10h.",
+      "linkLabel": "Voir école",
+      "linkUrl": "./ecole.html"
+    }
+  ]
+}
