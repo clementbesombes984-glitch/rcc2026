@@ -1,0 +1,79 @@
+{
+  "categories": [
+    {
+      "age": "U14",
+      "label": "Entrer dans le grand terrain",
+      "summary": "Travail technique, premières organisations collectives complètes, attitude défensive et confiance dans le contact.",
+      "count": "30 jeunes",
+      "training": "Mardi 18h30 · Vendredi 18h30",
+      "teamPhoto": "",
+      "staff": [
+        {
+          "firstName": "Sébastien",
+          "lastName": "Caron",
+          "photo": ""
+        },
+        {
+          "firstName": "Laura",
+          "lastName": "Besson",
+          "photo": ""
+        },
+        {
+          "firstName": "Yanis",
+          "lastName": "Dumas",
+          "photo": ""
+        }
+      ]
+    },
+    {
+      "age": "U16",
+      "label": "Accélérer la progression",
+      "summary": "Exigence physique, lecture du jeu, conquête, lancement de jeu et responsabilité dans le groupe.",
+      "count": "28 joueurs",
+      "training": "Mardi 19h · Jeudi 19h",
+      "teamPhoto": "",
+      "staff": [
+        {
+          "firstName": "Olivier",
+          "lastName": "Masson",
+          "photo": ""
+        },
+        {
+          "firstName": "Nina",
+          "lastName": "Valette",
+          "photo": ""
+        },
+        {
+          "firstName": "Karim",
+          "lastName": "Delmas",
+          "photo": ""
+        }
+      ]
+    },
+    {
+      "age": "U18",
+      "label": "Préparer le rugby senior",
+      "summary": "Un cadre compétitif pour franchir un cap, gagner en autonomie et défendre les couleurs du club.",
+      "count": "26 joueurs",
+      "training": "Mercredi 19h · Vendredi 19h",
+      "teamPhoto": "",
+      "staff": [
+        {
+          "firstName": "François",
+          "lastName": "Rigal",
+          "photo": ""
+        },
+        {
+          "firstName": "Chloé",
+          "lastName": "Mercier",
+          "photo": ""
+        },
+        {
+          "firstName": "Baptiste",
+          "lastName": "Lemoine",
+          "photo": ""
+        }
+      ]
+    }
+  ]
+}

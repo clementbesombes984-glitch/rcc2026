@@ -1,0 +1,138 @@
+site_url: https://effulgent-pastelito-29441e.netlify.app
+display_url: https://effulgent-pastelito-29441e.netlify.app
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+
+locale: "fr"
+publish_mode: editorial_workflow
+
+collections:
+  - name: "site_data"
+    label: "Contenu du site"
+    files:
+      - name: "matches"
+        label: "Calendrier des matchs"
+        file: "data/matches.json"
+        format: "json"
+        fields:
+          - label: "Matchs"
+            name: "matches"
+            widget: "list"
+            summary: "{{fields.date}} - {{fields.home}} vs {{fields.away}}"
+            fields:
+              - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+              - { label: "Heure", name: "time", widget: "string", hint: "Exemple : 15h00" }
+              - { label: "Équipe domicile", name: "home", widget: "string" }
+              - { label: "Équipe extérieur", name: "away", widget: "string" }
+              - { label: "Lieu", name: "venue", widget: "string" }
+              - { label: "Compétition", name: "competition", widget: "string", required: false }
+              - label: "Statut"
+                name: "status"
+                widget: "select"
+                options:
+                  - { label: "À venir", value: "upcoming" }
+                  - { label: "Victoire", value: "win" }
+                  - { label: "Défaite", value: "loss" }
+                  - { label: "Neutre", value: "muted" }
+              - { label: "Résultat / badge", name: "result", widget: "string", hint: "Exemple : À venir, Victoire 28-14, Défaite 18-23" }
+      - name: "news"
+        label: "Actualités"
+        file: "data/news.json"
+        format: "json"
+        fields:
+          - label: "Actualités"
+            name: "news"
+            widget: "list"
+            summary: "{{fields.category}} - {{fields.title}}"
+            fields:
+              - { label: "Catégorie", name: "category", widget: "string" }
+              - { label: "Titre", name: "title", widget: "string" }
+              - { label: "Résumé", name: "summary", widget: "text" }
+              - { label: "Image", name: "image", widget: "image", required: false }
+      - name: "settings"
+        label: "Paramètres du site"
+        file: "data/settings.json"
+        format: "json"
+        fields:
+          - { label: "Nom du club", name: "clubName", widget: "string" }
+          - { label: "Stade", name: "stadium", widget: "string" }
+          - { label: "Ville", name: "city", widget: "string" }
+          - { label: "Adresse", name: "address", widget: "string" }
+          - { label: "Titre Nous rejoindre", name: "joinTitle", widget: "string" }
+          - { label: "Texte Nous rejoindre", name: "joinText", widget: "text" }
+          - label: "Blocs de la page Paramètres"
+            name: "parameters"
+            widget: "list"
+            summary: "{{fields.title}}"
+            fields:
+              - { label: "Titre", name: "title", widget: "string" }
+              - { label: "Texte", name: "text", widget: "text" }
+              - { label: "Libellé du lien", name: "linkLabel", widget: "string", required: false }
+              - { label: "URL du lien", name: "linkUrl", widget: "string", required: false }
+      - name: "senior"
+        label: "Joueurs senior"
+        file: "data/senior.json"
+        format: "json"
+        fields:
+          - label: "Joueurs"
+            name: "players"
+            widget: "list"
+            summary: "{{fields.firstName}} {{fields.lastName}} - {{fields.position}}"
+            fields:
+              - { label: "Groupe de poste", name: "group", widget: "string", hint: "Exemple : Piliers, Talonneurs, Centres" }
+              - { label: "Prénom", name: "firstName", widget: "string" }
+              - { label: "Nom", name: "lastName", widget: "string" }
+              - { label: "Poste", name: "position", widget: "string" }
+              - { label: "Poids / info", name: "weight", widget: "string", required: false }
+              - { label: "Qualité", name: "tag", widget: "string", required: false }
+              - { label: "Photo", name: "photo", widget: "image", required: false }
+      - name: "academy"
+        label: "École de rugby"
+        file: "data/academy.json"
+        format: "json"
+        fields:
+          - label: "Catégories"
+            name: "categories"
+            widget: "list"
+            summary: "{{fields.age}} - {{fields.label}}"
+            fields:
+              - { label: "Catégorie", name: "age", widget: "string" }
+              - { label: "Titre", name: "label", widget: "string" }
+              - { label: "Résumé", name: "summary", widget: "text" }
+              - { label: "Effectif", name: "count", widget: "string" }
+              - { label: "Entraînement", name: "training", widget: "string" }
+              - { label: "Photo effectif", name: "teamPhoto", widget: "image", required: false }
+              - label: "Staff"
+                name: "staff"
+                widget: "list"
+                fields:
+                  - { label: "Prénom", name: "firstName", widget: "string" }
+                  - { label: "Nom", name: "lastName", widget: "string" }
+                  - { label: "Photo", name: "photo", widget: "image", required: false }
+      - name: "youth"
+        label: "Pôle jeunes"
+        file: "data/youth.json"
+        format: "json"
+        fields:
+          - label: "Catégories"
+            name: "categories"
+            widget: "list"
+            summary: "{{fields.age}} - {{fields.label}}"
+            fields:
+              - { label: "Catégorie", name: "age", widget: "string" }
+              - { label: "Titre", name: "label", widget: "string" }
+              - { label: "Résumé", name: "summary", widget: "text" }
+              - { label: "Effectif", name: "count", widget: "string" }
+              - { label: "Entraînement", name: "training", widget: "string" }
+              - { label: "Photo effectif", name: "teamPhoto", widget: "image", required: false }
+              - label: "Staff"
+                name: "staff"
+                widget: "list"
+                fields:
+                  - { label: "Prénom", name: "firstName", widget: "string" }
+                  - { label: "Nom", name: "lastName", widget: "string" }
+                  - { label: "Photo", name: "photo", widget: "image", required: false }

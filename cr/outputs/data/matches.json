@@ -1,0 +1,54 @@
+{
+  "matches": [
+    {
+      "date": "2026-07-12",
+      "time": "15h00",
+      "home": "RC Cubzaguais",
+      "away": "US Bordeaux",
+      "venue": "Plaine des sports Lionel Ricci",
+      "competition": "Championnat",
+      "status": "upcoming",
+      "result": "À venir"
+    },
+    {
+      "date": "2026-07-19",
+      "time": "20h30",
+      "home": "AS Montpellier",
+      "away": "RC Cubzaguais",
+      "venue": "Stade Yves-du-Manoir",
+      "competition": "Coupe",
+      "status": "upcoming",
+      "result": "À venir"
+    },
+    {
+      "date": "2026-07-26",
+      "time": "15h00",
+      "home": "RC Cubzaguais",
+      "away": "Stade Aurillacois",
+      "venue": "Plaine des sports Lionel Ricci",
+      "competition": "Championnat",
+      "status": "upcoming",
+      "result": "À venir"
+    },
+    {
+      "date": "2026-06-22",
+      "time": "17h00",
+      "home": "RC Cubzaguais",
+      "away": "Périgueux RC",
+      "venue": "Plaine des sports Lionel Ricci",
+      "competition": "Championnat",
+      "status": "win",
+      "result": "Victoire 28-14"
+    },
+    {
+      "date": "2026-06-15",
+      "time": "14h30",
+      "home": "Biarritz Olympique",
+      "away": "RC Cubzaguais",
+      "venue": "Stade Aguiléra",
+      "competition": "Championnat",
+      "status": "loss",
+      "result": "Défaite 18-23"
+    }
+  ]
+}

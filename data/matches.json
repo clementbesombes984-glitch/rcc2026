@@ -1,0 +1,34 @@
+{
+  "matches": [
+    {
+      "date": "2026-07-01",
+      "time": "19h00",
+      "home": "RC Cubzaguais",
+      "away": "La Pimpine",
+      "venue": "Plaine des sports Lionel Ricci",
+      "competition": "Amical",
+      "status": "upcoming",
+      "result": "A venir"
+    },
+    {
+      "date": "2026-07-29",
+      "time": "15h00",
+      "home": "RC Cubzaguais",
+      "away": "Blaye",
+      "venue": "Baye",
+      "competition": "amical",
+      "status": "upcoming",
+      "result": "A venir"
+    },
+    {
+      "date": "2026-07-31",
+      "time": "15h00",
+      "home": "STT",
+      "away": "RCC",
+      "venue": "ici",
+      "competition": "ok",
+      "status": "upcoming",
+      "result": "a venur"
+    }
+  ]
+}
