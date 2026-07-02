@@ -69,11 +69,15 @@ export async function onRequestGet(context) {
     const message = 'authorization:github:success:' + JSON.stringify(payload);
 
     if (window.opener) {
-      window.opener.postMessage(message, '*');
-      setTimeout(() => window.close(), 500);
-    } else {
-      window.location.href = '/admin/';
-    }
+  window.opener.postMessage(message, '*');
+
+  setTimeout(() => {
+    window.opener.location.href = '/admin/';
+    window.close();
+  }, 800);
+} else {
+  window.location.href = '/admin/';
+}
   </script>
 </body>
 </html>`);
