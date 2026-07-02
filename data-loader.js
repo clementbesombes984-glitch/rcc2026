@@ -257,5 +257,6 @@
     renderSenior().catch(console.error);
     renderCategories('academy', 'École de rugby').catch(console.error);
     renderCategories('youth', 'Pôle jeunes').catch(console.error);
+    renderCategories('feminines', 'Féminines').catch(console.error);
   });
 })();

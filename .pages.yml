@@ -251,6 +251,57 @@ content:
                 label: Photo
                 type: image
 
+  - name: feminines
+    label: Féminines
+    type: file
+    path: data/feminines.json
+    format: json
+    fields:
+      - name: categories
+        label: Catégorie cadettes
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{age} - {label}"
+        fields:
+          - name: age
+            label: Catégorie
+            type: string
+            required: true
+          - name: label
+            label: Titre
+            type: string
+          - name: summary
+            label: Résumé
+            type: text
+          - name: count
+            label: Effectif
+            type: string
+          - name: training
+            label: Entraînement
+            type: string
+          - name: teamPhoto
+            label: Photo effectif
+            type: image
+          - name: staff
+            label: Staff
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{firstName} {lastName}"
+            fields:
+              - name: firstName
+                label: Prénom
+                type: string
+              - name: lastName
+                label: Nom
+                type: string
+              - name: photo
+                label: Photo
+                type: image
+
   - name: settings
     label: Paramètres du club
     type: file
