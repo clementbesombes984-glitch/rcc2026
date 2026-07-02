@@ -52,13 +52,13 @@
     if (!node) return;
     const diff = date.getTime() - Date.now();
     if (diff <= 0) {
-      node.innerHTML = '<strong>0</strong><small>jours</small><strong>0</strong><small>heures</small><strong>0</strong><small>min</small>';
+      node.innerHTML = '<div class="countdown-unit"><strong>0</strong><small>jours</small></div><div class="countdown-unit"><strong>0</strong><small>heures</small></div><div class="countdown-unit"><strong>0</strong><small>min</small></div>';
       return;
     }
     const days = Math.floor(diff / 86400000);
     const hours = Math.floor((diff % 86400000) / 3600000);
     const minutes = Math.floor((diff % 3600000) / 60000);
-    node.innerHTML = '<strong>' + days + '</strong><small>jours</small><strong>' + hours + '</strong><small>heures</small><strong>' + minutes + '</strong><small>min</small>';
+    node.innerHTML = '<div class="countdown-unit"><strong>' + days + '</strong><small>jours</small></div><div class="countdown-unit"><strong>' + hours + '</strong><small>heures</small></div><div class="countdown-unit"><strong>' + minutes + '</strong><small>min</small></div>';
   }
 
   function emptyNextCard(nextCard) {
@@ -81,7 +81,7 @@
     if (next && nextCard) {
       nextCard.classList.remove('is-empty');
       const nextDate = parseMatchDate(next);
-      nextCard.innerHTML = '<span>Prochain rendez-vous</span><h3>' + escapeHtml(next.home) + ' <em>vs</em> ' + escapeHtml(next.away) + '</h3><p>' + escapeHtml(formatDate(next.date)) + ' · ' + escapeHtml(next.time) + ' · ' + escapeHtml(next.venue) + '</p><div class="countdown-units" data-countdown></div>';
+      nextCard.innerHTML = '<span>Prochain rendez-vous</span><h3>' + escapeHtml(next.home) + ' <em>VS</em> ' + escapeHtml(next.away) + '</h3><p>' + escapeHtml(formatDate(next.date)) + ' · ' + escapeHtml(next.time) + ' · ' + escapeHtml(next.venue) + '</p><div class="countdown-units" data-countdown></div>';
       const countdown = nextCard.querySelector('[data-countdown]');
       updateCountdown(nextDate, countdown);
       setInterval(() => updateCountdown(nextDate, countdown), 60000);
