@@ -3,7 +3,7 @@ function getCookie(request, name) {
   return cookie
     .split(";")
     .map((part) => part.trim())
-    .find((part) => part.startsWith(`${name}=`))
+    .find((part) => part.startsWith(name + "="))
     ?.split("=")[1];
 }
 
@@ -48,7 +48,7 @@ export async function onRequestGet(context) {
   const tokenData = await tokenResponse.json();
 
   if (!tokenData.access_token) {
-    return htmlResponse(`Erreur OAuth GitHub : ${JSON.stringify(tokenData)}`, 500);
+    return htmlResponse("Erreur OAuth GitHub : " + JSON.stringify(tokenData), 500);
   }
 
   const payload = JSON.stringify({
@@ -56,29 +56,15 @@ export async function onRequestGet(context) {
     provider: "github",
   });
 
-  return htmlResponse(`<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <title>Connexion GitHub réussie</title>
-</head>
-<body>
-  <p>Connexion réussie, redirection vers l'administration...</p>
-  <script>
-    const payload = ${payload};
-    const message = 'authorization:github:success:' + JSON.stringify(payload);
+  const body = "<!doctype html>" +
+    "<html lang=\"fr\"><head><meta charset=\"utf-8\"><title>Connexion GitHub réussie</title></head>" +
+    "<body><p>Connexion réussie. Vous pouvez fermer cette fenêtre.</p>" +
+    "<script>" +
+    "const payload = " + payload + ";" +
+    "const message = \"authorization:github:success:\" + JSON.stringify(payload);" +
+    "if (window.opener) { window.opener.postMessage(message, \"*\"); window.close(); }" +
+    "else { document.body.innerHTML = \"<p>Connexion réussie. Retournez sur <a href=\\\"/admin/\\\">l’administration</a>.</p>\"; }" +
+    "</script></body></html>";
 
-    if (window.opener) {
-  window.opener.postMessage(message, '*');
-
-  setTimeout(() => {
-    window.opener.location.href = '/admin/';
-    window.close();
-  }, 800);
-} else {
-  window.location.href = '/admin/';
-}
-  </script>
-</body>
-</html>`);
+  return htmlResponse(body);
 }

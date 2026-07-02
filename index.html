@@ -6,7 +6,6 @@
     <title>RC Cubzaguais - Club de Rugby</title>
     <meta name="description" content="Site officiel du Rugby Club Cubzaguais : matchs, équipes, école de rugby, actualités et inscriptions." />
     <link rel="stylesheet" href="./styles.css" />
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
 
   <body>
@@ -22,14 +21,14 @@
 
       <nav class="site-nav" aria-label="Navigation principale" data-nav>
         <a class="is-active" href="./index.html#accueil">Accueil</a>
-        <a href="./index.html#matches">Matchs</a>
+        <a href="./index.html#matchs">Matchs</a>
         <a href="./senior.html">Senior</a>
         <a href="./ecole.html">École de rugby</a>
         <a href="./jeunes.html">Pôle jeunes</a>
         <a href="./index.html#feminines">Féminines</a>
         <a href="./index.html#actus">Actualités</a>
         <a href="./histoire.html">Histoire</a>
-        <a href="./parametres.html">Paramètres</a>
+        <a class="admin-link" href="./admin/">Administration</a>
         <a class="nav-cta" href="./index.html#rejoindre">Nous rejoindre</a>
       </nav>
     </header>
@@ -183,14 +182,5 @@
 
     <script src="./script.js"></script>
     <script src="./data-loader.js"></script>
-    <script>
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on('init', function(user) {
-          if (!user && window.location.hash.indexOf('invite_token') !== -1) {
-            window.netlifyIdentity.open('signup');
-          }
-        });
-      }
-    </script>
   </body>
 </html>

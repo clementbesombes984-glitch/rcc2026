@@ -105,3 +105,5 @@ html {
     justify-self: end;
   }
 }
+
+.site-nav .admin-link{color:#fff;border:1px solid var(--line);padding:11px 14px;background:#151515}.site-nav .admin-link:hover{border-color:var(--red);background:rgba(177,24,69,.18)}@media(max-width:1120px){.site-nav .admin-link{margin:10px 20px 0;text-align:center}}
