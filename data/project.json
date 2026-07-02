@@ -1,0 +1,63 @@
+{
+  "title": "Votre RCC demain",
+  "intro": "Le RCC doit se retrouver, se relever et se réinventer. Portée par des membres historiques et expérimentés, notre équipe s'engage à adapter l'identité du club aux défis d'aujourd'hui. Nous voulons restituer votre association en réorientant le club sur la voie des valeurs morales et sportives, du respect de chacun, de la transparence et de la conformité réglementaire.",
+  "contactEmail": "lerccdemain@gmail.com",
+  "sections": [
+    {
+      "title": "L'apaisement par l'action",
+      "icon": "01",
+      "text": "Instaurer une culture de la bienveillance où chaque joueur, bénévole et partenaire retrouve sa place et peut s'exprimer en confiance. Cela passe par une disponibilité accrue des dirigeants et par la création d'espaces d'échange."
+    },
+    {
+      "title": "Une cohérence sportive globale",
+      "icon": "02",
+      "text": "Déployer un projet technique rationnel de l'école de rugby aux seniors, en collaboration avec toutes les catégories, pour bâtir la compétitivité sur la formation et l'attachement aux couleurs du club."
+    },
+    {
+      "title": "Une éthique et des responsabilités",
+      "icon": "03",
+      "text": "Garantir la sécurité des joueurs sur et hors terrain, respecter la voix de chacun, accompagner éducateurs et bénévoles dans leurs responsabilités et améliorer constamment les conditions d'accueil."
+    },
+    {
+      "title": "La transparence comme règle d'or",
+      "icon": "04",
+      "text": "Refondre les procédures et règlements, les soumettre à validation, construire, voter, communiquer et appliquer les décisions avec la probité nécessaire."
+    },
+    {
+      "title": "Développement de l'école de rugby",
+      "icon": "EDR",
+      "text": "Renforcer l'encadrement, structurer les passerelles entre catégories et faire de la formation le socle durable du RCC."
+    },
+    {
+      "title": "Développement des seniors",
+      "icon": "XV",
+      "text": "Construire un groupe senior stable, exigeant et connecté aux jeunes formés au club."
+    },
+    {
+      "title": "Formation des éducateurs",
+      "icon": "FOR",
+      "text": "Accompagner les éducateurs, favoriser la montée en compétence et partager une méthode commune."
+    },
+    {
+      "title": "Arbitrage",
+      "icon": "ARB",
+      "text": "Valoriser l'arbitrage, encourager les vocations et mieux comprendre les règles pour progresser collectivement."
+    },
+    {
+      "title": "Vie du club",
+      "icon": "CLB",
+      "text": "Retrouver une vie associative chaleureuse, organisée et ouverte aux familles."
+    },
+    {
+      "title": "Bénévolat",
+      "icon": "BEN",
+      "text": "Donner une place claire aux bonnes volontés et faciliter l'engagement de chacun."
+    },
+    {
+      "title": "Partenariat",
+      "icon": "PRO",
+      "text": "Construire des relations durables, transparentes et utiles au territoire comme au club."
+    }
+  ],
+  "callout": "Rejoignez-nous afin que le rugby, la joie et le vivre ensemble retrouvent leurs justes places au RCC."
+}

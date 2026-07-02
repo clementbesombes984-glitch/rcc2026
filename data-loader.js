@@ -113,6 +113,31 @@
       node.textContent = data.city || node.textContent;
     });
 
+    document.querySelectorAll('[data-cms="address"]').forEach((node) => {
+      node.textContent = data.address || node.textContent;
+    });
+
+    document.querySelectorAll('[data-cms="phone"]').forEach((node) => {
+      node.textContent = data.phone || 'À renseigner';
+    });
+
+    document.querySelectorAll('[data-cms="email"]').forEach((node) => {
+      const email = data.email || 'lerccdemain@gmail.com';
+      node.textContent = email;
+      node.setAttribute('href', 'mailto:' + email);
+    });
+
+    document.querySelectorAll('[data-cms="facebook"], [data-cms="instagram"]').forEach((node) => {
+      const key = node.getAttribute('data-cms');
+      const url = data[key] || '';
+      if (url) node.setAttribute('href', url);
+      else node.setAttribute('aria-disabled', 'true');
+    });
+
+    document.querySelectorAll('[data-cms="maps"]').forEach((node) => {
+      if (data.mapsUrl) node.setAttribute('src', data.mapsUrl);
+    });
+
     const params = document.querySelector('.parameters-grid');
 
     if (params) {
@@ -250,6 +275,53 @@
     `).join('');
   }
 
+  async function renderPartners() {
+    const grid = document.querySelector('[data-partners]');
+    if (!grid) return;
+    const data = await fetchData('partners');
+    const partners = data.partners || [];
+    const grouped = partners.reduce((acc, item) => {
+      (acc[item.category || 'Partenaires'] ||= []).push(item);
+      return acc;
+    }, {});
+    grid.innerHTML = Object.entries(grouped).map(([category, list]) => `
+      <section class="partner-tier">
+        <div class="roster-title"><p class="section-kicker">Partenaires</p><h2>${escapeHtml(category)}</h2></div>
+        <div class="partner-cards">
+          ${list.map((item) => `
+            <article class="partner-card">
+              <div class="partner-logo"${imageStyle(item.logo)}><strong>${escapeHtml((item.name || 'RCC').slice(0, 2))}</strong></div>
+              <div><span>${escapeHtml(category)}</span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p>${item.url ? `<a class="text-link" href="${escapeHtml(item.url)}">Voir</a>` : ''}</div>
+            </article>
+          `).join('')}
+        </div>
+      </section>
+    `).join('') || '<p class="empty-state">Les partenaires seront bientôt publiés.</p>';
+  }
+
+  async function renderProject() {
+    const sectionGrid = document.querySelector('[data-project-sections]');
+    if (!sectionGrid) return;
+    const data = await fetchData('project');
+    const title = document.querySelector('[data-project-title]');
+    const heroIntro = document.querySelector('[data-project-intro]');
+    const fullIntro = document.querySelector('[data-project-full-intro]');
+    const callout = document.querySelector('[data-project-callout]');
+    const email = document.querySelector('[data-project-email]');
+    if (title) title.textContent = data.title || title.textContent;
+    if (heroIntro) heroIntro.textContent = data.callout || heroIntro.textContent;
+    if (fullIntro) fullIntro.textContent = data.intro || '';
+    if (callout) callout.textContent = data.callout || '';
+    if (email && data.contactEmail) email.setAttribute('href', 'mailto:' + data.contactEmail);
+    sectionGrid.innerHTML = (data.sections || []).map((item) => `
+      <article class="project-card">
+        <span>${escapeHtml(item.icon || 'RCC')}</span>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.text)}</p>
+      </article>
+    `).join('');
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     renderMatches().catch(console.error);
     renderNews().catch(console.error);
@@ -258,5 +330,7 @@
     renderCategories('academy', 'École de rugby').catch(console.error);
     renderCategories('youth', 'Pôle jeunes').catch(console.error);
     renderCategories('feminines', 'Féminines').catch(console.error);
+    renderPartners().catch(console.error);
+    renderProject().catch(console.error);
   });
 })();

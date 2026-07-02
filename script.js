@@ -12,11 +12,35 @@ if (toggle && nav) {
     }
   });
 }
-document.querySelector('.join-form')?.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const button = event.currentTarget.querySelector('button');
-  if (button) {
-    button.textContent = 'Message prêt';
-    setTimeout(() => { button.textContent = 'Envoyer'; }, 1800);
-  }
+
+function mailBody(lines) {
+  return lines.join('\n');
+}
+
+function buildMailto(form) {
+  const data = new FormData(form);
+  const name = data.get('name') || '';
+  const email = data.get('email') || '';
+  const subject = data.get('subject') || 'Contact depuis le site RCC';
+  const message = data.get('message') || '';
+  const target = document.querySelector('[data-cms="email"]')?.textContent?.trim() || 'lerccdemain@gmail.com';
+  const body = mailBody(['Nom : ' + name, 'Email : ' + email, '', String(message)]);
+  return 'mailto:' + encodeURIComponent(target) + '?subject=' + encodeURIComponent(String(subject)) + '&body=' + encodeURIComponent(body);
+}
+
+document.querySelectorAll('.join-form').forEach((form) => {
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (form.matches('[data-contact-form]')) {
+      window.location.href = buildMailto(form);
+      return;
+    }
+    const data = new FormData(form);
+    const target = document.querySelector('[data-cms="email"]')?.textContent?.trim() || 'lerccdemain@gmail.com';
+    const name = data.get('name') || '';
+    const email = data.get('email') || '';
+    const message = data.get('message') || '';
+    const body = mailBody(['Nom : ' + name, 'Email : ' + email, '', String(message)]);
+    window.location.href = 'mailto:' + encodeURIComponent(target) + '?subject=' + encodeURIComponent('Nous rejoindre - RCC') + '&body=' + encodeURIComponent(body);
+  });
 });

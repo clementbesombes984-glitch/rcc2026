@@ -17,9 +17,15 @@
   };
 
   async function loadMatches() {
-    const response = await fetch('./data/matches.json?v=' + Date.now(), { cache: 'no-store' });
-    const data = await response.json();
-    return Array.isArray(data) ? data : (data.matches || []);
+    try {
+      const response = await fetch('./data/matches.json?v=' + Date.now(), { cache: 'no-store' });
+      if (!response.ok) return [];
+      const data = await response.json();
+      return Array.isArray(data) ? data : (data.matches || []);
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
   }
 
   function matchArticle(match, index) {
@@ -44,11 +50,20 @@
 
   function updateCountdown(date, node) {
     if (!node) return;
-    const diff = Math.max(0, date.getTime() - Date.now());
+    const diff = date.getTime() - Date.now();
+    if (diff <= 0) {
+      node.innerHTML = '<strong>0</strong><small>jours</small><strong>0</strong><small>heures</small><strong>0</strong><small>min</small>';
+      return;
+    }
     const days = Math.floor(diff / 86400000);
     const hours = Math.floor((diff % 86400000) / 3600000);
     const minutes = Math.floor((diff % 3600000) / 60000);
     node.innerHTML = '<strong>' + days + '</strong><small>jours</small><strong>' + hours + '</strong><small>heures</small><strong>' + minutes + '</strong><small>min</small>';
+  }
+
+  function emptyNextCard(nextCard) {
+    nextCard.innerHTML = '<span>Prochain rendez-vous</span><h3>Calendrier à venir</h3><p>Le calendrier de la prochaine saison sera bientôt disponible.</p><a class="text-link" href="./contact.html">Contacter le club</a>';
+    nextCard.classList.add('is-empty');
   }
 
   async function renderHomePreview() {
@@ -57,24 +72,28 @@
     if (!nextCard && !lastCard) return;
     const matches = await loadMatches();
     const now = new Date();
-    const upcoming = matches.filter((match) => parseMatchDate(match) >= now || (match.status || '') === 'upcoming').sort((a, b) => parseMatchDate(a) - parseMatchDate(b));
-    const played = matches.filter((match) => parseMatchDate(match) < now && (match.status || '') !== 'upcoming').sort((a, b) => parseMatchDate(b) - parseMatchDate(a));
+    const upcoming = matches.filter((match) => {
+      const status = String(match.status || '').toLowerCase();
+      return parseMatchDate(match) >= now && status !== 'win' && status !== 'loss';
+    }).sort((a, b) => parseMatchDate(a) - parseMatchDate(b));
+    const played = matches.filter((match) => (match.status || '') !== 'upcoming' && parseMatchDate(match) < now).sort((a, b) => parseMatchDate(b) - parseMatchDate(a));
     const next = upcoming[0];
     if (next && nextCard) {
+      nextCard.classList.remove('is-empty');
       const nextDate = parseMatchDate(next);
-      nextCard.innerHTML = '<span>Prochain match</span><h3>' + escapeHtml(next.home) + ' <em>vs</em> ' + escapeHtml(next.away) + '</h3><p>' + escapeHtml(formatDate(next.date)) + ' · ' + escapeHtml(next.time) + ' · ' + escapeHtml(next.venue) + '</p><div class="countdown-units" data-countdown></div>';
+      nextCard.innerHTML = '<span>Prochain rendez-vous</span><h3>' + escapeHtml(next.home) + ' <em>vs</em> ' + escapeHtml(next.away) + '</h3><p>' + escapeHtml(formatDate(next.date)) + ' · ' + escapeHtml(next.time) + ' · ' + escapeHtml(next.venue) + '</p><div class="countdown-units" data-countdown></div>';
       const countdown = nextCard.querySelector('[data-countdown]');
       updateCountdown(nextDate, countdown);
       setInterval(() => updateCountdown(nextDate, countdown), 60000);
     } else if (nextCard) {
-      nextCard.innerHTML = '<span>Prochain match</span><h3>Aucun match prévu</h3><p>Ajoutez un match à venir depuis Pages CMS.</p>';
+      emptyNextCard(nextCard);
     }
     const last = played[0];
     if (last && lastCard) {
       const lastStatus = resultClass(last);
       lastCard.innerHTML = '<span>Dernier résultat</span><h3>' + escapeHtml(last.home) + ' <em>vs</em> ' + escapeHtml(last.away) + '</h3><div class="last-score-badge ' + lastStatus + '">' + escapeHtml(last.result || 'Résultat à renseigner') + '</div><p>' + escapeHtml(formatDate(last.date)) + ' · ' + escapeHtml(last.venue) + '</p>';
     } else if (lastCard) {
-      lastCard.innerHTML = '<span>Dernier résultat</span><h3>Aucun résultat</h3><p>Ajoutez un résultat depuis Pages CMS.</p>';
+      lastCard.innerHTML = '<span>Dernier résultat</span><h3>Saison à lancer</h3><p>Les résultats apparaîtront ici dès qu’ils seront publiés.</p>';
     }
   }
 
@@ -83,7 +102,7 @@
     if (!container) return;
     const matches = await loadMatches();
     const sorted = matches.sort((a, b) => parseMatchDate(b) - parseMatchDate(a));
-    container.innerHTML = sorted.length ? sorted.map((match, index) => matchArticle(match, index)).join('') : '<p>Aucun match publié pour le moment.</p>';
+    container.innerHTML = sorted.length ? sorted.map((match, index) => matchArticle(match, index)).join('') : '<p class="empty-state">Aucun match publié pour le moment.</p>';
   }
 
   document.addEventListener('DOMContentLoaded', function () {

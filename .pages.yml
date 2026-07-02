@@ -302,6 +302,76 @@ content:
                 label: Photo
                 type: image
 
+  - name: partners
+    label: Partenaires
+    type: file
+    path: data/partners.json
+    format: json
+    fields:
+      - name: intro
+        label: Introduction
+        type: text
+      - name: partners
+        label: Liste des partenaires
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{category} - {name}"
+        fields:
+          - name: category
+            label: Catégorie
+            type: string
+          - name: name
+            label: Nom
+            type: string
+            required: true
+          - name: description
+            label: Description
+            type: text
+          - name: logo
+            label: Logo
+            type: image
+          - name: url
+            label: Site internet
+            type: string
+
+  - name: project
+    label: Votre RCC demain
+    type: file
+    path: data/project.json
+    format: json
+    fields:
+      - name: title
+        label: Titre
+        type: string
+      - name: intro
+        label: Introduction
+        type: text
+      - name: contactEmail
+        label: Email de contact
+        type: string
+      - name: callout
+        label: Phrase d'appel
+        type: text
+      - name: sections
+        label: Sections du projet
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{title}"
+        fields:
+          - name: title
+            label: Titre
+            type: string
+          - name: icon
+            label: Icône courte
+            type: string
+          - name: text
+            label: Texte
+            type: text
+
   - name: settings
     label: Paramètres du club
     type: file
@@ -319,6 +389,21 @@ content:
         type: string
       - name: address
         label: Adresse
+        type: string
+      - name: phone
+        label: Téléphone
+        type: string
+      - name: email
+        label: Email
+        type: string
+      - name: facebook
+        label: Facebook
+        type: string
+      - name: instagram
+        label: Instagram
+        type: string
+      - name: mapsUrl
+        label: Google Maps embed URL
         type: string
       - name: joinTitle
         label: Titre Nous rejoindre

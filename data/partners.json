@@ -1,0 +1,26 @@
+{
+  "intro": "Ils accompagnent le RCC sur le terrain, dans la formation et dans la vie du club.",
+  "partners": [
+    {
+      "category": "Partenaires Or",
+      "name": "Entreprise locale",
+      "description": "Partenaire majeur du projet club.",
+      "logo": "",
+      "url": ""
+    },
+    {
+      "category": "Partenaires Argent",
+      "name": "Commerce cubzaguais",
+      "description": "Soutien fidèle de la vie associative.",
+      "logo": "",
+      "url": ""
+    },
+    {
+      "category": "Partenaires Bronze",
+      "name": "Artisan partenaire",
+      "description": "Aux côtés des équipes du RCC.",
+      "logo": "",
+      "url": ""
+    }
+  ]
+}
