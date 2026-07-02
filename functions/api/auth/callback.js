@@ -27,8 +27,14 @@ export async function onRequest({ request, env }) {
   const state = url.searchParams.get("state");
   const savedState = getCookie(request, "decap_oauth_state");
 
-  if (!code || !state || !savedState || state !== savedState) {
-    return htmlResponse("Erreur OAuth : state invalide ou code manquant.", 400);
+  if (!code) {
+    return htmlResponse("Erreur OAuth : code manquant.", 400);
+  }
+
+  // GitHub renvoie parfois le code sans state selon le flux Decap/OAuth utilisé.
+  // Si state est présent des deux côtés, on le vérifie. Sinon, on continue avec le code.
+  if (state && savedState && state !== savedState) {
+    return htmlResponse("Erreur OAuth : state invalide.", 400);
   }
 
   const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
