@@ -29,6 +29,15 @@
       "competition": "ok",
       "status": "upcoming",
       "result": "a venur"
+    },
+    {
+      "date": "2026-07-02",
+      "time": "18h00",
+      "home": "Blaye",
+      "away": "RCC",
+      "venue": "Blaye",
+      "competition": "Amical",
+      "status": "upcoming"
     }
   ]
 }
