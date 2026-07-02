@@ -62,9 +62,9 @@ export async function onRequestGet(context) {
     "<script>" +
     "const payload = " + payload + ";" +
     "const message = \"authorization:github:success:\" + JSON.stringify(payload);" +
-    "function sendToken(){ if(window.opener){ window.opener.postMessage(message, window.location.origin); window.opener.postMessage(message, \"*\"); } }" +
-    "sendToken(); setTimeout(sendToken, 300); setTimeout(sendToken, 900);" +
-    "setTimeout(function(){ if(window.opener){ window.close(); } else { window.location.href = \"/admin/\"; } }, 1400);" +
+    "function sendToken(){ if(window.opener && !window.opener.closed){ window.opener.postMessage(message, \"*\"); } }" +
+    "sendToken(); setTimeout(sendToken, 250); setTimeout(sendToken, 750); setTimeout(sendToken, 1250);" +
+    "setTimeout(function(){ if(window.opener && !window.opener.closed){ window.close(); } else { window.location.href = \"/admin/#/\"; } }, 1800);" +
     "</script></body></html>";
 
   return htmlResponse(body);
