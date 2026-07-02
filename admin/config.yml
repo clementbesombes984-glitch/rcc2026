@@ -3,7 +3,7 @@ backend:
   repo: clementbesombes984-glitch/rcc2026
   branch: main
   base_url: https://rcc2026.pages.dev
-  auth_endpoint: /api/auth
+  auth_endpoint: api/auth
 
 site_url: https://rcc2026.pages.dev
 display_url: https://rcc2026.pages.dev

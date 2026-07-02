@@ -16,6 +16,7 @@ export async function onRequestGet(context) {
   githubUrl.searchParams.set("client_id", clientId);
   githubUrl.searchParams.set("redirect_uri", redirectUri);
   githubUrl.searchParams.set("scope", "repo");
+  githubUrl.searchParams.set("allow_signup", "true");
   githubUrl.searchParams.set("state", state);
 
   return new Response(null, {

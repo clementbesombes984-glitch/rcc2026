@@ -58,12 +58,13 @@ export async function onRequestGet(context) {
 
   const body = "<!doctype html>" +
     "<html lang=\"fr\"><head><meta charset=\"utf-8\"><title>Connexion GitHub réussie</title></head>" +
-    "<body><p>Connexion réussie. Vous pouvez fermer cette fenêtre.</p>" +
+    "<body><p>Connexion réussie. Retour à l’administration...</p>" +
     "<script>" +
     "const payload = " + payload + ";" +
     "const message = \"authorization:github:success:\" + JSON.stringify(payload);" +
-    "if (window.opener) { window.opener.postMessage(message, \"*\"); window.close(); }" +
-    "else { document.body.innerHTML = \"<p>Connexion réussie. Retournez sur <a href=\\\"/admin/\\\">l’administration</a>.</p>\"; }" +
+    "function sendToken(){ if(window.opener){ window.opener.postMessage(message, window.location.origin); window.opener.postMessage(message, \"*\"); } }" +
+    "sendToken(); setTimeout(sendToken, 300); setTimeout(sendToken, 900);" +
+    "setTimeout(function(){ if(window.opener){ window.close(); } else { window.location.href = \"/admin/\"; } }, 1400);" +
     "</script></body></html>";
 
   return htmlResponse(body);
