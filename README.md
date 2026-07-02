@@ -21,3 +21,15 @@ Le projet utilise Pages CMS.
 - Paramètres du club : `data/settings.json`
 
 Les médias envoyés depuis Pages CMS sont stockés dans `assets/uploads`.
+
+## Protection de l’accès Pages CMS
+
+Le bouton `Pages CMS` du site pointe vers `/cms-login`.
+
+Dans Cloudflare Pages, ajouter une variable d’environnement :
+
+- `PAGES_CMS_PASSWORD` : mot de passe à donner aux personnes autorisées
+
+Après validation du mot de passe, la page redirige vers https://app.pagescms.org/.
+
+Important : Pages CMS reste aussi protégé par GitHub. Les personnes doivent avoir les droits nécessaires sur le dépôt pour modifier les contenus.
