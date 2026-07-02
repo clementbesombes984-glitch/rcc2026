@@ -1,4 +1,24 @@
 {
+  "staff": [
+    {
+      "firstName": "Julien",
+      "lastName": "Dubois",
+      "role": "Entraineur principal",
+      "photo": ""
+    },
+    {
+      "firstName": "Marc",
+      "lastName": "Lemoine",
+      "role": "Entraineur des avants",
+      "photo": ""
+    },
+    {
+      "firstName": "Pierre",
+      "lastName": "Renaud",
+      "role": "Preparateur physique",
+      "photo": ""
+    }
+  ],
   "players": [
     {
       "group": "Piliers",

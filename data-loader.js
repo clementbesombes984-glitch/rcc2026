@@ -136,19 +136,47 @@
     `;
   }
 
+  function staffPhoto(person, index) {
+    const photo = person.photo || '';
+    return `<div class="staff-avatar avatar-${(index % 6) + 1} cms-avatar"${imageStyle(photo)} aria-label="Photo de ${escapeHtml((person.firstName || '') + ' ' + (person.lastName || ''))}"></div>`;
+  }
+
   async function renderSenior() {
     const page = document.querySelector('.roster-page');
     if (!page) return;
 
     const data = await fetchData('senior');
-    const players = Array.isArray(data) ? data : (data.players || []);
+    const source = Array.isArray(data) ? { players: data, staff: [] } : data;
+    const players = source.players || [];
+    const staff = source.staff || [];
 
     const grouped = players.reduce((acc, player) => {
       (acc[player.group || 'Effectif'] ||= []).push(player);
       return acc;
     }, {});
 
-    page.innerHTML = Object.entries(grouped).map(([group, list]) => `
+    const staffSection = staff.length ? `
+      <section class="roster-group senior-staff-group">
+        <div class="roster-title">
+          <p class="section-kicker">Encadrement</p>
+          <h2>Staff senior</h2>
+        </div>
+        <div class="staff-grid senior-staff-grid">
+          ${staff.map((person, index) => `
+            <article class="staff-card senior-staff-card">
+              ${staffPhoto(person, index)}
+              <div>
+                <strong>${escapeHtml(person.firstName)}</strong>
+                <span>${escapeHtml(person.lastName)}</span>
+                <small>${escapeHtml(person.role || 'Staff senior')}</small>
+              </div>
+            </article>
+          `).join('')}
+        </div>
+      </section>
+    ` : '';
+
+    const playerSections = Object.entries(grouped).map(([group, list]) => `
       <section class="roster-group">
         <div class="roster-title">
           <p class="section-kicker">Poste</p>
@@ -161,13 +189,15 @@
               <div class="player-info">
                 <span>${escapeHtml(player.position)}</span>
                 <h3><strong>${escapeHtml(player.firstName)}</strong> ${escapeHtml(player.lastName)}</h3>
-                <p>${escapeHtml([player.weight, player.tag].filter(Boolean).join(' · '))}</p>
+                <p>${escapeHtml([player.weight, player.tag].filter(Boolean).join(' Â· '))}</p>
               </div>
             </article>
           `).join('')}
         </div>
       </section>
     `).join('');
+
+    page.innerHTML = staffSection + playerSections;
   }
 
   function teamRows() {

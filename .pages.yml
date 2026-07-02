@@ -94,6 +94,28 @@ content:
     path: data/senior.json
     format: json
     fields:
+      - name: staff
+        label: Staff senior
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{firstName} {lastName} - {role}"
+        fields:
+          - name: firstName
+            label: Prenom
+            type: string
+            required: true
+          - name: lastName
+            label: Nom
+            type: string
+            required: true
+          - name: role
+            label: Role
+            type: string
+          - name: photo
+            label: Photo
+            type: image
       - name: players
         label: Joueurs
         type: object

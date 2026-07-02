@@ -34,6 +34,14 @@
     '</article>';
   }
 
+  function resultClass(match) {
+    const status = String(match.status || '').toLowerCase();
+    const result = String(match.result || '').toLowerCase();
+    if (status === 'win' || result.includes('victoire')) return 'win';
+    if (status === 'loss' || result.includes('défaite') || result.includes('defaite')) return 'loss';
+    return 'muted';
+  }
+
   function updateCountdown(date, node) {
     if (!node) return;
     const diff = Math.max(0, date.getTime() - Date.now());
@@ -63,7 +71,8 @@
     }
     const last = played[0];
     if (last && lastCard) {
-      lastCard.innerHTML = '<span>Dernier résultat</span><h3>' + escapeHtml(last.home) + ' <em>vs</em> ' + escapeHtml(last.away) + '</h3><p>' + escapeHtml(formatDate(last.date)) + ' · ' + escapeHtml(last.result || 'Résultat à renseigner') + ' · ' + escapeHtml(last.venue) + '</p>';
+      const lastStatus = resultClass(last);
+      lastCard.innerHTML = '<span>Dernier résultat</span><h3>' + escapeHtml(last.home) + ' <em>vs</em> ' + escapeHtml(last.away) + '</h3><div class="last-score-badge ' + lastStatus + '">' + escapeHtml(last.result || 'Résultat à renseigner') + '</div><p>' + escapeHtml(formatDate(last.date)) + ' · ' + escapeHtml(last.venue) + '</p>';
     } else if (lastCard) {
       lastCard.innerHTML = '<span>Dernier résultat</span><h3>Aucun résultat</h3><p>Ajoutez un résultat depuis Pages CMS.</p>';
     }
