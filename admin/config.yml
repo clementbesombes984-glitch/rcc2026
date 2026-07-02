@@ -1,7 +1,8 @@
 site_url: https://rcc2026.pages.dev
 display_url: https://rcc2026.pages.dev
 backend:
-  name: git-gateway
+  name: github
+  repo: clementbesombes984-glitch/rcc2026
   branch: main
 
 media_folder: "assets/uploads"
