@@ -91,30 +91,57 @@ export async function onRequestGet(context) {
   }
 
   const token = tokenData.access_token;
-  const message = `authorization:github:success:${JSON.stringify({ token })}`;
+ export async function onRequest({ request, env }) {
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get("code");
 
-  return htmlResponse(`<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <title>Connexion GitHub réussie</title>
-</head>
-<body>
-  <p>Connexion réussie. Retour à l’administration...</p>
+  if (!code) {
+    return new Response("Code GitHub manquant", { status: 400 });
+  }
 
-  <script>
-    const message = ${JSON.stringify(message)};
+  const response = await fetch("https://github.com/login/oauth/access_token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      client_id: env.GITHUB_CLIENT_ID,
+      client_secret: env.GITHUB_CLIENT_SECRET,
+      code,
+    }),
+  });
 
-    if (window.opener) {
-      window.opener.postMessage(message, "*");
+  const data = await response.json();
 
-      setTimeout(function () {
-        window.close();
-      }, 1000);
-    } else {
-      window.location.href = "/admin/";
+  if (!data.access_token) {
+    return new Response("Erreur GitHub OAuth : " + JSON.stringify(data), {
+      status: 500,
+    });
+  }
+
+  const message =
+    "authorization:github:success:" +
+    JSON.stringify({
+      token: data.access_token,
+      provider: "github",
+    });
+
+  return new Response(
+    `<!doctype html>
+<html>
+  <body>
+    <p>Connexion réussie. Retour à l'administration...</p>
+    <script>
+      window.opener.postMessage(${JSON.stringify(message)}, "*");
+      window.close();
+    </script>
+  </body>
+</html>`,
+    {
+      headers: {
+        "Content-Type": "text/html;charset=UTF-8",
+      },
     }
-  </script>
-</body>
-</html>`);
+  );
 }

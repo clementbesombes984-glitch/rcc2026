@@ -1,29 +1,16 @@
-export async function onRequestGet(context) {
-  const clientId = context.env.GITHUB_CLIENT_ID;
+export async function onRequest({ env }) {
+  const clientId = env.GITHUB_CLIENT_ID;
 
   if (!clientId) {
-    return new Response("GITHUB_CLIENT_ID manquant dans Cloudflare Pages > Variables and secrets.", {
-      status: 500,
-      headers: { "content-type": "text/plain;charset=UTF-8" },
-    });
+    return new Response("GITHUB_CLIENT_ID manquant", { status: 500 });
   }
 
-  const url = new URL(context.request.url);
-  const redirectUri = `${url.origin}/api/auth/callback`;
-  const state = crypto.randomUUID();
+  const scope = "repo,user";
 
-  const githubUrl = new URL("https://github.com/login/oauth/authorize");
-  githubUrl.searchParams.set("client_id", clientId);
-  githubUrl.searchParams.set("redirect_uri", redirectUri);
-  githubUrl.searchParams.set("scope", "repo");
-  githubUrl.searchParams.set("allow_signup", "true");
-  githubUrl.searchParams.set("state", state);
+  const url =
+    "https://github.com/login/oauth/authorize" +
+    `?client_id=${clientId}` +
+    `&scope=${encodeURIComponent(scope)}`;
 
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: githubUrl.toString(),
-      "Set-Cookie": `decap_oauth_state=${state}; Path=/api/auth; HttpOnly; Secure; SameSite=Lax; Max-Age=600`,
-    },
-  });
+  return Response.redirect(url, 302);
 }
