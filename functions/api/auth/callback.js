@@ -62,12 +62,16 @@ export async function onRequestGet(context) {
   <body>
     <p>Connexion réussie. Cette fenêtre va se fermer.</p>
     <script>
-      const message = 'authorization:github:success:${payload.replace(/'/g, "\\'")}';
-      if (window.opener) {
-        window.opener.postMessage(message, window.location.origin);
-      }
-      window.close();
-    </script>
+  const message = 'authorization:github:success:${payload.replace(/'/g, "\\'")}';
+
+  if (window.opener) {
+    window.opener.postMessage(message, window.location.origin);
+    window.close();
+  } else {
+    localStorage.setItem('decap-cms-user', JSON.stringify(${payload}));
+    window.location.href = '/admin/';
+  }
+</script>
   </body>
 </html>`);
 }
