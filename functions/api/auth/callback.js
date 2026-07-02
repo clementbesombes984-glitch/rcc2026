@@ -19,7 +19,7 @@ export async function onRequestGet(context) {
   const clientSecret = context.env.GITHUB_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    return htmlResponse("Variables GitHub OAuth manquantes dans Cloudflare Pages.", 500);
+    return htmlResponse("Variables GitHub OAuth manquantes.", 500);
   }
 
   const url = new URL(context.request.url);
@@ -58,20 +58,23 @@ export async function onRequestGet(context) {
 
   return htmlResponse(`<!doctype html>
 <html lang="fr">
-  <head><meta charset="utf-8"><title>Connexion Decap CMS</title></head>
-  <body>
-    <p>Connexion réussie. Cette fenêtre va se fermer.</p>
-    <script>
-  const message = 'authorization:github:success:${payload.replace(/'/g, "\\'")}';
+<head>
+  <meta charset="utf-8">
+  <title>Connexion GitHub réussie</title>
+</head>
+<body>
+  <p>Connexion réussie, redirection vers l'administration...</p>
+  <script>
+    const payload = ${payload};
+    const message = 'authorization:github:success:' + JSON.stringify(payload);
 
-  if (window.opener) {
-    window.opener.postMessage(message, window.location.origin);
-    window.close();
-  } else {
-    localStorage.setItem('decap-cms-user', JSON.stringify(${payload}));
-    window.location.href = '/admin/';
-  }
-</script>
-  </body>
+    if (window.opener) {
+      window.opener.postMessage(message, '*');
+      setTimeout(() => window.close(), 500);
+    } else {
+      window.location.href = '/admin/';
+    }
+  </script>
+</body>
 </html>`);
 }
