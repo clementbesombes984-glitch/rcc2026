@@ -219,3 +219,8 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 .history-timeline-modern:before{left:202px}
 .history-timeline-modern article:before{left:193px;top:52px}
 @media(max-width:900px){.history-timeline-modern:before,.history-timeline-modern article:before{display:none}}
+
+/* ===== History timeline cleanup and title spacing ===== */
+.history-timeline-modern:before,.history-timeline-modern article:before{display:none!important}
+.senior-hero h1 span + strong,.academy-hero h1 span + strong,.history-hero h1 span + strong{margin-left:.18em}
+@media(max-width:760px){.senior-hero h1 span + strong,.academy-hero h1 span + strong,.history-hero h1 span + strong{margin-left:.14em}}
