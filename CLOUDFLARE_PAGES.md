@@ -31,7 +31,7 @@ Il faut utiliser Cloudflare Pages avec :
 Dans Cloudflare Pages > projet `rcc2026` :
 
 - Framework preset : `None`
-- Build command : laisser vide, ou `npm install` si Cloudflare le demande
+- Build command : `npm install && npm run build`
 - Deploy command : laisser vide
 - Build output directory : `/`
 - Root directory : laisser vide, sauf si Cloudflare demande le dossier racine du depot
@@ -39,6 +39,12 @@ Dans Cloudflare Pages > projet `rcc2026` :
 - Compatibility flag : `nodejs_compat`
 
 Le deploiement doit etre fait par Cloudflare Pages automatiquement depuis GitHub, pas par `npx wrangler deploy`.
+
+La commande `npm install && npm run build` est importante pour que la dependance `web-push` soit bien installee avant le build des Pages Functions. Sans cette installation, Cloudflare peut afficher :
+
+```text
+Could not resolve "web-push"
+```
 
 ## Variables d'environnement Cloudflare
 

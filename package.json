@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "packageManager": "npm@10.9.2",
+  "scripts": {
+    "build": "node -e \"console.log('RCC static site ready')\""
+  },
   "dependencies": {
     "web-push": "^3.6.7"
   }
