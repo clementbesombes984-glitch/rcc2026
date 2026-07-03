@@ -326,3 +326,25 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
   .site-nav a:hover,.site-nav a.is-active{border-color:rgba(177,24,69,.42);background:rgba(177,24,69,.12)}
   .site-nav .settings-link{display:grid;place-items:center}
 }
+
+/* Home tightening and stronger nav typography */
+.hero{min-height:clamp(560px,62vh,690px)}
+.hero-content{min-height:calc(clamp(560px,62vh,690px) - 78px);padding-top:clamp(94px,11vh,128px)}
+.important-news-shell{padding-top:0;margin-top:clamp(-72px,-5vw,-34px)}
+.home-match-preview{padding-top:clamp(48px,5vw,70px)}
+.important-news-shell:not([hidden]) + .home-match-preview{padding-top:clamp(36px,4vw,56px)}
+@media(min-width:1121px){
+  .site-nav{font-family:"Arial Narrow",Impact,Haettenschweiler,sans-serif;font-size:clamp(12px,.78vw,14px)}
+  .site-nav a{font-weight:900;letter-spacing:1.25px}
+}
+@media(min-width:1121px) and (max-width:1420px){
+  .site-nav{font-size:clamp(10.5px,.72vw,12px)}
+  .site-nav a{padding-inline:6px;letter-spacing:.9px}
+  .site-nav .nav-cta{padding-inline:11px}
+}
+@media(max-width:760px){
+  .hero{min-height:620px}
+  .hero-content{min-height:calc(620px - 78px);padding-top:84px}
+  .important-news-shell{margin-top:-34px}
+  .home-match-preview{padding-top:42px}
+}
