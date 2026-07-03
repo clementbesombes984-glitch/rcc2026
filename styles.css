@@ -405,3 +405,14 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 @media(max-width:1120px){
   .site-nav .notification-link{display:grid;place-items:center;font-size:18px}
 }
+
+/* Definitive mobile home hero flow fix */
+@media(max-width:760px){
+  .hero{min-height:0!important;height:auto;padding-top:86px;padding-bottom:0;overflow:hidden}
+  .hero-content{display:block;min-height:0!important;padding-top:32px!important;padding-bottom:72px!important;align-content:initial}
+  .hero-signature,.club-signature-wrap{position:relative;z-index:2;margin-top:0!important;margin-bottom:0!important}
+  .hero-signature .club-signature-card{position:relative;z-index:2;margin:0 auto}
+  .important-news-shell{position:relative;z-index:1;margin-top:0!important;padding-top:22px}
+  .home-match-preview{position:relative;z-index:1;padding-top:64px!important}
+  .important-news-shell:not([hidden]) + .home-match-preview{padding-top:48px!important}
+}
