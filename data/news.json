@@ -4,7 +4,6 @@
       "category": "Club",
       "title": "Reprise de la préparation estivale",
       "summary": "Le groupe senior retrouve le terrain avec un cycle axé sur la vitesse, la défense et la cohésion.",
-      "image": "",
       "important": true,
       "notification": false,
       "audience": [
@@ -16,7 +15,6 @@
       "category": "Jeunes",
       "title": "Journée portes ouvertes",
       "summary": "Les éducateurs accueilleront les familles au stade pour présenter les catégories et les horaires.",
-      "image": "",
       "important": false,
       "notification": false,
       "audience": [
@@ -32,13 +30,19 @@
       "category": "Bénévoles",
       "title": "Le club recrute des encadrants",
       "summary": "Table de marque, buvette, accueil, logistique : chaque énergie compte les jours de match.",
-      "image": "",
       "important": false,
       "notification": false,
       "audience": [
         "benevoles",
         "evenements"
       ]
+    },
+    {
+      "category": "U8",
+      "title": "Nouveaux Educateurs",
+      "summary": "L'arrivée de Clement et Matthieu au poste d'educateur en U8",
+      "important": false,
+      "notification": true
     }
   ]
 }
