@@ -49,11 +49,7 @@ Il ne faut pas ajouter de commande `wrangler deploy` pour autant.
 
 Le deploiement doit etre fait par Cloudflare Pages automatiquement depuis GitHub, pas par `npx wrangler deploy`.
 
-La commande `npm install && npm run build` est importante pour que la dependance `web-push` soit bien installee avant le build des Pages Functions. Sans cette installation, Cloudflare peut afficher :
-
-```text
-Could not resolve "web-push"
-```
+Les notifications utilisent l'API Web Crypto native de Cloudflare Workers. Aucune dependance Node `web-push` n'est necessaire.
 
 ## Variables d'environnement Cloudflare
 

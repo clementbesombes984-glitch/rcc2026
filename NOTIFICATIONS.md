@@ -38,10 +38,7 @@ Pour que cela fonctionne en production, il faut configurer Cloudflare et GitHub.
 
 Depuis le dossier du projet :
 
-```bash
-npm install
-npx web-push generate-vapid-keys
-```
+Generer les cles VAPID avec un outil local ou un generateur compatible Web Push, puis conserver uniquement les valeurs dans Cloudflare.
 
 Garder la cle publique et la cle privee.
 
@@ -53,7 +50,7 @@ Dans Cloudflare Pages, projet RCC :
 2. Ajouter le binding KV au projet Pages avec le nom exact :
    `RCC_PUSH_SUBSCRIPTIONS`
 3. Dans les reglages de build, laisser Cloudflare installer les dependances npm du projet.
-4. Dans les reglages Functions / Compatibility, ajouter le flag :
+4. Dans les reglages Functions / Compatibility, conserver le flag :
    `nodejs_compat`
 5. Ajouter les variables d'environnement :
    - `VAPID_PUBLIC_KEY` : cle publique VAPID

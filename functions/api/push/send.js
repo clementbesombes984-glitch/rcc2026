@@ -1,9 +1,9 @@
-import webpush from 'web-push';
-
 const jsonHeaders = {
   'Content-Type': 'application/json; charset=UTF-8',
   'Cache-Control': 'no-store'
 };
+
+const encoder = new TextEncoder();
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: jsonHeaders });
@@ -23,6 +23,202 @@ function isAuthorized(request, env) {
 
 async function removeSubscription(env, id) {
   if (id) await env.RCC_PUSH_SUBSCRIPTIONS.delete(id);
+}
+
+function concatBytes(...parts) {
+  const total = parts.reduce((sum, part) => sum + part.byteLength, 0);
+  const output = new Uint8Array(total);
+  let offset = 0;
+  for (const part of parts) {
+    output.set(new Uint8Array(part), offset);
+    offset += part.byteLength;
+  }
+  return output;
+}
+
+function base64UrlToBytes(value) {
+  const normalized = String(value || '').replace(/-/g, '+').replace(/_/g, '/');
+  const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
+  const binary = atob(padded);
+  const output = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    output[index] = binary.charCodeAt(index);
+  }
+  return output;
+}
+
+function bytesToBase64Url(bytes) {
+  let binary = '';
+  const view = new Uint8Array(bytes);
+  for (let index = 0; index < view.length; index += 1) {
+    binary += String.fromCharCode(view[index]);
+  }
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+async function hmac(keyBytes, data) {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyBytes,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  return new Uint8Array(await crypto.subtle.sign('HMAC', key, data));
+}
+
+async function hkdfExtract(salt, ikm) {
+  return hmac(salt, ikm);
+}
+
+async function hkdfExpand(prk, info, length) {
+  const blocks = [];
+  let previous = new Uint8Array(0);
+  let written = 0;
+  let counter = 1;
+
+  while (written < length) {
+    const input = concatBytes(previous, info, new Uint8Array([counter]));
+    previous = await hmac(prk, input);
+    blocks.push(previous);
+    written += previous.byteLength;
+    counter += 1;
+  }
+
+  return concatBytes(...blocks).slice(0, length);
+}
+
+function vapidPublicKeyToJwk(publicKeyBytes, privateKeyBytes) {
+  if (publicKeyBytes.byteLength !== 65 || publicKeyBytes[0] !== 4) {
+    throw new Error('Cle publique VAPID invalide.');
+  }
+
+  return {
+    kty: 'EC',
+    crv: 'P-256',
+    x: bytesToBase64Url(publicKeyBytes.slice(1, 33)),
+    y: bytesToBase64Url(publicKeyBytes.slice(33, 65)),
+    d: bytesToBase64Url(privateKeyBytes),
+    ext: true
+  };
+}
+
+function endpointAudience(endpoint) {
+  const url = new URL(endpoint);
+  return `${url.protocol}//${url.host}`;
+}
+
+async function createVapidToken(subscription, env) {
+  const publicKey = base64UrlToBytes(env.VAPID_PUBLIC_KEY);
+  const privateKey = base64UrlToBytes(env.VAPID_PRIVATE_KEY);
+  const jwtHeader = { typ: 'JWT', alg: 'ES256' };
+  const jwtBody = {
+    aud: endpointAudience(subscription.endpoint),
+    exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60,
+    sub: env.VAPID_SUBJECT || 'mailto:contact@rccubzaguais.fr'
+  };
+
+  const signingInput = [
+    bytesToBase64Url(encoder.encode(JSON.stringify(jwtHeader))),
+    bytesToBase64Url(encoder.encode(JSON.stringify(jwtBody)))
+  ].join('.');
+
+  const key = await crypto.subtle.importKey(
+    'jwk',
+    vapidPublicKeyToJwk(publicKey, privateKey),
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    false,
+    ['sign']
+  );
+  const signature = await crypto.subtle.sign(
+    { name: 'ECDSA', hash: 'SHA-256' },
+    key,
+    encoder.encode(signingInput)
+  );
+
+  return `vapid t=${signingInput}.${bytesToBase64Url(signature)}, k=${env.VAPID_PUBLIC_KEY}`;
+}
+
+async function encryptPushPayload(subscription, payload) {
+  const userPublicKey = base64UrlToBytes(subscription.keys && subscription.keys.p256dh);
+  const authSecret = base64UrlToBytes(subscription.keys && subscription.keys.auth);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const serverKeys = await crypto.subtle.generateKey(
+    { name: 'ECDH', namedCurve: 'P-256' },
+    true,
+    ['deriveBits']
+  );
+  const userKey = await crypto.subtle.importKey(
+    'raw',
+    userPublicKey,
+    { name: 'ECDH', namedCurve: 'P-256' },
+    false,
+    []
+  );
+  const serverPublicKey = new Uint8Array(await crypto.subtle.exportKey('raw', serverKeys.publicKey));
+  const sharedSecret = new Uint8Array(await crypto.subtle.deriveBits(
+    { name: 'ECDH', public: userKey },
+    serverKeys.privateKey,
+    256
+  ));
+
+  const authPrk = await hkdfExtract(authSecret, sharedSecret);
+  const keyInfo = concatBytes(
+    encoder.encode('WebPush: info\0'),
+    userPublicKey,
+    serverPublicKey
+  );
+  const ikm = await hkdfExpand(authPrk, keyInfo, 32);
+  const prk = await hkdfExtract(salt, ikm);
+  const contentEncryptionKey = await hkdfExpand(prk, encoder.encode('Content-Encoding: aes128gcm\0'), 16);
+  const nonce = await hkdfExpand(prk, encoder.encode('Content-Encoding: nonce\0'), 12);
+  const aesKey = await crypto.subtle.importKey(
+    'raw',
+    contentEncryptionKey,
+    { name: 'AES-GCM' },
+    false,
+    ['encrypt']
+  );
+  const plaintext = concatBytes(encoder.encode(payload), new Uint8Array([2]));
+  const encrypted = new Uint8Array(await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv: nonce, tagLength: 128 },
+    aesKey,
+    plaintext
+  ));
+  const recordSize = new Uint8Array([0, 0, 16, 0]);
+
+  return concatBytes(
+    salt,
+    recordSize,
+    new Uint8Array([serverPublicKey.byteLength]),
+    serverPublicKey,
+    encrypted
+  );
+}
+
+async function sendWebPush(subscription, notification, env) {
+  if (!subscription || !subscription.endpoint || !subscription.keys) {
+    throw new Error('Abonnement push incomplet.');
+  }
+
+  const body = await encryptPushPayload(subscription, JSON.stringify(notification));
+  const response = await fetch(subscription.endpoint, {
+    method: 'POST',
+    headers: {
+      Authorization: await createVapidToken(subscription, env),
+      'Content-Encoding': 'aes128gcm',
+      'Content-Type': 'application/octet-stream',
+      TTL: '2419200',
+      Urgency: notification.urgent ? 'high' : 'normal'
+    },
+    body
+  });
+
+  if (!response.ok) {
+    const error = new Error(`Push refuse: ${response.status}`);
+    error.statusCode = response.status;
+    throw error;
+  }
 }
 
 export async function onRequestPost({ request, env }) {
@@ -45,17 +241,12 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'JSON invalide.' }, 400);
   }
 
-  webpush.setVapidDetails(
-    env.VAPID_SUBJECT || 'mailto:contact@rccubzaguais.fr',
-    env.VAPID_PUBLIC_KEY,
-    env.VAPID_PRIVATE_KEY
-  );
-
   const audience = Array.isArray(payload.audience) ? payload.audience : ['general'];
   const list = await env.RCC_PUSH_SUBSCRIPTIONS.list();
   let sent = 0;
   let skipped = 0;
   let failed = 0;
+  const errors = [];
 
   for (const key of list.keys) {
     const raw = await env.RCC_PUSH_SUBSCRIPTIONS.get(key.name);
@@ -75,22 +266,30 @@ export async function onRequestPost({ request, env }) {
     }
 
     try {
-      await webpush.sendNotification(record.subscription, JSON.stringify({
+      await sendWebPush(record.subscription, {
         type: payload.type || 'news',
         title: payload.title || 'RC Cubzaguais',
         body: payload.body || 'Nouvelle information du club.',
         url: payload.url || '/',
         audience,
-        tag: payload.tag || `rcc-${Date.now()}`
-      }));
+        tag: payload.tag || `rcc-${Date.now()}`,
+        urgent: audience.includes('urgent') || audience.includes('important')
+      }, env);
       sent += 1;
     } catch (error) {
       failed += 1;
+      if (errors.length < 5) {
+        errors.push({
+          id: key.name,
+          statusCode: error && error.statusCode ? error.statusCode : null,
+          message: error && error.message ? error.message : 'Erreur inconnue'
+        });
+      }
       if (error && (error.statusCode === 404 || error.statusCode === 410)) {
         await removeSubscription(env, key.name);
       }
     }
   }
 
-  return json({ ok: true, sent, skipped, failed, total: list.keys.length });
+  return json({ ok: true, sent, skipped, failed, total: list.keys.length, errors });
 }

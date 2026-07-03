@@ -20,7 +20,7 @@ Le champ `Build command` doit etre :
 npm install && npm run build
 ```
 
-Cette commande installe `web-push`, necessaire aux Pages Functions de notifications.
+Cette commande lance la verification minimale du site statique avant le deploiement.
 
 Le dossier `functions/` contient des **Cloudflare Pages Functions** pour l'administration et les notifications.
 
