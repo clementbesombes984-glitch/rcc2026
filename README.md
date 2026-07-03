@@ -2,6 +2,20 @@
 
 Site statique HTML/CSS/JavaScript du Racing Club Cubzaguais, hébergé sur Cloudflare Pages.
 
+## Déploiement Cloudflare
+
+Ce projet doit être déployé avec **Cloudflare Pages**, pas avec un Worker standalone.
+
+Ne pas utiliser :
+
+```bash
+npx wrangler deploy
+```
+
+Le dossier `functions/` contient des **Cloudflare Pages Functions** pour l'administration et les notifications.
+
+Voir la configuration complète dans `CLOUDFLARE_PAGES.md`.
+
 ## Gestion des contenus
 
 Le projet utilise Pages CMS.

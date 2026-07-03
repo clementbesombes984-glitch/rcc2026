@@ -112,12 +112,12 @@ ou definir :
 window.RCC_PUSH_PUBLIC_KEY = 'CLE_PUBLIQUE_VAPID';
 ```
 
-3. Ajouter un endpoint Worker `/api/push/subscribe`.
-4. Quand l'utilisateur clique sur `Activer les notifications`, envoyer son abonnement et ses preferences au Worker.
+3. Utiliser la Pages Function `/api/push/subscribe`.
+4. Quand l'utilisateur clique sur `Activer les notifications`, envoyer son abonnement et ses preferences a la Pages Function.
 5. Stocker les abonnements dans Cloudflare KV, D1 ou R2.
-6. Ajouter un endpoint Worker `/api/push/send`.
+6. Utiliser la Pages Function `/api/push/send`.
 7. A chaque modification de `data/news.json` ou `data/matches.json`, declencher l'envoi via GitHub Actions ou un webhook.
-8. Le Worker filtre les abonnements selon `audience` et envoie uniquement aux personnes concernees.
+8. La Pages Function filtre les abonnements selon `audience` et envoie uniquement aux personnes concernees.
 
 Exemple de payload attendu par `sw.js` :
 

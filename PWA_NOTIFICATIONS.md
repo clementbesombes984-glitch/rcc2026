@@ -7,6 +7,6 @@ La PWA contient maintenant une base complete pour les notifications :
 - autorisation demandee uniquement apres clic ;
 - service worker pret pour `push` et `notificationclick`.
 
-L'envoi reel necessite encore Firebase Cloud Messaging ou un Cloudflare Worker + Web Push.
+L'envoi reel necessite Firebase Cloud Messaging ou, dans ce projet, les Cloudflare Pages Functions + Web Push.
 
 Voir le guide complet : `NOTIFICATIONS.md`.
