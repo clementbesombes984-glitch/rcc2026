@@ -214,3 +214,8 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 .history-hero-premium .history-hero-content{padding-top:0}
 .roster-page,.academy-page,.gallery-page,.contact-page,.partners-page,.project-page,.join-contact-page,.history-redesign .history-page{padding-top:clamp(58px,6vw,84px)}
 @media(max-width:760px){.senior-hero,.academy-hero,.history-hero{min-height:300px}.senior-hero-content,.academy-hero-content,.history-hero-content{min-height:222px;padding-bottom:26px}.senior-hero .eyebrow,.academy-hero .eyebrow,.history-hero .eyebrow{margin-bottom:14px}.senior-hero h1,.academy-hero h1,.history-hero h1{font-size:clamp(38px,12.5vw,58px);line-height:1.04}.inner-hero-copy{margin-top:14px;font-size:16px;line-height:1.56}.senior-hero .rugby-scene,.academy-hero .rugby-scene,.history-hero .rugby-scene{right:-42vw;width:120vw;opacity:.2}}
+
+/* ===== History timeline dot alignment fix ===== */
+.history-timeline-modern:before{left:202px}
+.history-timeline-modern article:before{left:193px;top:52px}
+@media(max-width:900px){.history-timeline-modern:before,.history-timeline-modern article:before{display:none}}
