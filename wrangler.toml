@@ -1,4 +1,9 @@
 name = "rcc2026"
 compatibility_date = "2026-07-03"
 compatibility_flags = ["nodejs_compat"]
+
 pages_build_output_dir = "."
+
+[[kv_namespaces]]
+binding = "RCC_PUSH_SUBSCRIPTIONS"
+id = "5e412dc7eadc4548ba85ff30c789fdbc"
