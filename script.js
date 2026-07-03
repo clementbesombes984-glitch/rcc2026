@@ -81,3 +81,48 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     }, { passive: true });
   }
 }
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
+let deferredInstallPrompt = null;
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+function createInstallButton() {
+  if (isStandalone || document.querySelector('[data-install-app]')) return;
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'install-app-button';
+  button.dataset.installApp = '';
+  button.textContent = "Installer l'application RCC";
+  button.hidden = true;
+  document.body.appendChild(button);
+
+  button.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice.catch(() => null);
+    deferredInstallPrompt = null;
+    button.hidden = true;
+  });
+}
+
+createInstallButton();
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  const button = document.querySelector('[data-install-app]');
+  if (button && window.matchMedia('(max-width: 900px)').matches) {
+    button.hidden = false;
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  const button = document.querySelector('[data-install-app]');
+  if (button) button.hidden = true;
+});
