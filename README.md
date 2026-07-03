@@ -12,6 +12,8 @@ Ne pas utiliser :
 npx wrangler deploy
 ```
 
+Dans Cloudflare Pages, le champ `Deploy command` doit rester vide. Si ce champ contient `npx wrangler deploy`, Cloudflare essaiera de deployer le projet comme un Worker et pourra echouer avec `Asset too large` sur `node_modules`.
+
 Le dossier `functions/` contient des **Cloudflare Pages Functions** pour l'administration et les notifications.
 
 Voir la configuration complète dans `CLOUDFLARE_PAGES.md`.

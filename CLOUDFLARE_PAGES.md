@@ -11,7 +11,14 @@ Deploy command:
 npx wrangler deploy
 ```
 
-ce n'est pas le bon type de deploiement pour ce projet.
+ce n'est pas le bon reglage pour ce projet.
+
+Il faut supprimer ce deploy command. Sinon Wrangler essaie de deployer le depot complet comme un Worker et peut embarquer `node_modules`, ce qui provoque l'erreur :
+
+```text
+Asset too large
+node_modules/workerd/bin/workerd
+```
 
 Il faut utiliser Cloudflare Pages avec :
 
@@ -24,11 +31,14 @@ Il faut utiliser Cloudflare Pages avec :
 Dans Cloudflare Pages > projet `rcc2026` :
 
 - Framework preset : `None`
-- Build command : `npm install`
+- Build command : laisser vide, ou `npm install` si Cloudflare le demande
+- Deploy command : laisser vide
 - Build output directory : `/`
 - Root directory : laisser vide, sauf si Cloudflare demande le dossier racine du depot
 - Functions directory : `functions`
 - Compatibility flag : `nodejs_compat`
+
+Le deploiement doit etre fait par Cloudflare Pages automatiquement depuis GitHub, pas par `npx wrangler deploy`.
 
 ## Variables d'environnement Cloudflare
 
