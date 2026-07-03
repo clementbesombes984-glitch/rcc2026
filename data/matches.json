@@ -76,6 +76,20 @@
       "status": "upcoming",
       "category": "seniors",
       "notification": true
+    },
+    {
+      "date": "2026-07-31",
+      "time": "16h00",
+      "home": "RCC",
+      "away": "CO",
+      "venue": "Plaine des sports",
+      "status": "upcoming",
+      "category": "seniors",
+      "notification": true,
+      "audience": [
+        "general",
+        "seniors"
+      ]
     }
   ]
 }
