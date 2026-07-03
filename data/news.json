@@ -40,11 +40,12 @@
     {
       "category": "U8",
       "title": "Nouveaux Educateurs",
-      "summary": "bj",
+      "summary": "nbj",
       "important": false,
       "notification": true,
       "audience": [
-        "u8"
+        "u8",
+        "ecole"
       ]
     }
   ]
