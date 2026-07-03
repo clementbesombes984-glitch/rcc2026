@@ -38,24 +38,13 @@
       ]
     },
     {
-      "category": "Ecole de rugby",
+      "category": "U8",
       "title": "Nouveaux Educateurs",
-      "summary": "Clement et Matthieu arrivent comme coach en U8",
+      "summary": "bj",
       "important": false,
       "notification": true,
       "audience": [
         "u8"
-      ]
-    },
-    {
-      "category": "frffr",
-      "title": "frfr",
-      "summary": "ffff",
-      "important": false,
-      "notification": true,
-      "audience": [
-        "u8",
-        "general"
       ]
     }
   ]
