@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v1';
+const CACHE_VERSION = 'rcc-pwa-v2';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -42,44 +42,96 @@ const DATA_ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches
+      .open(STATIC_CACHE)
+      .then((cache) =>
+        Promise.allSettled(
+          STATIC_ASSETS.map((url) => cache.add(new Request(url, { cache: 'reload' })))
+        )
+      )
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((key) => !key.startsWith(CACHE_VERSION)).map((key) => caches.delete(key)))).then(() => self.clients.claim())
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => !key.startsWith(CACHE_VERSION))
+            .map((key) => caches.delete(key))
+        )
+      )
+      .then(() => self.clients.claim())
   );
 });
 
-async function networkFirst(request) {
-  const cache = await caches.open(DATA_CACHE);
+async function networkFirst(request, cacheName, fallbackUrl) {
+  const cache = await caches.open(cacheName);
   try {
     const response = await fetch(request);
-    if (response && response.ok) cache.put(request, response.clone());
+    if (response && response.ok) {
+      cache.put(request, response.clone());
+    }
     return response;
   } catch (error) {
-    return (await cache.match(request)) || Response.error();
+    const cached = await cache.match(request);
+    if (cached) return cached;
+
+    if (fallbackUrl) {
+      const fallback = await caches.match(fallbackUrl);
+      if (fallback) return fallback;
+    }
+
+    if (request.destination === 'document' || request.mode === 'navigate') {
+      const home = await caches.match('/index.html');
+      if (home) return home;
+      return new Response('', { status: 503, statusText: 'Offline' });
+    }
+
+    if ((request.headers.get('accept') || '').includes('application/json')) {
+      return new Response('{}', {
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' }
+      });
+    }
+
+    return new Response('', { status: 503, statusText: 'Offline' });
   }
 }
 
 async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
-  const response = await fetch(request);
-  if (response && response.ok) {
-    const cache = await caches.open(STATIC_CACHE);
-    cache.put(request, response.clone());
+
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) {
+      const cache = await caches.open(STATIC_CACHE);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    return new Response('', { status: 503, statusText: 'Offline' });
   }
-  return response;
 }
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin || event.request.method !== 'GET') return;
   if (url.pathname.startsWith('/cms-login') || url.pathname.startsWith('/admin')) return;
-  if (DATA_ASSETS.includes(url.pathname) || url.pathname.startsWith('/data/')) {
-    event.respondWith(networkFirst(event.request));
+
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+    event.respondWith(networkFirst(event.request, STATIC_CACHE, '/index.html'));
     return;
   }
+
+  if (DATA_ASSETS.includes(url.pathname) || url.pathname.startsWith('/data/')) {
+    event.respondWith(networkFirst(event.request, DATA_CACHE));
+    return;
+  }
+
   event.respondWith(cacheFirst(event.request));
 });
