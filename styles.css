@@ -154,3 +154,63 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 .countdown-card h3,.last-result-card h3{font-weight:900;letter-spacing:.3px}
 .hero-copy,.history-intro>p:not(.section-kicker),.project-lead>p,.join-cta-inner p:not(.section-kicker){display:none}
 @media(max-width:760px){.hero h1,.senior-hero h1,.academy-hero h1,.history-hero h1,.section h2,.split-section h2,.cards-section h2,.news h2,.join h2,.join-cta-inner h2{letter-spacing:.15px}}
+
+/* ===== Premium history page ===== */
+.history-redesign{position:relative;overflow:hidden;background:radial-gradient(circle at 88% 12%,rgba(177,24,69,.14),transparent 34%),radial-gradient(circle at 8% 54%,rgba(255,255,255,.035),transparent 28%),var(--bg)}
+.history-redesign:before{position:absolute;inset:0;pointer-events:none;content:"";background:linear-gradient(115deg,transparent 0 64%,rgba(177,24,69,.06) 64% 100%),repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 1px,transparent 1px 90px);opacity:.55}
+.history-hero-premium{min-height:520px}
+.history-hero-premium .history-hero-content{padding-top:clamp(72px,9vw,112px)}
+.history-redesign .history-page{position:relative;z-index:1;padding-top:84px}
+.history-intro-premium{display:grid;grid-template-columns:minmax(0,.72fr) minmax(320px,.52fr);gap:38px;align-items:end;margin-bottom:34px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:linear-gradient(135deg,rgba(20,20,20,.94),rgba(10,10,10,.92)),linear-gradient(90deg,rgba(177,24,69,.18),transparent);box-shadow:0 26px 70px rgba(0,0,0,.32);padding:34px}
+.history-redesign .history-intro-premium:after{display:none}
+.history-redesign .history-intro-premium h2,.history-section-head h2,.history-next-chapter h2{margin:0;font-family:"Arial Narrow",Impact,Haettenschweiler,sans-serif;font-size:clamp(44px,5.4vw,76px);font-weight:900;line-height:.98;letter-spacing:.2px;text-transform:uppercase}
+.history-redesign .history-intro-premium .history-lead-text{display:block;margin:0;color:#c5beb6;font-size:clamp(17px,1.7vw,20px);line-height:1.75}
+.history-milestones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 84px}
+.history-milestones article{border:1px solid rgba(255,255,255,.08);border-radius:12px;background:linear-gradient(180deg,#151515,#0c0c0c);padding:22px;box-shadow:0 18px 42px rgba(0,0,0,.22);transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.history-milestones article:hover{transform:translateY(-3px);border-color:rgba(211,26,82,.55);box-shadow:0 24px 58px rgba(0,0,0,.32),0 0 24px rgba(177,24,69,.08)}
+.history-milestones strong{display:block;color:var(--red-bright);font-family:"Arial Narrow",Impact,Haettenschweiler,sans-serif;font-size:clamp(36px,4vw,54px);font-weight:900;line-height:1}
+.history-milestones span{display:block;margin-top:8px;color:var(--muted);font-size:12px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase}
+.history-section{margin-top:0}
+.history-section-head{display:flex;align-items:end;justify-content:space-between;gap:28px;margin-bottom:34px;border-bottom:1px solid var(--line);padding-bottom:22px}
+.history-timeline-modern{position:relative;display:grid;gap:22px;margin-bottom:90px}
+.history-timeline-modern:before{position:absolute;top:18px;bottom:18px;left:86px;width:1px;content:"";background:linear-gradient(180deg,var(--red),rgba(255,255,255,.08))}
+.history-timeline-modern article{position:relative;display:grid;grid-template-columns:154px minmax(0,1fr);gap:28px;align-items:start;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:linear-gradient(135deg,rgba(22,22,22,.98),rgba(10,10,10,.96));box-shadow:0 22px 62px rgba(0,0,0,.28);padding:28px;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.history-timeline-modern article:hover{transform:translateY(-4px);border-color:rgba(211,26,82,.58);box-shadow:0 30px 76px rgba(0,0,0,.38),0 0 34px rgba(177,24,69,.1)}
+.history-timeline-modern article:before{position:absolute;left:78px;top:40px;width:17px;height:17px;border:3px solid var(--red-bright);border-radius:50%;content:"";background:#090909;box-shadow:0 0 0 9px #111}
+.history-date{display:inline-grid;min-width:116px;min-height:68px;place-items:center;border-radius:10px;background:linear-gradient(180deg,var(--red),#74112f);box-shadow:0 16px 34px rgba(177,24,69,.24);color:#fff;font-family:"Arial Narrow",Impact,Haettenschweiler,sans-serif;font-size:38px;font-weight:900;line-height:1}
+.history-card-content span{display:block;margin-bottom:10px;color:var(--red-bright);font-size:12px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase}
+.history-card-content h3{margin:0 0 14px;color:#fff;font-family:"Arial Narrow",Impact,Haettenschweiler,sans-serif;font-size:clamp(30px,3vw,44px);font-weight:900;line-height:1;text-transform:uppercase}
+.history-card-content p{margin:0;color:#b9b2aa;font-size:17px;line-height:1.76}
+.history-values-section{margin-top:0}
+.history-values-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;margin-bottom:88px}
+.history-values-grid article{position:relative;min-height:230px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:linear-gradient(180deg,#151515,#0b0b0b);padding:24px;overflow:hidden;box-shadow:0 18px 46px rgba(0,0,0,.24);transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.history-values-grid article:after{position:absolute;right:-18px;bottom:-26px;content:"RCC";color:rgba(255,255,255,.035);font-family:Impact,Haettenschweiler,sans-serif;font-size:72px}
+.history-values-grid article:hover{transform:translateY(-4px);border-color:rgba(211,26,82,.52);box-shadow:0 26px 66px rgba(0,0,0,.34)}
+.history-values-grid span{display:inline-grid;width:42px;height:36px;place-items:center;margin-bottom:22px;border:1px solid rgba(211,26,82,.38);border-radius:999px;background:rgba(177,24,69,.14);color:var(--red-bright);font-size:12px;font-weight:900}
+.history-values-grid strong{display:block;color:#fff;font-family:"Arial Narrow",Impact,Haettenschweiler,sans-serif;font-size:clamp(28px,2.5vw,38px);font-weight:900;line-height:1;text-transform:uppercase}
+.history-values-grid p{position:relative;z-index:1;margin:14px 0 0;color:var(--muted);font-size:15px;line-height:1.62}
+.history-next-chapter{display:grid;grid-template-columns:150px minmax(0,1fr);gap:34px;align-items:start;border:1px solid rgba(211,26,82,.38);border-radius:16px;background:linear-gradient(135deg,rgba(177,24,69,.2),rgba(15,15,15,.98) 42%,rgba(255,255,255,.025));box-shadow:0 28px 76px rgba(0,0,0,.36);padding:34px;overflow:hidden}
+.history-next-chapter p:not(.section-kicker){margin:18px 0 0;color:#c5beb6;font-size:18px;line-height:1.75}
+.history-next-chapter .history-date{min-width:124px;min-height:84px;font-size:44px}
+.history-redesign [data-reveal]{will-change:opacity,transform}
+@media(max-width:1180px){.history-values-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.history-milestones{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.history-intro-premium{grid-template-columns:1fr;padding:28px}.history-section-head{display:grid}.history-timeline-modern:before,.history-timeline-modern article:before{display:none}.history-timeline-modern article{grid-template-columns:1fr;gap:18px}.history-date{width:max-content}.history-values-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.history-next-chapter{grid-template-columns:1fr}}
+@media(max-width:620px){.history-hero-premium{min-height:470px}.history-redesign .history-page{padding-top:58px}.history-intro-premium{border-radius:12px;padding:22px;margin-bottom:22px}.history-milestones{grid-template-columns:1fr;gap:10px;margin-bottom:58px}.history-timeline-modern{gap:16px;margin-bottom:64px}.history-timeline-modern article{padding:22px;border-radius:12px}.history-card-content p{font-size:16px;line-height:1.68}.history-values-grid{grid-template-columns:1fr;margin-bottom:60px}.history-values-grid article{min-height:auto}.history-next-chapter{padding:24px;border-radius:12px}.history-next-chapter p:not(.section-kicker){font-size:16px;line-height:1.68}.history-redesign .history-intro-premium h2,.history-section-head h2,.history-next-chapter h2{font-size:clamp(38px,13vw,56px)}}
+@media(prefers-reduced-motion:reduce){.history-milestones article,.history-timeline-modern article,.history-values-grid article{transition:none!important}.history-milestones article:hover,.history-timeline-modern article:hover,.history-values-grid article:hover{transform:none!important}}
+
+/* ===== Shared internal page hero hierarchy ===== */
+.senior-hero,.academy-hero,.history-hero{min-height:clamp(330px,36vw,410px);padding-top:78px;border-bottom:1px solid rgba(255,255,255,.08);background:#070707}
+.senior-hero:before,.academy-hero:before,.history-hero:before{inset:78px 0 0;background:linear-gradient(90deg,#080808 0%,rgba(8,8,8,.97) 50%,rgba(8,8,8,.78) 76%,rgba(8,8,8,.36) 100%),radial-gradient(circle at 82% 30%,rgba(177,24,69,.26),transparent 32%),linear-gradient(115deg,transparent 0 70%,rgba(83,12,31,.44) 70% 100%)}
+.senior-hero:after,.academy-hero:after,.history-hero:after{position:absolute;inset:78px 0 0;z-index:-1;pointer-events:none;content:"";background:repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 1px,transparent 1px 86px),linear-gradient(180deg,transparent,rgba(0,0,0,.22));opacity:.75}
+.senior-hero .hero-art,.academy-hero .hero-art,.history-hero .hero-art{inset:78px 0 0;opacity:.58}
+.senior-hero .rugby-scene,.academy-hero .rugby-scene,.history-hero .rugby-scene{height:100%;opacity:.32}
+.senior-hero-content,.academy-hero-content,.history-hero-content{position:relative;display:grid;align-content:center;min-height:calc(clamp(330px,36vw,410px) - 78px);padding-top:0;padding-bottom:34px}
+.senior-hero .eyebrow,.academy-hero .eyebrow,.history-hero .eyebrow{margin:0 0 18px;font-size:11px;letter-spacing:2px}
+.senior-hero h1,.academy-hero h1,.history-hero h1{max-width:980px;margin:0;font-family:"Arial Narrow",Impact,Haettenschweiler,sans-serif;font-size:clamp(46px,6vw,88px);font-weight:900;line-height:1.02;letter-spacing:.15px;text-transform:uppercase}
+.senior-hero h1 span,.academy-hero h1 span,.history-hero h1 span,.senior-hero h1 strong,.academy-hero h1 strong,.history-hero h1 strong{display:inline}
+.senior-hero h1 strong,.academy-hero h1 strong,.history-hero h1 strong{color:var(--red);font-weight:900}
+.inner-hero-copy{display:block;max-width:760px;margin:18px 0 0;color:#c2bbb3;font-size:clamp(16px,1.6vw,20px);line-height:1.62}
+.history-hero-premium{min-height:clamp(330px,36vw,410px)}
+.history-hero-premium .history-hero-content{padding-top:0}
+.roster-page,.academy-page,.gallery-page,.contact-page,.partners-page,.project-page,.join-contact-page,.history-redesign .history-page{padding-top:clamp(58px,6vw,84px)}
+@media(max-width:760px){.senior-hero,.academy-hero,.history-hero{min-height:300px}.senior-hero-content,.academy-hero-content,.history-hero-content{min-height:222px;padding-bottom:26px}.senior-hero .eyebrow,.academy-hero .eyebrow,.history-hero .eyebrow{margin-bottom:14px}.senior-hero h1,.academy-hero h1,.history-hero h1{font-size:clamp(38px,12.5vw,58px);line-height:1.04}.inner-hero-copy{margin-top:14px;font-size:16px;line-height:1.56}.senior-hero .rugby-scene,.academy-hero .rugby-scene,.history-hero .rugby-scene{right:-42vw;width:120vw;opacity:.2}}
