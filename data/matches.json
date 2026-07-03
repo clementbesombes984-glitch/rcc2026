@@ -66,6 +66,16 @@
         "seniors",
         "matchs"
       ]
+    },
+    {
+      "date": "2026-07-23",
+      "time": "15h00",
+      "home": "RCC",
+      "away": "Galgon",
+      "venue": "Plaine des sports",
+      "status": "upcoming",
+      "category": "seniors",
+      "notification": true
     }
   ]
 }
