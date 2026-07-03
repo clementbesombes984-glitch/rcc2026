@@ -12,21 +12,6 @@
       ]
     },
     {
-      "category": "Jeunes",
-      "title": "Journée portes ouvertes",
-      "summary": "Les éducateurs accueilleront les familles au stade pour présenter les catégories et les horaires.",
-      "important": false,
-      "notification": false,
-      "audience": [
-        "ecole",
-        "u6",
-        "u8",
-        "u10",
-        "u12",
-        "evenements"
-      ]
-    },
-    {
       "category": "Bénévoles",
       "title": "Le club recrute des encadrants",
       "summary": "Table de marque, buvette, accueil, logistique : chaque énergie compte les jours de match.",
@@ -39,14 +24,12 @@
     },
     {
       "category": "U8",
-      "title": "Nouveaux Educateurs",
-      "summary": "dede",
+      "title": "Nouveaux Coach",
       "important": false,
       "notification": true,
       "audience": [
         "u8",
-        "general",
-        "jeunes"
+        "ecole"
       ]
     }
   ]
