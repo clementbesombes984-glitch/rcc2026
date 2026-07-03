@@ -7,6 +7,9 @@ Le site RCC est maintenant pret cote PWA pour les notifications push, tout en re
 - Une page `notifications.html` permet aux visiteurs de choisir les categories qu'ils veulent suivre.
 - Les preferences sont enregistrees localement dans `localStorage`.
 - Le bouton `Activer les notifications` demande l'autorisation uniquement apres un clic utilisateur.
+- Un bouton `Tester` permet de verifier que le navigateur affiche bien les notifications.
+- Tant que l'application est ouverte, `notifications.js` surveille `data/news.json` et `data/matches.json`.
+- Si une nouvelle entree porte `notification: true` et correspond aux preferences locales, une notification locale est affichee.
 - `notifications.js` verifie la compatibilite du navigateur et affiche un etat clair.
 - Si une cle publique VAPID est ajoutee plus tard, `notifications.js` peut creer un vrai abonnement Web Push.
 - `sw.js` contient les evenements `push` et `notificationclick`.
@@ -19,7 +22,9 @@ Le site RCC est maintenant pret cote PWA pour les notifications push, tout en re
 
 ## Limite actuelle
 
-Un site statique ne peut pas envoyer seul des notifications push.
+Un site statique ne peut pas envoyer seul de vraies notifications push en arriere-plan.
+
+La surveillance locale fonctionne seulement quand l'application ou le site est ouvert, ou parfois quand la PWA reste active selon le navigateur. Pour recevoir une notification meme quand l'application est fermee, il faut un backend push.
 
 Il manque encore un service serveur pour :
 
