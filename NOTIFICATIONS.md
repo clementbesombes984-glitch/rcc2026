@@ -21,7 +21,65 @@ Le site RCC est maintenant pret cote PWA pour les notifications push, tout en re
   - contact / nous rejoindre : `/nous-rejoindre.html`
 - Pages CMS permet de renseigner `notification` et `audience` pour les actualites et les matchs.
 
-## Limite actuelle
+## Envoi reel avec Cloudflare Pages
+
+Le projet contient maintenant une base serveur pour les vraies notifications push :
+
+- `/api/push/config` donne la cle publique VAPID au navigateur ;
+- `/api/push/subscribe` enregistre les appareils dans un KV Cloudflare ;
+- `/api/push/send` envoie une notification aux abonnes correspondant aux audiences ;
+- `.github/workflows/notify.yml` declenche l'envoi quand `data/news.json` ou `data/matches.json` change ;
+- `scripts/notify-changes.js` detecte les nouvelles entrees avec `notification: true`.
+
+Pour que cela fonctionne en production, il faut configurer Cloudflare et GitHub.
+
+### 1. Creer les cles VAPID
+
+Depuis le dossier du projet :
+
+```bash
+npm install
+npx web-push generate-vapid-keys
+```
+
+Garder la cle publique et la cle privee.
+
+### 2. Configurer Cloudflare Pages
+
+Dans Cloudflare Pages, projet RCC :
+
+1. Creer un KV namespace, par exemple `RCC_PUSH_SUBSCRIPTIONS`.
+2. Ajouter le binding KV au projet Pages avec le nom exact :
+   `RCC_PUSH_SUBSCRIPTIONS`
+3. Dans les reglages de build, laisser Cloudflare installer les dependances npm du projet.
+4. Dans les reglages Functions / Compatibility, ajouter le flag :
+   `nodejs_compat`
+5. Ajouter les variables d'environnement :
+   - `VAPID_PUBLIC_KEY` : cle publique VAPID
+   - `VAPID_PRIVATE_KEY` : cle privee VAPID
+   - `VAPID_SUBJECT` : par exemple `mailto:lerccdemain@gmail.com`
+   - `PUSH_ADMIN_TOKEN` : mot de passe long et secret pour autoriser l'envoi
+
+Redeployer ensuite le site.
+
+### 3. Configurer GitHub
+
+Dans le depot GitHub, ajouter les secrets Actions :
+
+- `RCC_SITE_URL` : URL du site, par exemple `https://rcc2026.pages.dev`
+- `RCC_PUSH_ADMIN_TOKEN` : exactement la meme valeur que `PUSH_ADMIN_TOKEN` dans Cloudflare
+
+Quand Pages CMS modifiera `data/news.json` ou `data/matches.json`, GitHub Actions appellera `/api/push/send`.
+
+### 4. Cote Pages CMS
+
+Pour qu'une entree parte en notification :
+
+- mettre `notification: true` ;
+- renseigner `audience` ;
+- publier une nouvelle entree ou modifier suffisamment le titre/date/equipe pour qu'elle soit detectee comme nouvelle.
+
+## Limite sans configuration serveur
 
 Un site statique ne peut pas envoyer seul de vraies notifications push en arriere-plan.
 
@@ -36,9 +94,9 @@ Il manque encore un service serveur pour :
 
 Le code actuel ne casse rien si ce backend n'existe pas. Il prepare simplement le terrain.
 
-## Option 1 : Cloudflare Worker + Web Push
+## Option 1 : Cloudflare Pages Functions + Web Push
 
-Architecture recommandee si le site reste chez Cloudflare :
+Architecture recommandee si le site reste chez Cloudflare. Elle est maintenant preparee dans ce projet :
 
 1. Creer des cles VAPID Web Push.
 2. Ajouter la cle publique cote site, par exemple :

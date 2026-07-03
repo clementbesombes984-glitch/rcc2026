@@ -3,10 +3,21 @@
   const SUBSCRIPTION_KEY = 'rcc-push-subscription';
   const SEEN_KEY = 'rcc-notification-seen-items';
   const CHECK_INTERVAL = 60000;
-  const publicKey = () =>
-    window.RCC_PUSH_PUBLIC_KEY ||
-    document.querySelector('meta[name="web-push-public-key"]')?.getAttribute('content') ||
-    '';
+  async function publicKey() {
+    const localKey =
+      window.RCC_PUSH_PUBLIC_KEY ||
+      document.querySelector('meta[name="web-push-public-key"]')?.getAttribute('content') ||
+      '';
+    if (localKey) return localKey;
+    try {
+      const response = await fetch('/api/push/config', { cache: 'no-store' });
+      if (!response.ok) return '';
+      const config = await response.json();
+      return config.publicKey || '';
+    } catch (error) {
+      return '';
+    }
+  }
 
   const groups = [
     {
@@ -299,7 +310,7 @@
     const existing = await registration.pushManager.getSubscription();
     if (existing) return existing;
 
-    const key = publicKey();
+    const key = await publicKey();
     if (!key) return null;
 
     return registration.pushManager.subscribe({
