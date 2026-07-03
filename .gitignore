@@ -1,0 +1,6 @@
+.env
+.env.*
+!.env.example
+vapid.local.txt
+vapid.json
+node_modules/
