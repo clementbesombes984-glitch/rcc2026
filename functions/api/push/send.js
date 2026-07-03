@@ -25,6 +25,23 @@ async function removeSubscription(env, id) {
   if (id) await env.RCC_PUSH_SUBSCRIPTIONS.delete(id);
 }
 
+export async function onRequestGet({ env }) {
+  const kvConfigured = Boolean(env.RCC_PUSH_SUBSCRIPTIONS);
+  let subscriptions = 0;
+
+  if (kvConfigured) {
+    const list = await env.RCC_PUSH_SUBSCRIPTIONS.list();
+    subscriptions = list.keys.length;
+  }
+
+  return json({
+    routeActive: true,
+    vapidConfigured: Boolean(env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY),
+    kvConfigured,
+    subscriptions
+  });
+}
+
 function concatBytes(...parts) {
   const total = parts.reduce((sum, part) => sum + part.byteLength, 0);
   const output = new Uint8Array(total);
