@@ -348,3 +348,27 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
   .important-news-shell{margin-top:-34px}
   .home-match-preview{padding-top:42px}
 }
+
+/* Header correction: clean single-line desktop nav */
+@media(min-width:1121px){
+  .site-header{display:grid;grid-template-columns:118px minmax(0,1fr);align-items:center;height:86px;padding-inline:max(24px,calc((100vw - var(--max))/2));gap:18px;background:rgba(7,7,7,.96)}
+  .brand-logo-only{grid-column:1;width:86px;height:76px;flex:0 0 86px;justify-self:start;z-index:2}
+  .brand-logo-only img{max-width:78px;max-height:72px}
+  .site-nav{grid-column:2;display:flex;width:100%;min-width:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;justify-content:flex-end;align-items:center;gap:clamp(10px,.95vw,18px);font-family:"Arial Narrow",Impact,Haettenschweiler,sans-serif;font-size:clamp(12px,.78vw,14px);white-space:nowrap}
+  .site-nav a{min-height:40px;padding:0 0;border-radius:0;background:transparent;box-shadow:none;color:#9d9791;font-weight:900;letter-spacing:1.3px}
+  .site-nav a:not(.nav-cta):not(.settings-link){position:relative}
+  .site-nav a:not(.nav-cta):not(.settings-link):after{display:block;position:absolute;left:0;right:0;bottom:4px;height:2px;content:"";background:var(--red-bright);transform:scaleX(0);transform-origin:right;transition:transform .22s ease}
+  .site-nav a:not(.nav-cta):not(.settings-link):hover,.site-nav a.is-active:not(.nav-cta):not(.settings-link){background:transparent;box-shadow:none;color:#fff}
+  .site-nav a:not(.nav-cta):not(.settings-link):hover:after,.site-nav a.is-active:not(.nav-cta):not(.settings-link):after{transform:scaleX(1);transform-origin:left}
+  .site-nav .nav-cta{min-height:48px;margin-left:8px;border-radius:8px;padding:0 18px;background:var(--red);box-shadow:0 14px 30px rgba(177,24,69,.22);color:#fff;font-size:12px;letter-spacing:1.2px}
+  .site-nav .settings-link{display:inline-grid;width:44px;height:44px;flex:0 0 44px;margin-left:0;place-items:center;border:1px solid rgba(255,255,255,.16);border-radius:50%;background:rgba(255,255,255,.035);font-size:18px}
+}
+@media(min-width:1121px) and (max-width:1500px){
+  .site-header{grid-template-columns:98px minmax(0,1fr);padding-inline:18px;gap:12px}
+  .brand-logo-only{width:74px;flex-basis:74px}
+  .brand-logo-only img{max-width:66px}
+  .site-nav{gap:clamp(7px,.72vw,12px);font-size:clamp(10px,.72vw,12px)}
+  .site-nav a{letter-spacing:.95px}
+  .site-nav .nav-cta{padding-inline:12px;font-size:10.5px}
+  .site-nav .settings-link{width:40px;height:40px;flex-basis:40px}
+}
