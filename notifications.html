@@ -56,6 +56,7 @@
           <div class="notification-actions">
             <button class="button primary" type="button" data-enable-notifications>Activer les notifications</button>
             <button class="button ghost" type="button" data-test-notification>Tester</button>
+            <button class="button ghost" type="button" data-check-notifications>Verifier maintenant</button>
             <button class="button ghost" type="button" data-disable-notifications>Desactiver</button>
           </div>
         </div>
@@ -64,7 +65,8 @@
 
         <div class="notification-note">
           <strong>Important</strong>
-          <p>Vos choix sont gardes sur cet appareil. L'envoi reel des notifications sera branche plus tard avec Firebase ou un Cloudflare Worker.</p>
+          <p>Vos choix sont gardes sur cet appareil. Sans backend, les alertes Pages CMS sont detectees quand le site ou l'application est ouvert. Pour recevoir une alerte meme application fermee, il faudra brancher Firebase ou un Cloudflare Worker.</p>
+          <ul class="notification-diagnostics" data-notification-diagnostics></ul>
         </div>
       </section>
     </main>

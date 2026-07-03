@@ -8,6 +8,7 @@ Le site RCC est maintenant pret cote PWA pour les notifications push, tout en re
 - Les preferences sont enregistrees localement dans `localStorage`.
 - Le bouton `Activer les notifications` demande l'autorisation uniquement apres un clic utilisateur.
 - Un bouton `Tester` permet de verifier que le navigateur affiche bien les notifications.
+- Un bouton `Verifier maintenant` cherche un contenu avec `notification: true` correspondant aux preferences et tente d'afficher une notification.
 - Tant que l'application est ouverte, `notifications.js` surveille `data/news.json` et `data/matches.json`.
 - Si une nouvelle entree porte `notification: true` et correspond aux preferences locales, une notification locale est affichee.
 - `notifications.js` verifie la compatibilite du navigateur et affiche un etat clair.

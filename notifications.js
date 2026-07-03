@@ -54,9 +54,12 @@
     .flatMap((group) => group.items.map(([key]) => key))
     .reduce((acc, key) => ({ ...acc, [key]: key === 'general' || key === 'important' }), {});
 
-  const supportsPush = () =>
+  const supportsNotifications = () =>
     'Notification' in window &&
-    'serviceWorker' in navigator &&
+    'serviceWorker' in navigator;
+
+  const supportsPush = () =>
+    supportsNotifications() &&
     'PushManager' in window;
 
   function loadPreferences() {
@@ -76,6 +79,31 @@
     if (!node) return;
     node.textContent = message;
     node.dataset.tone = tone || 'neutral';
+  }
+
+  function setDiagnostics(lines) {
+    const node = document.querySelector('[data-notification-diagnostics]');
+    if (!node) return;
+    node.innerHTML = lines.map((line) => `<li>${line}</li>`).join('');
+  }
+
+  async function refreshDiagnostics() {
+    if (!document.querySelector('[data-notifications-page]')) return;
+    const lines = [];
+    lines.push('Notifications navigateur : ' + ('Notification' in window ? 'oui' : 'non'));
+    lines.push('Service worker : ' + ('serviceWorker' in navigator ? 'oui' : 'non'));
+    lines.push('Vrai push serveur : ' + ('PushManager' in window ? 'possible' : 'non supporte ici'));
+    lines.push('Autorisation : ' + (('Notification' in window) ? Notification.permission : 'indisponible'));
+    lines.push('Notifications RCC : ' + (isEnabled() ? 'activees' : 'desactivees'));
+    try {
+      const items = await collectNotificationItems();
+      const matching = items.filter((item) => matchesPreferences(item.audience));
+      lines.push('Contenus notifiables trouves : ' + items.length);
+      lines.push('Contenus correspondant a vos choix : ' + matching.length);
+    } catch (error) {
+      lines.push('Lecture des contenus : erreur');
+    }
+    setDiagnostics(lines);
   }
 
   function loadSeenItems() {
@@ -130,15 +158,27 @@
   }
 
   async function showLocalNotification(payload) {
-    if (!supportsPush() || Notification.permission !== 'granted') return;
-    const registration = await getRegistration();
-    await registration.showNotification(payload.title || 'RC Cubzaguais', {
+    if (!supportsNotifications() || Notification.permission !== 'granted') return false;
+    const options = {
       body: payload.body || 'Nouvelle information du club.',
       icon: '/assets/pwa-icon-192.png',
       badge: '/assets/pwa-icon-192.png',
       tag: payload.tag || 'rcc-local-info',
       data: { url: payload.url || '/', type: payload.type || 'news', audience: payload.audience || [] }
-    });
+    };
+
+    try {
+      const registration = await getRegistration();
+      await registration.showNotification(payload.title || 'RC Cubzaguais', options);
+      return true;
+    } catch (error) {
+      try {
+        new Notification(payload.title || 'RC Cubzaguais', options);
+        return true;
+      } catch (fallbackError) {
+        return false;
+      }
+    }
   }
 
   async function collectNotificationItems() {
@@ -203,7 +243,7 @@
   }
 
   function startLocalWatcher() {
-    if (!supportsPush()) return;
+    if (!supportsNotifications()) return;
     checkForLocalNotifications();
     setInterval(checkForLocalNotifications, CHECK_INTERVAL);
     document.addEventListener('visibilitychange', () => {
@@ -244,8 +284,8 @@
 
   async function getRegistration() {
     const existing = await navigator.serviceWorker.getRegistration();
-    if (existing) return existing;
-    return navigator.serviceWorker.register('/sw.js');
+    if (!existing) await navigator.serviceWorker.register('/sw.js');
+    return navigator.serviceWorker.ready;
   }
 
   function urlBase64ToUint8Array(base64String) {
@@ -269,13 +309,15 @@
   }
 
   async function enableNotifications() {
-    if (!supportsPush()) {
-      setStatus('Ce navigateur ne supporte pas les notifications push.', 'error');
+    if (!supportsNotifications()) {
+      setStatus('Ce navigateur ne supporte pas les notifications.', 'error');
+      refreshDiagnostics();
       return;
     }
 
     if (Notification.permission === 'denied') {
       setStatus('Les notifications sont bloquees dans les reglages du navigateur.', 'error');
+      refreshDiagnostics();
       return;
     }
 
@@ -285,11 +327,12 @@
 
     if (permission !== 'granted') {
       setStatus('Notifications refusees. Vous pouvez les reactiver depuis le navigateur.', 'error');
+      refreshDiagnostics();
       return;
     }
 
     const registration = await getRegistration();
-    const subscription = await getOrCreateSubscription(registration);
+    const subscription = supportsPush() ? await getOrCreateSubscription(registration) : null;
     const payload = {
       enabled: true,
       subscribedAt: new Date().toISOString(),
@@ -307,8 +350,9 @@
         body: JSON.stringify(payload)
       }).catch(() => null);
     }
-    setStatus(subscription ? 'Notifications activees pour cet appareil.' : 'Autorisation accordee. Abonnement serveur a brancher.', 'success');
+    setStatus(subscription ? 'Notifications activees pour cet appareil.' : 'Notifications locales activees. Le push en arriere-plan demandera un backend.', 'success');
     checkForLocalNotifications();
+    refreshDiagnostics();
   }
 
   async function disableNotifications() {
@@ -319,6 +363,7 @@
     }
     localStorage.removeItem(SUBSCRIPTION_KEY);
     setStatus('Notifications desactivees sur cet appareil.', 'neutral');
+    refreshDiagnostics();
   }
 
   async function testNotification() {
@@ -326,18 +371,37 @@
       await enableNotifications();
     }
     if (Notification.permission !== 'granted') return;
-    await showLocalNotification({
+    const sent = await showLocalNotification({
       title: 'Notification RCC active',
       body: 'Vous recevrez les alertes correspondant a vos preferences quand l application les detecte.',
       url: '/notifications.html',
       type: 'test',
       audience: ['general']
     });
-    setStatus('Notification test envoyee.', 'success');
+    setStatus(sent ? 'Notification test envoyee.' : 'Impossible d afficher la notification test sur ce navigateur.', sent ? 'success' : 'error');
+    refreshDiagnostics();
+  }
+
+  async function notifyMatchingNow() {
+    if (!isEnabled() || Notification.permission !== 'granted') {
+      await enableNotifications();
+    }
+    if (Notification.permission !== 'granted') return;
+    const items = await collectNotificationItems().catch(() => []);
+    const item = items.find((entry) => matchesPreferences(entry.audience));
+    if (!item) {
+      setStatus('Aucun contenu avec notification active ne correspond a vos preferences.', 'neutral');
+      refreshDiagnostics();
+      return;
+    }
+    const sent = await showLocalNotification({ ...item, tag: 'rcc-manual-check-' + Date.now() });
+    saveSeenItems([...loadSeenItems(), item.id]);
+    setStatus(sent ? 'Verification envoyee depuis le dernier contenu notifiable.' : 'Contenu trouve, mais notification impossible a afficher.', sent ? 'success' : 'error');
+    refreshDiagnostics();
   }
 
   function refreshInitialStatus() {
-    if (!supportsPush()) {
+    if (!supportsNotifications()) {
       setStatus('Notifications non supportees par ce navigateur.', 'error');
       return;
     }
@@ -357,9 +421,11 @@
     if (document.querySelector('[data-notifications-page]')) {
       renderGroups();
       refreshInitialStatus();
+      refreshDiagnostics();
       document.querySelector('[data-enable-notifications]')?.addEventListener('click', enableNotifications);
       document.querySelector('[data-disable-notifications]')?.addEventListener('click', disableNotifications);
       document.querySelector('[data-test-notification]')?.addEventListener('click', testNotification);
+      document.querySelector('[data-check-notifications]')?.addEventListener('click', notifyMatchingNow);
     }
   });
 })();
