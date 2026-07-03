@@ -1,3 +1,4 @@
+document.documentElement.classList.add('js');
 const toggle = document.querySelector('[data-menu-toggle]');
 const nav = document.querySelector('[data-nav]');
 if (toggle && nav) {
@@ -44,3 +45,31 @@ document.querySelectorAll('.join-form').forEach((form) => {
     window.location.href = 'mailto:' + encodeURIComponent(target) + '?subject=' + encodeURIComponent('Nous rejoindre - RCC') + '&body=' + encodeURIComponent(body);
   });
 });
+
+const revealTargets = () => document.querySelectorAll('section, .card, .news-grid article, .match, .player-card, .staff-card, .partner-card, .project-card, .gallery-album, .countdown-card, .last-result-card');
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  requestAnimationFrame(() => {
+    revealTargets().forEach((node) => {
+      node.setAttribute('data-reveal', '');
+      observer.observe(node);
+    });
+  });
+}
+
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const heroArt = document.querySelector('.hero .hero-art');
+  if (heroArt) {
+    window.addEventListener('scroll', () => {
+      const y = Math.min(28, window.scrollY * 0.035);
+      heroArt.style.setProperty('--parallax-y', y + 'px');
+    }, { passive: true });
+  }
+}

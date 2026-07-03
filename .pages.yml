@@ -84,6 +84,9 @@ content:
           - name: summary
             label: Résumé
             type: text
+          - name: important
+            label: Actualité importante
+            type: boolean
           - name: image
             label: Image
             type: image
@@ -302,6 +305,59 @@ content:
                 label: Photo
                 type: image
 
+
+  - name: gallery
+    label: Galerie photo
+    type: file
+    path: data/gallery.json
+    format: json
+    fields:
+      - name: albums
+        label: Albums
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{category} - {title}"
+        fields:
+          - name: title
+            label: Titre
+            type: string
+            required: true
+          - name: category
+            label: Rubrique
+            type: select
+            options:
+              values:
+                - Entrainements
+                - Matchs
+                - Ecole de rugby
+                - Benevoles
+                - Evenements
+          - name: date
+            label: Date
+            type: date
+          - name: description
+            label: Description
+            type: text
+          - name: cover
+            label: Image de couverture
+            type: image
+          - name: photos
+            label: Photos
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{alt}"
+            fields:
+              - name: image
+                label: Photo
+                type: image
+              - name: alt
+                label: Texte alternatif
+                type: string
+
   - name: partners
     label: Partenaires
     type: file
@@ -404,6 +460,9 @@ content:
         type: string
       - name: mapsUrl
         label: Google Maps embed URL
+        type: string
+      - name: ffrUrl
+        label: Lien FFR / rugby local
         type: string
       - name: joinTitle
         label: Titre Nous rejoindre

@@ -1,0 +1,47 @@
+{
+  "albums": [
+    {
+      "title": "Entrainement seniors",
+      "category": "Entrainements",
+      "date": "2026-07-01",
+      "description": "Quelques images des seances de preparation du groupe RCC.",
+      "cover": "",
+      "photos": [
+        {
+          "image": "",
+          "alt": "Joueurs du RCC pendant un entrainement"
+        },
+        {
+          "image": "",
+          "alt": "Atelier rugby au stade"
+        }
+      ]
+    },
+    {
+      "title": "Matchs du RCC",
+      "category": "Matchs",
+      "date": "2026-07-02",
+      "description": "Les temps forts des rencontres du club.",
+      "cover": "",
+      "photos": [
+        {
+          "image": "",
+          "alt": "Action de match du RC Cubzaguais"
+        }
+      ]
+    },
+    {
+      "title": "Ecole de rugby",
+      "category": "Ecole de rugby",
+      "date": "2026-07-03",
+      "description": "La vie des jeunes pousses du RCC.",
+      "cover": "",
+      "photos": [
+        {
+          "image": "",
+          "alt": "Jeunes de l ecole de rugby"
+        }
+      ]
+    }
+  ]
+}

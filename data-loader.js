@@ -42,6 +42,11 @@
     ? ` style="background-image:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.5)),url('${escapeHtml(url)}')"`
     : '';
 
+  function icon(name) {
+    const icons = { calendar: '▣', place: '⌖', time: '◷', match: '◆', contact: '✉', social: '◌', address: '⌂', gallery: '▧' };
+    return `<span class="ui-icon ui-icon-${name}" aria-hidden="true">${icons[name] || '•'}</span>`;
+  }
+
   async function renderMatches() {
     const container = document.querySelector('.matches');
     if (!container) return;
@@ -87,11 +92,28 @@
     grid.innerHTML = news.map((item) => `
       <article>
         ${item.image ? `<div class="news-image"${imageStyle(item.image)}></div>` : ''}
-        <span>${escapeHtml(item.category)}</span>
+        <span>${escapeHtml(item.category)}${item.important ? ' · Important' : ''}</span>
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.summary)}</p>
       </article>
     `).join('');
+  }
+
+  async function renderImportantNews() {
+    const shell = document.querySelector('[data-important-news]');
+    if (!shell) return;
+    const data = await fetchData('news');
+    const news = Array.isArray(data) ? data : (data.news || []);
+    const item = news.find((entry) => entry.important);
+    if (!item) { shell.hidden = true; return; }
+    shell.hidden = false;
+    shell.innerHTML = `
+      <a class="important-news" href="./actualites.html">
+        <span>${icon('match')} Info importante</span>
+        <strong>${escapeHtml(item.title)}</strong>
+        <em>${escapeHtml(item.category || 'Club')}</em>
+      </a>
+    `;
   }
 
   async function renderSettings() {
@@ -299,6 +321,89 @@
     `).join('') || '<p class="empty-state">Les partenaires seront bientôt publiés.</p>';
   }
 
+  async function renderGallery() {
+    const grid = document.querySelector('[data-gallery]');
+    const filters = document.querySelector('[data-gallery-filters]');
+    if (!grid) return;
+    const data = await fetchData('gallery');
+    const albums = data.albums || [];
+    const categories = ['Tous', ...Array.from(new Set(albums.map((album) => album.category).filter(Boolean)))];
+    const render = (category = 'Tous') => {
+      const visible = category === 'Tous' ? albums : albums.filter((album) => album.category === category);
+      grid.innerHTML = visible.map((album, index) => {
+        const photos = album.photos || [];
+        const cover = album.cover || photos[0]?.image || '';
+        return `
+          <article class="gallery-album is-visible" data-reveal>
+            <button type="button" class="gallery-cover" data-gallery-open="${index}"${imageStyle(cover)} aria-label="Ouvrir ${escapeHtml(album.title)}">
+              <span>${icon('gallery')} ${escapeHtml(album.category || 'Album')}</span>
+              <strong>${photos.length} photo${photos.length > 1 ? 's' : ''}</strong>
+            </button>
+            <div class="gallery-info">
+              <span>${escapeHtml(formatDate(album.date))}</span>
+              <h3>${escapeHtml(album.title)}</h3>
+              <p>${escapeHtml(album.description)}</p>
+            </div>
+          </article>
+        `;
+      }).join('') || '<p class="empty-state">Les albums seront bientôt publiés.</p>';
+      bindGalleryOpen(visible);
+    };
+    if (filters) {
+      filters.innerHTML = categories.map((cat, idx) => `<button type="button" class="${idx === 0 ? 'is-active' : ''}" data-gallery-filter="${escapeHtml(cat)}">${escapeHtml(cat)}</button>`).join('');
+      filters.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-gallery-filter]');
+        if (!button) return;
+        filters.querySelectorAll('button').forEach((item) => item.classList.remove('is-active'));
+        button.classList.add('is-active');
+        render(button.dataset.galleryFilter);
+      });
+    }
+    render();
+  }
+
+  function bindGalleryOpen(albums) {
+    const lightbox = document.querySelector('[data-lightbox]');
+    if (!lightbox) return;
+    const img = lightbox.querySelector('img');
+    const caption = lightbox.querySelector('p');
+    document.querySelectorAll('[data-gallery-open]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const album = albums[Number(button.dataset.galleryOpen)];
+        const photo = (album.photos || []).find((item) => item.image) || { image: album.cover, alt: album.title };
+        if (!photo.image) return;
+        img.src = photo.image;
+        img.alt = photo.alt || album.title || '';
+        caption.textContent = photo.alt || album.description || album.title || '';
+        lightbox.classList.add('is-open');
+        lightbox.setAttribute('aria-hidden', 'false');
+      });
+    });
+    lightbox.querySelector('[data-lightbox-close]')?.addEventListener('click', () => {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      img.removeAttribute('src');
+    });
+  }
+
+  async function renderFooter() {
+    const footer = document.querySelector('[data-footer]');
+    if (!footer) return;
+    const data = await fetchData('settings');
+    footer.innerHTML = `
+      <div class="page-shell footer-pro">
+        <div class="footer-brand"><img src="./assets/logo-rcc.png" alt="RC Cubzaguais" /><div><strong>${escapeHtml(data.clubName || 'Racing Club Cubzaguais')}</strong><span>Respect · Solidarité · Engagement</span></div></div>
+        <div class="footer-columns">
+          <section><h3>Club</h3><p>${icon('address')} ${escapeHtml(data.address || data.stadium || '')}</p><p>${icon('place')} ${escapeHtml(data.stadium || '')}</p></section>
+          <section><h3>Contact</h3><p>${icon('contact')} <a href="mailto:${escapeHtml(data.email || 'lerccdemain@gmail.com')}">${escapeHtml(data.email || 'lerccdemain@gmail.com')}</a></p><p>${icon('time')} ${escapeHtml(data.phone || 'Téléphone à renseigner')}</p></section>
+          <section><h3>Liens rapides</h3><a href="./matchs.html">Matchs</a><a href="./galerie.html">Galerie</a><a href="./contact.html">Contact</a><a href="/cms-login">Administration</a></section>
+          <section><h3>Réseaux</h3><a href="${escapeHtml(data.facebook || '#')}"${data.facebook ? '' : ' aria-disabled="true"'}>Facebook</a><a href="${escapeHtml(data.instagram || '#')}"${data.instagram ? '' : ' aria-disabled="true"'}>Instagram</a><a href="${escapeHtml(data.ffrUrl || 'https://www.ffr.fr/')}" target="_blank" rel="noreferrer">FFR</a></section>
+        </div>
+        <div class="footer-bottom"><span>Site propulsé par GitHub + Cloudflare Pages</span><a href="./index.html#accueil">Retour en haut</a></div>
+      </div>
+    `;
+  }
+
   async function renderProject() {
     const sectionGrid = document.querySelector('[data-project-sections]');
     if (!sectionGrid) return;
@@ -332,5 +437,8 @@
     renderCategories('feminines', 'Féminines').catch(console.error);
     renderPartners().catch(console.error);
     renderProject().catch(console.error);
+    renderImportantNews().catch(console.error);
+    renderGallery().catch(console.error);
+    renderFooter().catch(console.error);
   });
 })();
