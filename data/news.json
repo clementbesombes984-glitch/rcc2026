@@ -42,7 +42,10 @@
       "title": "Nouveaux Educateurs",
       "summary": "L'arrivée de Clement et Matthieu au poste d'educateur en U8",
       "important": false,
-      "notification": true
+      "notification": true,
+      "audience": [
+        "u8"
+      ]
     }
   ]
 }
