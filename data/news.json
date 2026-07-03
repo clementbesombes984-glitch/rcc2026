@@ -45,7 +45,8 @@
       "notification": true,
       "audience": [
         "u8",
-        "ecole"
+        "ecole",
+        "general"
       ]
     }
   ]
