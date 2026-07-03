@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v3';
+const CACHE_VERSION = 'rcc-pwa-v4';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -127,6 +127,11 @@ self.addEventListener('fetch', (event) => {
 
   if (event.request.mode === 'navigate' || event.request.destination === 'document') {
     event.respondWith(networkFirst(event.request, STATIC_CACHE, '/index.html'));
+    return;
+  }
+
+  if (url.pathname.endsWith('.js') || url.pathname.endsWith('.css') || url.pathname.endsWith('.webmanifest')) {
+    event.respondWith(networkFirst(event.request, STATIC_CACHE));
     return;
   }
 

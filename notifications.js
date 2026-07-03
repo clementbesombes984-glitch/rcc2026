@@ -92,6 +92,21 @@
     node.dataset.tone = tone || 'neutral';
   }
 
+  function showPageNotice(title, message, tone = 'success') {
+    let node = document.querySelector('[data-page-notification]');
+    if (!node) {
+      node = document.createElement('div');
+      node.className = 'page-notification';
+      node.dataset.pageNotification = '';
+      document.body.appendChild(node);
+    }
+    node.dataset.tone = tone;
+    node.innerHTML = `<strong>${title}</strong><span>${message}</span>`;
+    node.classList.add('is-visible');
+    window.clearTimeout(showPageNotice.timer);
+    showPageNotice.timer = window.setTimeout(() => node.classList.remove('is-visible'), 7000);
+  }
+
   function setDiagnostics(lines) {
     const node = document.querySelector('[data-notification-diagnostics]');
     if (!node) return;
@@ -106,6 +121,7 @@
     lines.push('Vrai push serveur : ' + ('PushManager' in window ? 'possible' : 'non supporte ici'));
     lines.push('Autorisation : ' + (('Notification' in window) ? Notification.permission : 'indisponible'));
     lines.push('Notifications RCC : ' + (isEnabled() ? 'activees' : 'desactivees'));
+    lines.push('Cache PWA : version rcc-pwa-v4 attendue');
     try {
       const items = await collectNotificationItems();
       const matching = items.filter((item) => matchesPreferences(item.audience));
@@ -169,7 +185,10 @@
   }
 
   async function showLocalNotification(payload) {
-    if (!supportsNotifications() || Notification.permission !== 'granted') return false;
+    if (!supportsNotifications() || Notification.permission !== 'granted') {
+      showPageNotice(payload.title || 'RC Cubzaguais', payload.body || 'Notification visible dans la page.', 'error');
+      return false;
+    }
     const options = {
       body: payload.body || 'Nouvelle information du club.',
       icon: '/assets/pwa-icon-192.png',
@@ -181,12 +200,15 @@
     try {
       const registration = await getRegistration();
       await registration.showNotification(payload.title || 'RC Cubzaguais', options);
+      showPageNotice(payload.title || 'RC Cubzaguais', payload.body || 'Notification envoyee.', 'success');
       return true;
     } catch (error) {
       try {
         new Notification(payload.title || 'RC Cubzaguais', options);
+        showPageNotice(payload.title || 'RC Cubzaguais', payload.body || 'Notification envoyee.', 'success');
         return true;
       } catch (fallbackError) {
+        showPageNotice(payload.title || 'RC Cubzaguais', payload.body || 'Notification bloquee par le navigateur.', 'error');
         return false;
       }
     }
@@ -377,6 +399,26 @@
     refreshDiagnostics();
   }
 
+  async function resetApplicationCache() {
+    setStatus('Nettoyage du cache PWA en cours...', 'neutral');
+    try {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      }
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((registration) => registration.unregister()));
+      }
+      localStorage.removeItem(SEEN_KEY);
+      showPageNotice('Application reparee', 'Le cache a ete vide. La page va se recharger.', 'success');
+      window.setTimeout(() => window.location.reload(), 1200);
+    } catch (error) {
+      setStatus('Impossible de nettoyer automatiquement le cache.', 'error');
+      showPageNotice('Cache non vide', 'Supprime les donnees du site depuis les reglages du navigateur.', 'error');
+    }
+  }
+
   async function testNotification() {
     if (!isEnabled() || Notification.permission !== 'granted') {
       await enableNotifications();
@@ -437,6 +479,7 @@
       document.querySelector('[data-disable-notifications]')?.addEventListener('click', disableNotifications);
       document.querySelector('[data-test-notification]')?.addEventListener('click', testNotification);
       document.querySelector('[data-check-notifications]')?.addEventListener('click', notifyMatchingNow);
+      document.querySelector('[data-reset-notifications]')?.addEventListener('click', resetApplicationCache);
     }
   });
 })();
