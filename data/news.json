@@ -46,6 +46,17 @@
       "audience": [
         "u8"
       ]
+    },
+    {
+      "category": "frffr",
+      "title": "frfr",
+      "summary": "ffff",
+      "important": false,
+      "notification": true,
+      "audience": [
+        "u8",
+        "general"
+      ]
     }
   ]
 }
