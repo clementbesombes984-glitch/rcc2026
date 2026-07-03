@@ -40,12 +40,13 @@
     {
       "category": "U8",
       "title": "Nouveaux Educateurs",
-      "summary": "dd",
+      "summary": "HELLO",
       "important": false,
       "notification": true,
       "audience": [
         "u8",
-        "general"
+        "general",
+        "jeunes"
       ]
     }
   ]
