@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Nous rejoindre - RC Cubzaguais</title><meta name="description" content="Nous rejoindre ou contacter le RC Cubzaguais : joueurs, parents, bénévoles, partenaires, adresse, téléphone, email et carte." /><link rel="stylesheet" href="./styles.css" /></head>
+  <body>
+    <header class="site-header">
+      <a class="brand brand-logo-only" href="./index.html#accueil" aria-label="RC Cubzaguais accueil"><img src="./assets/logo-rcc.png" alt="RC Cubzaguais" /></a>
+      <button class="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-menu-toggle><span></span><span></span></button>
+      <nav class="site-nav" aria-label="Navigation principale" data-nav>
+        <a href="./index.html#accueil">Accueil</a>
+        <a href="./matchs.html">Matchs</a>
+        <a href="./senior.html">Senior</a>
+        <a href="./ecole.html">École de rugby</a>
+        <a href="./jeunes.html">Pôle jeunes</a>
+        <a href="./feminines.html">Féminines</a>
+        <a href="./actualites.html">Actualités</a>
+        <a href="./galerie.html">Galerie</a>
+        <a href="./histoire.html">Histoire</a>
+        <a href="./partenaires.html">Partenaires</a>
+        <a href="./rcc-demain.html">RCC demain</a>
+        <a class="nav-cta is-active" href="./nous-rejoindre.html">Nous rejoindre</a>
+        <a class="admin-link settings-link" href="/cms-login" aria-label="Accès administration" title="Administration">⚙</a>
+      </nav>
+    </header>
+    <main>
+      <section class="senior-hero contact-hero join-hero"><div class="hero-art" aria-hidden="true"><div class="stadium-light light-one"></div><div class="stadium-light light-two"></div><div class="rugby-scene senior-scene"><span class="player player-one"></span><span class="player player-two"></span><span class="rugby-ball"></span><span class="field-line field-one"></span></div></div><div class="page-shell senior-hero-content"><p class="eyebrow"><span></span> Nous rejoindre / Contact</p><h1><span>Rejoindre</span><strong>le RCC</strong></h1><p class="hero-copy">Joueur, joueuse, parent, bénévole ou partenaire : un seul point d’entrée pour contacter le Rugby Club Cubzaguais et trouver les bonnes informations.</p><div class="hero-actions"><a class="button primary" href="#formulaire">Écrire au club</a><a class="button ghost" href="#coordonnees">Voir les coordonnées</a></div></div></section>
+      <section class="join-contact-page page-shell">
+        <div class="join-paths" aria-label="Motifs de contact">
+          <article><span class="ui-icon">◆</span><strong>Joueur / joueuse</strong><p>Essai, inscription, mutation ou renseignements sur une catégorie.</p></article>
+          <article><span class="ui-icon">⌂</span><strong>Parent</strong><p>Horaires, école de rugby, documents et accueil au stade.</p></article>
+          <article><span class="ui-icon">◌</span><strong>Bénévole</strong><p>Buvette, logistique, événements, encadrement ou vie du club.</p></article>
+          <article><span class="ui-icon">▣</span><strong>Partenaire</strong><p>Soutenir le RCC, apparaître sur les supports ou accompagner un projet.</p></article>
+        </div>
+        <div class="contact-grid" id="coordonnees">
+          <div class="contact-panel">
+            <p class="section-kicker">Coordonnées</p>
+            <h2>RC Cubzaguais</h2>
+            <div class="contact-details">
+              <article><span>Stade</span><strong data-cms="stadium">Plaine des sports Lionel Ricci</strong><p data-cms="address">Plaine des sports Lionel Ricci, Saint-André-de-Cubzac</p></article>
+              <article><span>Téléphone</span><strong data-cms="phone">À renseigner</strong><p>Numéro administrable depuis Pages CMS.</p></article>
+              <article><span>Email</span><strong><a data-cms="email" href="mailto:lerccdemain@gmail.com">lerccdemain@gmail.com</a></strong><p>Le formulaire prépare automatiquement un email complet.</p></article>
+            </div>
+            <div class="social-links"><a data-cms="facebook" href="#">Facebook</a><a data-cms="instagram" href="#">Instagram</a></div>
+          </div>
+          <form class="join-form contact-form" id="formulaire" data-contact-form>
+            <p class="section-kicker">Votre message</p>
+            <label>Je souhaite contacter le club pour
+              <select name="subject" required>
+                <option value="Inscription joueur / joueuse - RCC">Inscription joueur / joueuse</option>
+                <option value="Question parent - RCC">Contact parent</option>
+                <option value="Bénévolat - RCC">Contact bénévole</option>
+                <option value="Partenariat - RCC">Contact partenaire</option>
+                <option value="Renseignement général - RCC">Autre demande</option>
+              </select>
+            </label>
+            <label>Nom<input type="text" name="name" placeholder="Votre nom" required /></label>
+            <label>Email<input type="email" name="email" placeholder="vous@email.fr" required /></label>
+            <label>Téléphone<input type="tel" name="phone" placeholder="Votre numéro si vous souhaitez être rappelé" /></label>
+            <label>Message<textarea name="message" rows="6" placeholder="Catégorie, âge, disponibilités, question, projet partenaire..." required></textarea></label>
+            <button class="button primary" type="submit">Préparer l'email</button>
+          </form>
+        </div>
+        <div class="map-panel"><iframe data-cms="maps" title="Carte du stade RC Cubzaguais" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Plaine%20des%20sports%20Lionel%20Ricci%2C%20Saint-Andr%C3%A9-de-Cubzac&output=embed"></iframe></div>
+      </section>
+    </main>
+    <footer class="site-footer rcc-footer" data-footer></footer><script src="./script.js"></script><script src="./data-loader.js"></script>
+  </body>
+</html>

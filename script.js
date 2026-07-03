@@ -23,9 +23,10 @@ function buildMailto(form) {
   const name = data.get('name') || '';
   const email = data.get('email') || '';
   const subject = data.get('subject') || 'Contact depuis le site RCC';
+  const phone = data.get('phone') || '';
   const message = data.get('message') || '';
   const target = document.querySelector('[data-cms="email"]')?.textContent?.trim() || 'lerccdemain@gmail.com';
-  const body = mailBody(['Nom : ' + name, 'Email : ' + email, '', String(message)]);
+  const body = mailBody(['Nom : ' + name, 'Email : ' + email, phone ? 'Téléphone : ' + phone : '', '', String(message)].filter(Boolean));
   return 'mailto:' + encodeURIComponent(target) + '?subject=' + encodeURIComponent(String(subject)) + '&body=' + encodeURIComponent(body);
 }
 
@@ -55,13 +56,20 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'Intersect
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  }, { threshold: 0.06, rootMargin: '0px 0px 80px 0px' });
   requestAnimationFrame(() => {
     revealTargets().forEach((node) => {
       node.setAttribute('data-reveal', '');
+      const rect = node.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.96) {
+        node.classList.add('is-visible');
+      }
       observer.observe(node);
     });
   });
+  setTimeout(() => {
+    document.querySelectorAll('[data-reveal]:not(.is-visible)').forEach((node) => node.classList.add('is-visible'));
+  }, 900);
 }
 
 if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
