@@ -302,25 +302,17 @@
     if (!grid) return;
     const data = await fetchData('partners');
     const partners = data.partners || [];
-    const grouped = partners.reduce((acc, item) => {
-      (acc[item.category || 'Partenaires'] ||= []).push(item);
-      return acc;
-    }, {});
-    grid.innerHTML = Object.entries(grouped).map(([category, list]) => `
-      <section class="partner-tier">
-        <div class="roster-title"><p class="section-kicker">Partenaires</p><h2>${escapeHtml(category)}</h2></div>
-        <div class="partner-cards">
-          ${list.map((item) => `
-            <article class="partner-card">
-              <div class="partner-logo"${imageStyle(item.logo)}><strong>${escapeHtml((item.name || 'RCC').slice(0, 2))}</strong></div>
-              <div><span>${escapeHtml(category)}</span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p>${item.url ? `<a class="text-link" href="${escapeHtml(item.url)}">Voir</a>` : ''}</div>
-            </article>
-          `).join('')}
-        </div>
-      </section>
-    `).join('') || '<p class="empty-state">Les partenaires seront bientôt publiés.</p>';
+    grid.innerHTML = partners.length ? `
+      <div class="partner-cards unified-partner-cards">
+        ${partners.map((item) => `
+          <article class="partner-card">
+            <div class="partner-logo"${imageStyle(item.logo)}><strong>${escapeHtml((item.name || 'RCC').slice(0, 2))}</strong></div>
+            <div><span>Partenaire RCC</span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.description)}</p>${item.url ? `<a class="text-link" href="${escapeHtml(item.url)}">Voir</a>` : ''}</div>
+          </article>
+        `).join('')}
+      </div>
+    ` : '<p class="empty-state">Les partenaires seront bientôt publiés.</p>';
   }
-
   async function renderGallery() {
     const grid = document.querySelector('[data-gallery]');
     const filters = document.querySelector('[data-gallery-filters]');

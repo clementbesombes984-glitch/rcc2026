@@ -270,3 +270,8 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 
 /* ===== Navigation balance after removing home link ===== */
 @media(min-width:1121px){.site-nav{gap:clamp(10px,1.12vw,18px);font-size:clamp(11px,.86vw,14px)}.site-nav a{letter-spacing:1.35px}.site-nav .nav-cta{padding-inline:16px}.site-nav .settings-link{width:38px;height:38px;flex:0 0 38px}}
+
+/* ===== Actualites page lift ===== */
+.actualites-page{padding-top:42px}
+.news-toolbar{display:flex;justify-content:flex-end;margin:0 0 18px}
+@media(max-width:760px){.actualites-page{padding-top:28px}.news-toolbar{justify-content:flex-start}}
