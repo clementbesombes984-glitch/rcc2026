@@ -256,7 +256,7 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 .hero-signature .club-signature-logo{width:198px;min-width:198px;height:198px;border-radius:16px;background:rgba(255,255,255,.018)}
 .hero-signature .club-signature-logo img{max-width:192px;max-height:192px}
 .hero-signature .club-signature-text{gap:12px;min-width:0}
-.hero-signature .club-signature-text h1{max-width:none;background:none;color:#fff;text-shadow:0 14px 34px rgba(0,0,0,.45);white-space:nowrap}
+.hero-signature .club-signature-text h1{max-width:none;background:none;color:#fff;text-shadow:0 14px 34px rgba(0,0,0,.45);white-space:nowrap;font-size:clamp(48px,6.2vw,94px)}
 .hero-signature .club-signature-text h1 span{color:var(--red-bright)}
 .hero-signature .club-signature-text small{color:#d7d0c8;letter-spacing:1.8px}
 @media(max-width:1120px){.hero-content{min-height:calc(740px - 78px)}.hero-signature .club-signature-card{gap:28px;min-height:190px}.hero-signature .club-signature-logo{width:162px;min-width:162px;height:162px}.hero-signature .club-signature-logo img{max-width:156px;max-height:156px}.hero-signature .club-signature-text h1{font-size:clamp(44px,7.4vw,78px)}}
