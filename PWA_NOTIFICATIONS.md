@@ -1,10 +1,12 @@
 # Notifications RCC
 
-La PWA est prête pour une future couche notifications, mais les notifications push nécessitent un service côté serveur ou une solution comme Firebase Cloud Messaging pour envoyer les messages aux appareils.
+La PWA contient maintenant une base complete pour les notifications :
 
-À ne pas faire pour l'instant : demander l'autorisation de notification automatiquement au chargement du site.
+- page `notifications.html` ;
+- preferences locales par categorie ;
+- autorisation demandee uniquement apres clic ;
+- service worker pret pour `push` et `notificationclick`.
 
-Idées futures :
-- notification avant un match ;
-- notification de résultat ;
-- notification d'actualité importante.
+L'envoi reel necessite encore Firebase Cloud Messaging ou un Cloudflare Worker + Web Push.
+
+Voir le guide complet : `NOTIFICATIONS.md`.

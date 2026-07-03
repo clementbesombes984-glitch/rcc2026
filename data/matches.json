@@ -8,7 +8,14 @@
       "venue": "Plaine des sports Lionel Ricci",
       "competition": "Amical",
       "status": "win",
-      "result": "55-10"
+      "result": "55-10",
+      "category": "seniors",
+      "team": "Seniors",
+      "notification": false,
+      "audience": [
+        "seniors",
+        "matchs"
+      ]
     },
     {
       "date": "2026-07-29",
@@ -18,7 +25,14 @@
       "venue": "Baye",
       "competition": "amical",
       "status": "upcoming",
-      "result": "A venir"
+      "result": "A venir",
+      "category": "seniors",
+      "team": "Seniors",
+      "notification": false,
+      "audience": [
+        "seniors",
+        "matchs"
+      ]
     },
     {
       "date": "2026-07-31",
@@ -28,7 +42,14 @@
       "venue": "ici",
       "competition": "ok",
       "status": "upcoming",
-      "result": "a venur"
+      "result": "a venur",
+      "category": "seniors",
+      "team": "Seniors",
+      "notification": false,
+      "audience": [
+        "seniors",
+        "matchs"
+      ]
     },
     {
       "date": "2026-07-02",
@@ -37,7 +58,14 @@
       "away": "RCC",
       "venue": "Blaye",
       "competition": "Amical",
-      "status": "upcoming"
+      "status": "upcoming",
+      "category": "seniors",
+      "team": "Seniors",
+      "notification": false,
+      "audience": [
+        "seniors",
+        "matchs"
+      ]
     }
   ]
 }

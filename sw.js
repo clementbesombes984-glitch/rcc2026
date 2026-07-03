@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v2';
+const CACHE_VERSION = 'rcc-pwa-v3';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -15,12 +15,14 @@ const STATIC_ASSETS = [
   '/partenaires.html',
   '/galerie.html',
   '/rcc-demain.html',
+  '/notifications.html',
   '/nous-rejoindre.html',
   '/contact.html',
   '/styles.css',
   '/script.js',
   '/data-loader.js',
   '/matches-view.js',
+  '/notifications.js',
   '/manifest.webmanifest',
   '/assets/logo-rcc.png',
   '/assets/pwa-icon-192.png',
@@ -134,4 +136,54 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(cacheFirst(event.request));
+});
+
+function notificationTarget(data) {
+  const type = data && data.type ? String(data.type) : '';
+  if (data && data.url) return data.url;
+  if (type === 'news' || type === 'actualite') return '/actualites.html';
+  if (type === 'match' || type === 'resultat') return '/#matches';
+  if (type === 'gallery' || type === 'galerie') return '/galerie.html';
+  if (type === 'join' || type === 'contact') return '/nous-rejoindre.html';
+  return '/';
+}
+
+self.addEventListener('push', (event) => {
+  let payload = {};
+  if (event.data) {
+    try {
+      payload = event.data.json();
+    } catch (error) {
+      payload = { title: 'RC Cubzaguais', body: event.data.text() };
+    }
+  }
+
+  const title = payload.title || 'RC Cubzaguais';
+  const options = {
+    body: payload.body || 'Nouvelle information du club.',
+    icon: '/assets/pwa-icon-192.png',
+    badge: '/assets/pwa-icon-192.png',
+    image: payload.image,
+    tag: payload.tag || 'rcc-info',
+    data: {
+      url: notificationTarget(payload),
+      audience: payload.audience || [],
+      type: payload.type || 'news'
+    }
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = new URL(event.notification.data?.url || '/', self.location.origin).href;
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if ('focus' in client && client.url === targetUrl) return client.focus();
+      }
+      return clients.openWindow(targetUrl);
+    })
+  );
 });

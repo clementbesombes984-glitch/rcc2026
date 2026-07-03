@@ -58,6 +58,51 @@ content:
           - name: result
             label: Résultat / badge
             type: string
+          - name: category
+            label: Categorie
+            type: select
+            options:
+              values:
+                - seniors
+                - feminines
+                - u6
+                - u8
+                - u10
+                - u12
+                - u14
+                - u16
+                - u19
+          - name: team
+            label: Equipe concernee
+            type: string
+          - name: notification
+            label: Preparer une notification
+            type: boolean
+          - name: audience
+            label: Public cible
+            type: select
+            list: true
+            options:
+              values:
+                - general
+                - seniors
+                - feminines
+                - u6
+                - u8
+                - u10
+                - u12
+                - u14
+                - u16
+                - u19
+                - ecole
+                - jeunes
+                - benevoles
+                - partenaires
+                - evenements
+                - matchs
+                - resultats
+                - entrainements
+                - important
 
   - name: news
     label: Actualités
@@ -87,6 +132,34 @@ content:
           - name: important
             label: Actualité importante
             type: boolean
+          - name: notification
+            label: Preparer une notification
+            type: boolean
+          - name: audience
+            label: Public cible
+            type: select
+            list: true
+            options:
+              values:
+                - general
+                - seniors
+                - feminines
+                - u6
+                - u8
+                - u10
+                - u12
+                - u14
+                - u16
+                - u19
+                - ecole
+                - jeunes
+                - benevoles
+                - partenaires
+                - evenements
+                - matchs
+                - resultats
+                - entrainements
+                - important
           - name: image
             label: Image
             type: image

@@ -388,7 +388,7 @@
         <div class="footer-columns">
           <section><h3>Club</h3><p>${icon('address')} ${escapeHtml(data.address || data.stadium || '')}</p><p>${icon('place')} ${escapeHtml(data.stadium || '')}</p></section>
           <section><h3>Contact</h3><p>${icon('contact')} <a href="mailto:${escapeHtml(data.email || 'lerccdemain@gmail.com')}">${escapeHtml(data.email || 'lerccdemain@gmail.com')}</a></p><p>${icon('time')} ${escapeHtml(data.phone || 'Téléphone à renseigner')}</p></section>
-          <section><h3>Liens rapides</h3><a href="./matchs.html">Matchs</a><a href="./galerie.html">Galerie</a><a href="./nous-rejoindre.html">Nous rejoindre</a><a href="/cms-login">Administration</a></section>
+          <section><h3>Liens rapides</h3><a href="./matchs.html">Matchs</a><a href="./galerie.html">Galerie</a><a href="./notifications.html">Notifications</a><a href="./nous-rejoindre.html">Nous rejoindre</a><a href="/cms-login">Administration</a></section>
           <section><h3>Réseaux</h3><a href="${escapeHtml(data.facebook || '#')}"${data.facebook ? '' : ' aria-disabled="true"'}>Facebook</a><a href="${escapeHtml(data.instagram || '#')}"${data.instagram ? '' : ' aria-disabled="true"'}>Instagram</a><a href="${escapeHtml(data.ffrUrl || 'https://www.ffr.fr/')}" target="_blank" rel="noreferrer">FFR</a></section>
         </div>
         <div class="footer-bottom"><span>Site propulsé par GitHub + Cloudflare Pages</span><a href="./index.html#accueil">Retour en haut</a></div>

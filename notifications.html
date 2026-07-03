@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Notifications - RC Cubzaguais</title>
+    <meta name="description" content="Choisir les notifications de l'application RC Cubzaguais." />
+    <link rel="stylesheet" href="./styles.css" />
+    <meta name="theme-color" content="#b11845" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="RCC" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./assets/pwa-icon-192.png" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand brand-logo-only" href="./index.html#accueil" aria-label="RC Cubzaguais accueil"><img src="./assets/logo-rcc.png" alt="RC Cubzaguais" /></a>
+      <button class="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-menu-toggle><span></span><span></span></button>
+      <nav class="site-nav" aria-label="Navigation principale" data-nav>
+        <a href="./matchs.html">Matchs</a>
+        <a href="./senior.html">Senior</a>
+        <a href="./ecole.html">Ecole de rugby</a>
+        <a href="./jeunes.html">Pole jeunes</a>
+        <a href="./feminines.html">Feminines</a>
+        <a href="./actualites.html">Actualites</a>
+        <a href="./galerie.html">Galerie</a>
+        <a href="./histoire.html">Histoire</a>
+        <a href="./partenaires.html">Partenaires</a>
+        <a href="./rcc-demain.html">RCC demain</a>
+        <a href="./notifications.html" class="is-active">Notifications</a>
+        <a class="nav-cta" href="./nous-rejoindre.html">Nous rejoindre</a>
+        <a class="admin-link settings-link" href="/cms-login" aria-label="Acces administration" title="Administration">&#9881;</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="history-hero notifications-hero">
+        <div class="hero-art" aria-hidden="true">
+          <div class="stadium-light light-one"></div>
+          <div class="stadium-light light-two"></div>
+          <div class="rugby-scene academy-scene"><span class="player player-one"></span><span class="rugby-ball"></span><span class="field-line field-one"></span></div>
+        </div>
+        <div class="page-shell history-hero-content">
+          <p class="eyebrow"><span></span> Application RCC</p>
+          <h1><span>Notifications</span><strong>RCC</strong></h1>
+        </div>
+      </section>
+
+      <section class="notifications-page page-shell" data-notifications-page>
+        <div class="notification-status-card">
+          <div>
+            <span class="section-kicker">Preferences</span>
+            <h2>Choisir mes alertes</h2>
+            <p data-notification-status>Les notifications ne sont jamais activees sans votre accord.</p>
+          </div>
+          <div class="notification-actions">
+            <button class="button primary" type="button" data-enable-notifications>Activer les notifications</button>
+            <button class="button ghost" type="button" data-disable-notifications>Desactiver</button>
+          </div>
+        </div>
+
+        <div class="notification-groups" data-notification-groups></div>
+
+        <div class="notification-note">
+          <strong>Important</strong>
+          <p>Vos choix sont gardes sur cet appareil. L'envoi reel des notifications sera branche plus tard avec Firebase ou un Cloudflare Worker.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer rcc-footer" data-footer></footer>
+    <script src="./script.js"></script>
+    <script src="./data-loader.js"></script>
+    <script src="./notifications.js"></script>
+  </body>
+</html>
