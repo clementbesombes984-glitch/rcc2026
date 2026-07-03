@@ -295,3 +295,34 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 .notifications-page .notification-note{display:none}
 @media(max-width:1180px){.notifications-page .notification-status-card{grid-template-columns:1fr}.notifications-page .notification-actions{grid-template-columns:repeat(3,minmax(0,1fr));justify-content:stretch}}
 @media(max-width:760px){.notifications-page .notification-actions{grid-template-columns:1fr}.notifications-page .notification-actions .button{min-height:44px}}
+
+/* Premium navigation refresh */
+@media(min-width:1121px){
+  .site-header{height:86px;padding-inline:max(26px,calc((100vw - var(--max))/2));gap:22px;background:linear-gradient(180deg,rgba(9,9,9,.98),rgba(7,7,7,.92));box-shadow:0 18px 42px rgba(0,0,0,.34),inset 0 -1px 0 rgba(177,24,69,.22)}
+  .brand-logo-only{width:92px;height:76px;flex:0 0 92px;border-radius:14px;transition:transform .22s ease,filter .22s ease}
+  .brand-logo-only img{max-width:78px;max-height:72px;filter:drop-shadow(0 12px 22px rgba(0,0,0,.55))}
+  .brand-logo-only:hover{transform:translateY(-1px) scale(1.02)}
+  .site-nav{width:auto;min-width:0;margin-left:auto;padding:7px;border:1px solid rgba(255,255,255,.07);border-radius:999px;background:rgba(255,255,255,.025);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);gap:3px;font-size:clamp(10px,.68vw,12px);color:#a29c96}
+  .site-nav a{display:inline-flex;align-items:center;justify-content:center;min-height:38px;border-radius:999px;padding:0 clamp(8px,.64vw,12px);letter-spacing:1px;transition:color .22s ease,background .22s ease,box-shadow .22s ease,transform .22s ease}
+  .site-nav a:not(.nav-cta):not(.settings-link):after{display:none}
+  .site-nav a:not(.nav-cta):not(.settings-link):hover,.site-nav a.is-active:not(.nav-cta):not(.settings-link){background:rgba(177,24,69,.16);color:#fff;box-shadow:inset 0 0 0 1px rgba(177,24,69,.22)}
+  .site-nav .nav-cta{min-height:46px;margin-left:6px;border-radius:10px;padding:0 18px;background:linear-gradient(135deg,var(--red),#921337);box-shadow:0 14px 32px rgba(177,24,69,.22);font-size:11px;letter-spacing:1.2px}
+  .site-nav .nav-cta:hover{background:linear-gradient(135deg,var(--red-bright),var(--red));box-shadow:0 18px 38px rgba(177,24,69,.32)}
+  .site-nav .settings-link{display:inline-grid;width:46px;height:46px;flex:0 0 46px;margin-left:4px;place-items:center;border:1px solid rgba(255,255,255,.12);border-radius:50%;background:rgba(255,255,255,.04);color:#fff;font-size:18px;line-height:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+  .site-nav .settings-link:hover{border-color:rgba(211,26,82,.55);background:rgba(177,24,69,.18);transform:translateY(-1px) rotate(18deg)}
+}
+@media(min-width:1121px) and (max-width:1420px){
+  .site-header{padding-inline:18px;gap:14px}
+  .brand-logo-only{width:78px;flex-basis:78px}
+  .brand-logo-only img{max-width:68px}
+  .site-nav{font-size:9.5px;gap:2px;padding:6px}
+  .site-nav a{padding-inline:7px;letter-spacing:.75px}
+  .site-nav .nav-cta{padding-inline:12px;font-size:10px}
+  .site-nav .settings-link{width:42px;height:42px;flex-basis:42px}
+}
+@media(max-width:1120px){
+  .site-nav{padding:10px 14px 18px;background:linear-gradient(180deg,#0b0b0b,#070707)}
+  .site-nav a{margin-top:6px;border:1px solid rgba(255,255,255,.06);border-radius:10px;background:rgba(255,255,255,.025)}
+  .site-nav a:hover,.site-nav a.is-active{border-color:rgba(177,24,69,.42);background:rgba(177,24,69,.12)}
+  .site-nav .settings-link{display:grid;place-items:center}
+}
