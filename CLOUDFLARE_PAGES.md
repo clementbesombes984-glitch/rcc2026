@@ -38,6 +38,15 @@ Dans Cloudflare Pages > projet `rcc2026` :
 - Functions directory : `functions`
 - Compatibility flag : `nodejs_compat`
 
+Le fichier `wrangler.toml` du depot fixe aussi cette compatibilite cote Pages Functions :
+
+```toml
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "."
+```
+
+Il ne faut pas ajouter de commande `wrangler deploy` pour autant.
+
 Le deploiement doit etre fait par Cloudflare Pages automatiquement depuis GitHub, pas par `npx wrangler deploy`.
 
 La commande `npm install && npm run build` est importante pour que la dependance `web-push` soit bien installee avant le build des Pages Functions. Sans cette installation, Cloudflare peut afficher :
