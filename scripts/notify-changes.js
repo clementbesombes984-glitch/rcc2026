@@ -1,10 +1,19 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
-const siteUrl = process.env.SITE_URL || '';
-const token = process.env.PUSH_ADMIN_TOKEN || '';
+const siteUrl = process.env.RCC_SITE_URL || process.env.SITE_URL || '';
+const token = process.env.RCC_PUSH_ADMIN_TOKEN || process.env.PUSH_ADMIN_TOKEN || '';
+
+function runGit(args) {
+  try {
+    return execFileSync('git', args, { encoding: 'utf8' }).trim();
+  } catch (error) {
+    return '';
+  }
+}
 
 function readJsonAt(ref, file) {
+  if (!ref || /^0+$/.test(ref)) return {};
   try {
     const content = execFileSync('git', ['show', `${ref}:${file}`], { encoding: 'utf8' });
     return JSON.parse(content);
@@ -80,7 +89,32 @@ function signatureForNews(item) {
     body: item.body || '',
     url: item.url || '',
     important: Boolean(item.important),
+    notification: Boolean(item.notification),
     audience: audiences(item, 'general')
+  });
+}
+
+function signatureForMatch(item) {
+  return JSON.stringify({
+    title: item.title || '',
+    type_evenement: item.type_evenement || item.type || '',
+    team: item.team || '',
+    teams: asList(item.teams),
+    opponent: item.opponent || '',
+    tournamentName: item.tournamentName || '',
+    date: item.date || '',
+    time: item.time || '',
+    home: item.home || false,
+    away: item.away || '',
+    venue: item.venue || '',
+    location: item.location || '',
+    address: item.address || '',
+    competition: item.competition || '',
+    status: item.status || '',
+    result: item.result || '',
+    description: item.description || '',
+    notification: Boolean(item.notification),
+    audience: audiences(item, 'matchs')
   });
 }
 
@@ -110,10 +144,10 @@ function matchPayload(item) {
     ? [`Tournoi ${teamsLabel || 'RCC'}`, item.date, item.time, place].filter(Boolean).join(' - ')
     : [item.date, item.time, place, item.result].filter(Boolean).join(' - ');
   return {
-    type: isResult ? 'resultat' : eventType,
+    type: 'match',
     title,
     body,
-    url: '/matchs.html',
+    url: '/calendrier.html',
     audience: audiences(item, isResult ? 'resultats' : eventAudience),
     tag: `${eventType}-${matchIdFor(item)}`
   };
@@ -142,6 +176,11 @@ async function send(payload) {
 }
 
 const beforeRef = process.env.BEFORE_REF || 'HEAD~1';
+const currentRef = process.env.CURRENT_REF || 'HEAD';
+const modifiedFiles = runGit(['diff', '--name-only', beforeRef, currentRef, '--', 'data/news.json', 'data/matches.json'])
+  .split('\n')
+  .map((file) => file.trim())
+  .filter(Boolean);
 const previousNews = collection(readJsonAt(beforeRef, 'data/news.json'), 'news');
 const currentNews = collection(readJson('data/news.json'), 'news');
 const previousMatches = collection(readJsonAt(beforeRef, 'data/matches.json'), 'matches');
@@ -159,14 +198,19 @@ function shouldNotifyNews(item) {
 
 function shouldNotifyMatch(item) {
   if (!item.notification) return false;
-  return !previousMatchesById.has(matchIdFor(item));
+  const previous = previousMatchesById.get(matchIdFor(item));
+  if (!previous || !previous.notification) return true;
+  return signatureForMatch(previous) !== signatureForMatch(item);
 }
 
 const newsWithNotification = currentNews.filter((item) => item.notification);
 const lastNews = currentNews[currentNews.length - 1] || null;
 
+console.log('Fichiers modifies:', modifiedFiles.length ? modifiedFiles.join(', ') : 'non detectes ou premier deploiement');
+console.log('Ancien commit compare:', beforeRef);
+console.log('Nouveau commit compare:', currentRef);
 console.log('Actus lues:', currentNews.length);
-console.log('Actus avec notification=true:', newsWithNotification.length);
+console.log('Actus detectees avec notification=true:', newsWithNotification.length);
 console.log('Derniere actu detectee:', lastNews ? JSON.stringify({
   title: lastNews.title || '',
   category: lastNews.category || '',
@@ -175,7 +219,7 @@ console.log('Derniere actu detectee:', lastNews ? JSON.stringify({
   audience: Array.isArray(lastNews.audience) ? lastNews.audience : []
 }, null, 2) : 'aucune');
 console.log('Evenements calendrier lus:', currentMatches.length);
-console.log('Evenements calendrier avec notification=true:', currentMatches.filter((item) => item.notification).length);
+console.log('Matchs/tournois detectes avec notification=true:', currentMatches.filter((item) => item.notification).length);
 
 const newsPayloads = currentNews.filter(shouldNotifyNews).map(newsPayload);
 const matchPayloads = currentMatches.filter(shouldNotifyMatch).map(matchPayload);

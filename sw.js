@@ -5,6 +5,7 @@ const DATA_CACHE = CACHE_VERSION + '-data';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/calendrier.html',
   '/matchs.html',
   '/senior.html',
   '/ecole.html',
@@ -147,7 +148,7 @@ function notificationTarget(data) {
   const type = data && data.type ? String(data.type) : '';
   if (data && data.url) return data.url;
   if (type === 'news' || type === 'actualite') return '/actualites.html';
-  if (type === 'match' || type === 'tournoi' || type === 'resultat') return '/matchs.html';
+  if (type === 'match' || type === 'tournoi' || type === 'resultat') return '/calendrier.html';
   if (type === 'gallery' || type === 'galerie') return '/galerie.html';
   if (type === 'join' || type === 'contact') return '/nous-rejoindre.html';
   return '/';
