@@ -759,3 +759,100 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
     text-align:center;
   }
 }
+
+/* Global interface polish: fewer repeated blocks, clearer rhythm */
+.inner-hero-copy{
+  display:none!important;
+}
+.history-hero,
+.senior-hero,
+.academy-hero{
+  min-height:clamp(360px,40vw,500px)!important;
+}
+.history-hero-content,
+.senior-hero-content,
+.academy-hero-content{
+  padding-top:clamp(58px,7vw,86px)!important;
+  padding-bottom:clamp(42px,5vw,68px)!important;
+}
+.section,
+.cards-section,
+.news,
+.gallery-page,
+.partners-page,
+.project-page,
+.join-contact-page,
+.shop-page,
+.matches-page,
+.calendar-page,
+.roster-page,
+.academy-page,
+.history-redesign .history-page{
+  padding-top:clamp(52px,5vw,82px)!important;
+  padding-bottom:clamp(68px,6vw,104px)!important;
+}
+.section-head{
+  margin-bottom:clamp(24px,3vw,42px)!important;
+}
+.section-head h2,
+.partners-page h2,
+.gallery-page h2{
+  font-size:clamp(30px,3.8vw,56px)!important;
+  line-height:1.02!important;
+}
+.join-cta-inner{
+  align-items:flex-start!important;
+  padding:clamp(42px,5vw,64px) 0!important;
+}
+.join-cta-inner > div{
+  max-width:860px;
+}
+.shop-intro,
+.notification-status-card,
+.project-callout,
+.contact-panel,
+.contact-form{
+  border-radius:12px;
+}
+@media(max-width:760px){
+  .history-hero,
+  .senior-hero,
+  .academy-hero{
+    min-height:360px!important;
+  }
+  .history-hero-content,
+  .senior-hero-content,
+  .academy-hero-content{
+    padding-top:46px!important;
+    padding-bottom:34px!important;
+  }
+  .section,
+  .cards-section,
+  .news,
+  .gallery-page,
+  .partners-page,
+  .project-page,
+  .join-contact-page,
+  .shop-page,
+  .matches-page,
+  .calendar-page,
+  .roster-page,
+  .academy-page,
+  .history-redesign .history-page{
+    padding-top:42px!important;
+    padding-bottom:72px!important;
+  }
+  .section-head{
+    gap:10px!important;
+    margin-bottom:24px!important;
+  }
+  .section-kicker{
+    margin-bottom:14px!important;
+  }
+  .home-match-preview{
+    padding-top:36px!important;
+  }
+  .join-cta-inner{
+    padding:38px 0!important;
+  }
+}
