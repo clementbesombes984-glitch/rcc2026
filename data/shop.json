@@ -27,6 +27,13 @@
       "image": "/assets/uploads/maillot-derby-4.webp",
       "price": "19€",
       "url": "https://www.sponsport33.com/maillot-derby-xml-385_679-5295.html"
+    },
+    {
+      "name": "Polo Classico",
+      "category": "Polos",
+      "image": "/assets/uploads/polo-popo-8-1.webp",
+      "price": "24€",
+      "url": "https://www.sponsport33.com/polo-classico-xml-385_679-5291.html"
     }
   ]
 }
