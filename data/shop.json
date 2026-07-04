@@ -34,6 +34,13 @@
       "image": "/assets/uploads/polo-popo-8-1.webp",
       "price": "24€",
       "url": "https://www.sponsport33.com/polo-classico-xml-385_679-5291.html"
+    },
+    {
+      "name": "Casquette Trucker",
+      "category": "Accessoires",
+      "image": "/assets/uploads/casquette-trucker-3.webp",
+      "price": "15€",
+      "url": "https://www.sponsport33.com/casquette-trucker-xml-385_679-5299.html"
     }
   ]
 }
