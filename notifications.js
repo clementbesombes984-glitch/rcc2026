@@ -55,6 +55,7 @@
       title: 'Matchs et vie sportive',
       items: [
         ['matchs', 'Matchs'],
+        ['tournois', 'Tournois'],
         ['resultats', 'Resultats'],
         ['entrainements', 'Entrainements']
       ]
@@ -237,13 +238,19 @@
       ...matches.filter((item) => item.notification).map((item) => {
         const status = String(item.status || '').toLowerCase();
         const isResult = status === 'win' || status === 'loss' || Boolean(item.result);
-        const audience = itemAudiences(item, isResult ? 'resultats' : 'matchs');
+        const eventType = String(item.type_evenement || item.type || 'match').toLowerCase() === 'tournoi' ? 'tournoi' : 'match';
+        const eventAudience = eventType === 'tournoi' ? 'tournois' : 'matchs';
+        const audience = itemAudiences(item, isResult ? 'resultats' : eventAudience);
+        const title = eventType === 'tournoi'
+          ? (item.title || item.tournamentName || ('Tournoi ' + (item.team || 'RCC')))
+          : (item.title || (item.home || 'RCC') + ' vs ' + (item.opponent || item.away || 'Adversaire'));
+        const place = item.location || item.venue || '';
         return {
-          id: itemId('match', item),
-          type: isResult ? 'resultat' : 'match',
-          title: (item.home || 'RCC') + ' vs ' + (item.away || 'Adversaire'),
-          body: [item.date, item.time, item.venue, item.result].filter(Boolean).join(' - '),
-          url: isResult ? '/matchs.html' : '/#matches',
+          id: itemId(eventType, item),
+          type: isResult ? 'resultat' : eventType,
+          title,
+          body: [item.date, item.time, place, item.result].filter(Boolean).join(' - '),
+          url: '/matchs.html',
           audience
         };
       })

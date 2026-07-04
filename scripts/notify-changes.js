@@ -39,6 +39,16 @@ function idFor(type, item) {
   ].join('|').toLowerCase();
 }
 
+function matchIdFor(item) {
+  return [
+    'match',
+    item.date || '',
+    item.time || '',
+    item.opponent || item.away || item.title || '',
+    item.result || ''
+  ].join('|').toLowerCase();
+}
+
 function audiences(item, fallback) {
   const values = Array.isArray(item.audience) ? item.audience : [];
   if (item.important) values.push('important');
@@ -73,13 +83,22 @@ function newsPayload(item) {
 function matchPayload(item) {
   const status = String(item.status || '').toLowerCase();
   const isResult = status === 'win' || status === 'loss' || Boolean(item.result);
+  const eventType = String(item.type_evenement || item.type || 'match').toLowerCase() === 'tournoi' ? 'tournoi' : 'match';
+  const eventAudience = eventType === 'tournoi' ? 'tournois' : 'matchs';
+  const title = eventType === 'tournoi'
+    ? (item.title || item.tournamentName || `Tournoi ${item.team || 'RCC'}`)
+    : (item.title || `${item.home || 'RCC'} vs ${item.opponent || item.away || 'Adversaire'}`);
+  const place = item.location || item.venue || '';
+  const body = eventType === 'tournoi'
+    ? [`Tournoi ${item.team || 'RCC'}`, item.date, item.time, place].filter(Boolean).join(' - ')
+    : [item.date, item.time, place, item.result].filter(Boolean).join(' - ');
   return {
-    type: isResult ? 'resultat' : 'match',
-    title: `${item.home || 'RCC'} vs ${item.away || 'Adversaire'}`,
-    body: [item.date, item.time, item.venue, item.result].filter(Boolean).join(' - '),
-    url: isResult ? '/matchs.html' : '/#matches',
-    audience: audiences(item, isResult ? 'resultats' : 'matchs'),
-    tag: `match-${idFor('match', item)}`
+    type: isResult ? 'resultat' : eventType,
+    title,
+    body,
+    url: '/matchs.html',
+    audience: audiences(item, isResult ? 'resultats' : eventAudience),
+    tag: `${eventType}-${matchIdFor(item)}`
   };
 }
 
@@ -112,7 +131,7 @@ const previousMatches = collection(readJsonAt(beforeRef, 'data/matches.json'), '
 const currentMatches = collection(readJson('data/matches.json'), 'matches');
 
 const previousNewsById = new Map(previousNews.map((item) => [idFor('news', item), item]));
-const previousMatchesById = new Map(previousMatches.map((item) => [idFor('match', item), item]));
+const previousMatchesById = new Map(previousMatches.map((item) => [matchIdFor(item), item]));
 
 function shouldNotifyNews(item) {
   if (!item.notification) return false;
@@ -123,7 +142,7 @@ function shouldNotifyNews(item) {
 
 function shouldNotifyMatch(item) {
   if (!item.notification) return false;
-  return !previousMatchesById.has(idFor('match', item));
+  return !previousMatchesById.has(matchIdFor(item));
 }
 
 const newsWithNotification = currentNews.filter((item) => item.notification);
@@ -138,15 +157,15 @@ console.log('Derniere actu detectee:', lastNews ? JSON.stringify({
   important: Boolean(lastNews.important),
   audience: Array.isArray(lastNews.audience) ? lastNews.audience : []
 }, null, 2) : 'aucune');
-console.log('Matchs lus:', currentMatches.length);
-console.log('Matchs avec notification=true:', currentMatches.filter((item) => item.notification).length);
+console.log('Evenements calendrier lus:', currentMatches.length);
+console.log('Evenements calendrier avec notification=true:', currentMatches.filter((item) => item.notification).length);
 
 const newsPayloads = currentNews.filter(shouldNotifyNews).map(newsPayload);
 const matchPayloads = currentMatches.filter(shouldNotifyMatch).map(matchPayload);
 const payloads = [...newsPayloads, ...matchPayloads];
 
 console.log('Notifications actualites a envoyer:', newsPayloads.length);
-console.log('Notifications matchs a envoyer:', matchPayloads.length);
+console.log('Notifications calendrier a envoyer:', matchPayloads.length);
 
 if (!payloads.length) {
   console.log('Aucune nouvelle notification a envoyer.');

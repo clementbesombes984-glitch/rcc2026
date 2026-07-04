@@ -1,16 +1,21 @@
 {
   "matches": [
     {
+      "title": "RC Cubzaguais vs La Pimpine",
+      "type_evenement": "match",
+      "team": "Seniors",
+      "opponent": "La Pimpine",
       "date": "2026-07-01",
       "time": "19h00",
-      "home": "RC Cubzaguais",
+      "home": true,
       "away": "La Pimpine",
       "venue": "Plaine des sports Lionel Ricci",
+      "location": "Plaine des sports Lionel Ricci",
       "competition": "Amical",
       "status": "win",
       "result": "55-10",
       "category": "seniors",
-      "team": "Seniors",
+      "description": "",
       "notification": false,
       "audience": [
         "seniors",
@@ -18,16 +23,21 @@
       ]
     },
     {
+      "title": "RC Cubzaguais vs Blaye",
+      "type_evenement": "match",
+      "team": "Seniors",
+      "opponent": "Blaye",
       "date": "2026-07-29",
       "time": "15h00",
-      "home": "RC Cubzaguais",
+      "home": true,
       "away": "Blaye",
       "venue": "Baye",
-      "competition": "amical",
+      "location": "Baye",
+      "competition": "Amical",
       "status": "upcoming",
       "result": "A venir",
       "category": "seniors",
-      "team": "Seniors",
+      "description": "",
       "notification": false,
       "audience": [
         "seniors",
@@ -35,16 +45,21 @@
       ]
     },
     {
+      "title": "STT vs RCC",
+      "type_evenement": "match",
+      "team": "Seniors",
+      "opponent": "STT",
       "date": "2026-07-31",
       "time": "15h00",
-      "home": "STT",
+      "home": false,
       "away": "RCC",
       "venue": "ici",
+      "location": "ici",
       "competition": "ok",
       "status": "upcoming",
       "result": "a venur",
       "category": "seniors",
-      "team": "Seniors",
+      "description": "",
       "notification": false,
       "audience": [
         "seniors",
@@ -52,15 +67,20 @@
       ]
     },
     {
+      "title": "Blaye vs RCC",
+      "type_evenement": "match",
+      "team": "Seniors",
+      "opponent": "Blaye",
       "date": "2026-07-02",
       "time": "18h00",
-      "home": "Blaye",
+      "home": false,
       "away": "RCC",
       "venue": "Blaye",
+      "location": "Blaye",
       "competition": "Amical",
       "status": "upcoming",
       "category": "seniors",
-      "team": "Seniors",
+      "description": "",
       "notification": false,
       "audience": [
         "seniors",
@@ -68,27 +88,65 @@
       ]
     },
     {
+      "title": "RCC vs Galgon",
+      "type_evenement": "match",
+      "team": "Seniors",
+      "opponent": "Galgon",
       "date": "2026-07-23",
       "time": "15h00",
-      "home": "RCC",
+      "home": true,
       "away": "Galgon",
       "venue": "Plaine des sports",
+      "location": "Plaine des sports",
       "status": "upcoming",
       "category": "seniors",
-      "notification": true
+      "description": "",
+      "notification": true,
+      "audience": [
+        "seniors",
+        "matchs"
+      ]
     },
     {
+      "title": "RCC vs CO",
+      "type_evenement": "match",
+      "team": "Seniors",
+      "opponent": "CO",
       "date": "2026-08-04",
       "time": "16h00",
-      "home": "RCC",
+      "home": true,
       "away": "CO",
       "venue": "Plaine des sports",
+      "location": "Plaine des sports",
       "status": "upcoming",
       "category": "seniors",
+      "description": "",
       "notification": true,
       "audience": [
         "general",
-        "seniors"
+        "seniors",
+        "matchs"
+      ]
+    },
+    {
+      "title": "Tournoi U8 de rentree",
+      "type_evenement": "tournoi",
+      "team": "U8",
+      "tournamentName": "Tournoi U8 de rentree",
+      "date": "2026-09-12",
+      "time": "09h30",
+      "home": true,
+      "location": "Saint-Andre-de-Cubzac",
+      "venue": "Saint-Andre-de-Cubzac",
+      "address": "Plaine des sports Lionel Ricci",
+      "status": "upcoming",
+      "category": "u8",
+      "description": "Tournoi ecole de rugby",
+      "notification": false,
+      "audience": [
+        "u8",
+        "ecole",
+        "tournois"
       ]
     }
   ]

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v4';
+const CACHE_VERSION = 'rcc-pwa-v5';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -147,7 +147,7 @@ function notificationTarget(data) {
   const type = data && data.type ? String(data.type) : '';
   if (data && data.url) return data.url;
   if (type === 'news' || type === 'actualite') return '/actualites.html';
-  if (type === 'match' || type === 'resultat') return '/#matches';
+  if (type === 'match' || type === 'tournoi' || type === 'resultat') return '/matchs.html';
   if (type === 'gallery' || type === 'galerie') return '/galerie.html';
   if (type === 'join' || type === 'contact') return '/nous-rejoindre.html';
   return '/';

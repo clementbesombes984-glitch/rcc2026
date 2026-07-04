@@ -6,19 +6,54 @@ media:
 
 content:
   - name: matches
-    label: Matchs
+    label: Calendrier
     type: file
     path: data/matches.json
     format: json
     fields:
       - name: matches
-        label: Calendrier des matchs
+        label: Matchs, tournois et rendez-vous sportifs
         type: object
         list:
           collapsible:
             collapsed: true
-            summary: "{date} - {home} vs {away}"
+            summary: "{date} - {type_evenement} - {title}"
         fields:
+          - name: title
+            label: Titre
+            type: string
+          - name: type_evenement
+            label: Type d evenement
+            type: select
+            required: true
+            options:
+              values:
+                - value: match
+                  label: Match
+                - value: tournoi
+                  label: Tournoi
+          - name: team
+            label: Equipe / categorie concernee
+            type: select
+            options:
+              values:
+                - Seniors
+                - Feminines
+                - U6
+                - U8
+                - U10
+                - U12
+                - U14
+                - U16
+                - U19
+                - Ecole de rugby
+                - Pole jeunes
+          - name: opponent
+            label: Adversaire si match
+            type: string
+          - name: tournamentName
+            label: Nom du tournoi si tournoi
+            type: string
           - name: date
             label: Date
             type: date
@@ -28,19 +63,23 @@ content:
             type: string
             required: true
           - name: home
-            label: Équipe domicile
-            type: string
-            required: true
+            label: Domicile
+            type: boolean
           - name: away
-            label: Équipe extérieur
+            label: Ancien champ adversaire / exterieur
             type: string
-            required: true
           - name: venue
+            label: Ancien champ lieu
+            type: string
+          - name: location
             label: Lieu
             type: string
             required: true
+          - name: address
+            label: Adresse
+            type: string
           - name: competition
-            label: Compétition
+            label: Competition
             type: string
           - name: status
             label: Statut
@@ -48,15 +87,15 @@ content:
             options:
               values:
                 - value: upcoming
-                  label: À venir
+                  label: A venir
                 - value: win
                   label: Victoire
                 - value: loss
-                  label: Défaite
+                  label: Defaite
                 - value: muted
                   label: Neutre
           - name: result
-            label: Résultat / badge
+            label: Resultat / badge
             type: string
           - name: category
             label: Categorie
@@ -72,9 +111,11 @@ content:
                 - u14
                 - u16
                 - u19
-          - name: team
-            label: Equipe concernee
-            type: string
+                - ecole
+                - jeunes
+          - name: description
+            label: Description
+            type: text
           - name: notification
             label: Preparer une notification
             type: boolean
@@ -100,10 +141,10 @@ content:
                 - partenaires
                 - evenements
                 - matchs
+                - tournois
                 - resultats
                 - entrainements
                 - important
-
   - name: news
     label: Actualités
     type: file
@@ -157,6 +198,7 @@ content:
                 - partenaires
                 - evenements
                 - matchs
+                - tournois
                 - resultats
                 - entrainements
                 - important
