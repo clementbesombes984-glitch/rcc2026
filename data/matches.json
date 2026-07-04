@@ -80,7 +80,8 @@
       "audience": [
         "general",
         "seniors",
-        "u8"
+        "u8",
+        "ecole"
       ]
     }
   ]
