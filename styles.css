@@ -711,3 +711,9 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 @media(max-width:1180px){.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:900px){.shop-intro{display:grid}.shop-grid{grid-template-columns:1fr}.shop-card{grid-template-rows:210px 1fr}.shop-bottom{align-items:flex-start;flex-direction:column}.shop-button{width:100%}.site-nav .shop-link,.site-nav .nav-icon-link{display:grid;place-items:center}}
 @media(max-width:760px){.shop-page{padding-top:36px;padding-bottom:92px}.shop-intro{padding:20px}.shop-intro p{font-size:16px}.shop-filters{gap:8px;margin-bottom:24px}.shop-filters button{padding:10px 12px;font-size:11px}.shop-content{padding:18px}.shop-content h2{font-size:clamp(25px,8vw,34px)}body .shop-hero h1,body .partners-hero h1,body .gallery-hero h1{font-size:clamp(28px,8.4vw,38px)!important;line-height:1.08!important}body .shop-hero .history-hero-content,body .partners-hero .history-hero-content,body .gallery-hero .history-hero-content{padding-bottom:34px!important}.site-nav .nav-icon-link{width:44px;height:44px;flex-basis:44px}.site-nav .nav-icon-link svg{width:21px;height:21px}}
+
+/* Larger header icons */
+.site-nav .nav-icon-link,.site-nav .shop-link,.site-nav .notification-link,.site-nav .settings-link{width:48px!important;height:48px!important;flex:0 0 48px!important}
+.site-nav .nav-icon-link svg,.site-nav .shop-link svg{width:25px!important;height:25px!important}
+.site-nav .notification-link,.site-nav .settings-link{font-size:22px!important}
+@media(max-width:760px){.site-nav .nav-icon-link,.site-nav .shop-link,.site-nav .notification-link,.site-nav .settings-link{width:50px!important;height:50px!important;flex-basis:50px!important}.site-nav .nav-icon-link svg,.site-nav .shop-link svg{width:26px!important;height:26px!important}.site-nav .notification-link,.site-nav .settings-link{font-size:23px!important}}
