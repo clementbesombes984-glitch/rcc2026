@@ -69,16 +69,13 @@
       ]
     },
     {
-      "title": "dd",
+      "title": "MATCHHHHHH",
       "type_evenement": "match",
       "team": "Seniors",
-      "opponent": "CO",
       "date": "2026-08-08",
       "time": "18h00",
-      "home": false,
-      "location": "ici",
-      "status": "upcoming",
-      "category": "seniors",
+      "home": true,
+      "location": "ICI",
       "notification": true,
       "audience": [
         "general",
