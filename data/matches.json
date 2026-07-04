@@ -22,107 +22,6 @@
       ]
     },
     {
-      "title": "RC Cubzaguais vs Blaye",
-      "type_evenement": "match",
-      "team": "Seniors",
-      "opponent": "Blaye",
-      "date": "2026-07-29",
-      "time": "15h00",
-      "home": true,
-      "away": "Blaye",
-      "venue": "Baye",
-      "location": "Baye",
-      "competition": "Amical",
-      "status": "upcoming",
-      "result": "A venir",
-      "category": "seniors",
-      "notification": false,
-      "audience": [
-        "seniors",
-        "matchs"
-      ]
-    },
-    {
-      "title": "STT vs RCC",
-      "type_evenement": "match",
-      "team": "Seniors",
-      "opponent": "STT",
-      "date": "2026-07-31",
-      "time": "15h00",
-      "home": false,
-      "away": "RCC",
-      "venue": "ici",
-      "location": "ici",
-      "competition": "ok",
-      "status": "upcoming",
-      "result": "a venur",
-      "category": "seniors",
-      "notification": false,
-      "audience": [
-        "seniors",
-        "matchs"
-      ]
-    },
-    {
-      "title": "Blaye vs RCC",
-      "type_evenement": "match",
-      "team": "Seniors",
-      "opponent": "Blaye",
-      "date": "2026-07-02",
-      "time": "18h00",
-      "home": false,
-      "away": "RCC",
-      "venue": "Blaye",
-      "location": "Blaye",
-      "competition": "Amical",
-      "status": "upcoming",
-      "category": "seniors",
-      "notification": false,
-      "audience": [
-        "seniors",
-        "matchs"
-      ]
-    },
-    {
-      "title": "RCC vs Galgon",
-      "type_evenement": "match",
-      "team": "Seniors",
-      "opponent": "Galgon",
-      "date": "2026-07-23",
-      "time": "15h00",
-      "home": true,
-      "away": "Galgon",
-      "venue": "Plaine des sports",
-      "location": "Plaine des sports",
-      "status": "upcoming",
-      "category": "seniors",
-      "notification": true,
-      "audience": [
-        "seniors",
-        "matchs"
-      ]
-    },
-    {
-      "title": "RCC vs CO",
-      "type_evenement": "match",
-      "team": "Seniors",
-      "opponent": "CO",
-      "date": "2026-08-04",
-      "time": "16h00",
-      "home": true,
-      "away": "CO",
-      "venue": "Plaine des sports",
-      "location": "Plaine des sports",
-      "status": "upcoming",
-      "category": "seniors",
-      "notification": true,
-      "audience": [
-        "general",
-        "seniors",
-        "matchs"
-      ]
-    },
-    {
       "title": "Tournoi U8 de rentree",
       "type_evenement": "tournoi",
       "team": "U8",
@@ -144,18 +43,20 @@
       ]
     },
     {
-      "title": "Tournoi",
+      "title": "Tournoi RCC",
       "type_evenement": "tournoi",
-      "team": "U8",
+      "team": "Ecole de rugby",
       "teams": [
         "U6",
+        "U8",
         "U10",
         "U12"
       ],
+      "tournamentName": "RCC",
       "date": "2026-08-09",
       "time": "10h00",
-      "home": false,
-      "location": "plaine des sports",
+      "home": true,
+      "location": "Plaine des sports",
       "status": "upcoming",
       "category": "ecole",
       "notification": true,
