@@ -3,20 +3,22 @@
     {
       "name": "Maillot RCC",
       "category": "Maillots",
-      "image": "",
       "price": "Prix a renseigner",
       "description": "Maillot officiel aux couleurs du RC Cubzaguais.",
-      "url": "",
       "badge": "Nouveau"
     },
     {
       "name": "Sweat RCC",
       "category": "Sweats",
-      "image": "",
       "price": "Prix a renseigner",
-      "description": "Sweat du club pour les joueurs, parents et supporters.",
-      "url": "",
-      "badge": ""
+      "description": "Sweat du club pour les joueurs, parents et supporters."
+    },
+    {
+      "name": "Veste",
+      "category": "Sweats",
+      "image": "/assets/uploads/veste-relax.webp",
+      "price": "54€",
+      "url": "https://www.sponsport33.com/veste-relax-xml-385_679-5293.html"
     }
   ]
 }
