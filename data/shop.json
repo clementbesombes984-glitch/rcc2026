@@ -19,6 +19,13 @@
       "image": "/assets/uploads/veste-relax.webp",
       "price": "54€",
       "url": "https://www.sponsport33.com/veste-relax-xml-385_679-5293.html"
+    },
+    {
+      "name": "Veste Compo",
+      "category": "Sweats",
+      "image": "/assets/uploads/veste-compo-5-1.webp",
+      "price": "30€",
+      "url": "https://www.sponsport33.com/veste-compo-xml-385_679-5466.html"
     }
   ]
 }
