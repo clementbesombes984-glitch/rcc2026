@@ -1,0 +1,22 @@
+{
+  "products": [
+    {
+      "name": "Maillot RCC",
+      "category": "Maillots",
+      "image": "",
+      "price": "Prix a renseigner",
+      "description": "Maillot officiel aux couleurs du RC Cubzaguais.",
+      "url": "",
+      "badge": "Nouveau"
+    },
+    {
+      "name": "Sweat RCC",
+      "category": "Sweats",
+      "image": "",
+      "price": "Prix a renseigner",
+      "description": "Sweat du club pour les joueurs, parents et supporters.",
+      "url": "",
+      "badge": ""
+    }
+  ]
+}

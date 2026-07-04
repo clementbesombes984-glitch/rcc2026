@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v5';
+const CACHE_VERSION = 'rcc-pwa-v6';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -7,6 +7,7 @@ const STATIC_ASSETS = [
   '/index.html',
   '/calendrier.html',
   '/matchs.html',
+  '/boutique.html',
   '/senior.html',
   '/ecole.html',
   '/jeunes.html',
@@ -41,6 +42,7 @@ const DATA_ASSETS = [
   '/data/partners.json',
   '/data/project.json',
   '/data/gallery.json',
+  '/data/shop.json',
   '/data/settings.json'
 ];
 

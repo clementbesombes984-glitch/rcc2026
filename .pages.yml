@@ -560,6 +560,57 @@ content:
             label: Texte
             type: text
 
+  - name: shop
+    label: Boutique
+    type: file
+    path: data/shop.json
+    format: json
+    fields:
+      - name: products
+        label: Produits
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{category} - {name}"
+        fields:
+          - name: name
+            label: Nom produit
+            type: string
+            required: true
+          - name: category
+            label: Categorie
+            type: select
+            required: true
+            options:
+              values:
+                - Maillots
+                - Sweats
+                - Polos
+                - Shorts
+                - Accessoires
+          - name: image
+            label: Image
+            type: image
+          - name: price
+            label: Prix
+            type: string
+          - name: description
+            label: Description courte
+            type: text
+          - name: url
+            label: Lien achat Sponsport
+            type: string
+          - name: badge
+            label: Badge optionnel
+            type: select
+            options:
+              values:
+                - ""
+                - Nouveau
+                - Promo
+                - Precommande
+
   - name: settings
     label: Paramètres du club
     type: file

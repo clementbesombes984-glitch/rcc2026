@@ -378,6 +378,52 @@
     });
   }
 
+  async function renderShop() {
+    const grid = document.querySelector('[data-shop-products]');
+    const filters = document.querySelector('[data-shop-filters]');
+    if (!grid) return;
+
+    const data = await fetchData('shop');
+    const products = Array.isArray(data) ? data : (data.products || []);
+    const categories = ['Tous', 'Maillots', 'Sweats', 'Polos', 'Shorts', 'Accessoires'];
+
+    if (filters) {
+      filters.innerHTML = categories.map((category, index) => `
+        <button type="button" class="${index === 0 ? 'is-active' : ''}" data-shop-filter="${escapeHtml(category)}">${escapeHtml(category)}</button>
+      `).join('');
+    }
+
+    const render = (category = 'Tous') => {
+      const visible = category === 'Tous' ? products : products.filter((product) => product.category === category);
+      grid.innerHTML = visible.length ? visible.map((product) => `
+        <article class="shop-card">
+          <div class="shop-image"${imageStyle(product.image)} aria-label="${escapeHtml(product.name || 'Produit RCC')}">
+            ${product.badge ? `<span>${escapeHtml(product.badge)}</span>` : ''}
+          </div>
+          <div class="shop-content">
+            <small>${escapeHtml(product.category || 'Boutique')}</small>
+            <h2>${escapeHtml(product.name)}</h2>
+            <p>${escapeHtml(product.description)}</p>
+            <div class="shop-bottom">
+              <strong>${escapeHtml(product.price)}</strong>
+              ${product.url ? `<a class="button shop-button" href="${escapeHtml(product.url)}" target="_blank" rel="noopener noreferrer">Commander sur Sponsport</a>` : '<span class="shop-unavailable">Lien a renseigner</span>'}
+            </div>
+          </div>
+        </article>
+      `).join('') : '<p class="empty-state">Les produits de la boutique seront bientot disponibles.</p>';
+    };
+
+    filters?.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-shop-filter]');
+      if (!button) return;
+      filters.querySelectorAll('button').forEach((item) => item.classList.remove('is-active'));
+      button.classList.add('is-active');
+      render(button.dataset.shopFilter);
+    });
+
+    render();
+  }
+
   async function renderFooter() {
     const footer = document.querySelector('[data-footer]');
     if (!footer) return;
@@ -388,7 +434,7 @@
         <div class="footer-columns">
           <section><h3>Club</h3><p>${icon('address')} ${escapeHtml(data.address || data.stadium || '')}</p><p>${icon('place')} ${escapeHtml(data.stadium || '')}</p></section>
           <section><h3>Contact</h3><p>${icon('contact')} <a href="mailto:${escapeHtml(data.email || 'lerccdemain@gmail.com')}">${escapeHtml(data.email || 'lerccdemain@gmail.com')}</a></p><p>${icon('time')} ${escapeHtml(data.phone || 'Téléphone à renseigner')}</p></section>
-          <section><h3>Liens rapides</h3><a href="./matchs.html">Calendrier</a><a href="./galerie.html">Galerie</a><a href="./notifications.html">Notifications</a><a href="./nous-rejoindre.html">Nous rejoindre</a><a href="/cms-login">Administration</a></section>
+          <section><h3>Liens rapides</h3><a href="./matchs.html">Calendrier</a><a href="./boutique.html">Boutique</a><a href="./galerie.html">Galerie</a><a href="./notifications.html">Notifications</a><a href="./nous-rejoindre.html">Nous rejoindre</a><a href="/cms-login">Administration</a></section>
           <section><h3>Réseaux</h3><a href="${escapeHtml(data.facebook || '#')}"${data.facebook ? '' : ' aria-disabled="true"'}>Facebook</a><a href="${escapeHtml(data.instagram || '#')}"${data.instagram ? '' : ' aria-disabled="true"'}>Instagram</a><a href="${escapeHtml(data.ffrUrl || 'https://www.ffr.fr/')}" target="_blank" rel="noreferrer">FFR</a></section>
         </div>
         <div class="footer-bottom"><span>Site propulsé par GitHub + Cloudflare Pages</span><a href="./index.html#accueil">Retour en haut</a></div>
@@ -431,6 +477,7 @@
     renderProject().catch(console.error);
     renderImportantNews().catch(console.error);
     renderGallery().catch(console.error);
+    renderShop().catch(console.error);
     renderFooter().catch(console.error);
   });
 })();
