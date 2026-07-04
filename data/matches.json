@@ -79,7 +79,9 @@
       "notification": true,
       "audience": [
         "general",
-        "seniors"
+        "seniors",
+        "matchs",
+        "important"
       ]
     }
   ]
