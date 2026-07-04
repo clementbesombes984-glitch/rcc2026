@@ -82,7 +82,7 @@
     }).join('');
   }
 
-  async function renderNews() {
+  async function renderNewsLegacy() {
     const grid = document.querySelector('.news-grid');
     if (!grid) return;
 
@@ -97,6 +97,145 @@
         <p>${escapeHtml(item.summary)}</p>
       </article>
     `).join('');
+  }
+
+  async function renderNews() {
+    const grid = document.querySelector('.news-grid');
+    if (!grid) return;
+
+    const data = await fetchData('news');
+    const news = (Array.isArray(data) ? data : (data.news || []))
+      .map((item, index) => ({ ...item, _index: index }))
+      .sort((a, b) => {
+        const dateA = a.date ? new Date(a.date).getTime() : 0;
+        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        return (dateB || 0) - (dateA || 0) || a._index - b._index;
+      });
+
+    const renderSimpleCard = (item) => `
+      <article>
+        ${item.image ? `<div class="news-image"${imageStyle(item.image)}></div>` : ''}
+        <span>${escapeHtml(item.category || 'Club')}${item.important ? ' · Important' : ''}</span>
+        <h3>${escapeHtml(item.title || 'Actualite RCC')}</h3>
+        <p>${escapeHtml(item.summary || item.body || '')}</p>
+      </article>
+    `;
+
+    if (!grid.classList.contains('news-list')) {
+      grid.innerHTML = news.slice(0, 3).map(renderSimpleCard).join('');
+      return;
+    }
+
+    if (!news.length) {
+      grid.innerHTML = `
+        <article class="news-empty-journal">
+          <span>Journal RCC</span>
+          <h3>Aucune actualite publiee</h3>
+          <p>Les prochaines nouvelles du club apparaitront ici des leur publication.</p>
+        </article>
+      `;
+      return;
+    }
+
+    const filters = [
+      { label: 'Toutes', value: 'all' },
+      { label: 'Club', value: 'club' },
+      { label: 'Seniors', value: 'seniors' },
+      { label: 'Ecole de rugby', value: 'ecole' },
+      { label: 'Jeunes', value: 'jeunes' },
+      { label: 'Feminines', value: 'feminines' },
+      { label: 'Benevoles', value: 'benevoles' },
+      { label: 'Tournois', value: 'tournois' }
+    ];
+
+    const normalize = (value) => String(value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-');
+
+    const itemTags = (item) => {
+      const tags = new Set([normalize(item.category)]);
+      (Array.isArray(item.audience) ? item.audience : []).forEach((tag) => tags.add(normalize(tag)));
+      if (['u6', 'u8', 'u10', 'u12', 'ecole-de-rugby'].some((tag) => tags.has(tag))) tags.add('ecole');
+      if (['u14', 'u16', 'u18', 'u19', 'pole-jeunes'].some((tag) => tags.has(tag))) tags.add('jeunes');
+      if (tags.has('senior')) tags.add('seniors');
+      if (tags.has('feminine')) tags.add('feminines');
+      if (tags.has('benevole')) tags.add('benevoles');
+      if (['tournoi', 'tournois'].some((tag) => tags.has(tag))) tags.add('tournois');
+      return tags;
+    };
+
+    const featured = news.find((item) => item.important) || news[0];
+    const secondary = news.filter((item) => item !== featured).slice(0, 3);
+    const articleMeta = (item) => `
+      <div class="journal-meta">
+        <span>${escapeHtml(item.category || 'Club')}</span>
+        <time>${escapeHtml(item.date ? formatDate(item.date) : 'Publie recemment')}</time>
+      </div>
+    `;
+    const imageBlock = (item, className = 'journal-image') => item.image
+      ? `<div class="${className}"${imageStyle(item.image)}></div>`
+      : `<div class="${className} journal-image-fallback"><strong>RCC</strong></div>`;
+    const renderJournalCard = (item, className = '') => `
+      <article class="journal-card ${className}" data-news-item data-news-tags="${escapeHtml([...itemTags(item)].join(' '))}">
+        ${imageBlock(item)}
+        <div class="journal-card-body">
+          ${articleMeta(item)}
+          ${item.important ? '<b class="journal-badge">Important</b>' : ''}
+          <h3>${escapeHtml(item.title || 'Actualite RCC')}</h3>
+          <p>${escapeHtml(item.summary || item.body || '')}</p>
+        </div>
+      </article>
+    `;
+
+    grid.innerHTML = `
+      <div class="journal-filters" data-news-filters>
+        ${filters.map((filter, index) => `<button type="button" class="${index === 0 ? 'is-active' : ''}" data-news-filter="${filter.value}">${escapeHtml(filter.label)}</button>`).join('')}
+      </div>
+      <div class="journal-layout">
+        <article class="journal-feature" data-news-item data-news-tags="${escapeHtml([...itemTags(featured)].join(' '))}">
+          ${imageBlock(featured, 'journal-feature-image')}
+          <div class="journal-feature-body">
+            ${articleMeta(featured)}
+            ${featured.important ? '<b class="journal-badge">Important</b>' : ''}
+            <h2>${escapeHtml(featured.title || 'Actualite RCC')}</h2>
+            <p>${escapeHtml(featured.summary || featured.body || '')}</p>
+          </div>
+        </article>
+        <div class="journal-side">
+          ${secondary.length ? secondary.map((item) => renderJournalCard(item, 'journal-card-secondary')).join('') : '<article class="journal-card journal-card-secondary"><div class="journal-card-body"><span class="journal-badge">RCC</span><h3>Les prochaines infos arrivent</h3><p>Les nouvelles publiees via Pages CMS alimenteront automatiquement cette page.</p></div></article>'}
+        </div>
+      </div>
+      <div class="journal-grid">
+        ${news.map((item) => renderJournalCard(item)).join('')}
+      </div>
+      <article class="news-empty-journal" data-news-empty hidden>
+        <span>Journal RCC</span>
+        <h3>Aucune actualite dans cette rubrique</h3>
+        <p>Essayez un autre filtre pour afficher les dernieres nouvelles du club.</p>
+      </article>
+    `;
+
+    const applyFilter = (filter) => {
+      let visibleCount = 0;
+      grid.querySelectorAll('[data-news-item]').forEach((item) => {
+        const tags = new Set((item.dataset.newsTags || '').split(' ').filter(Boolean));
+        const isVisible = filter === 'all' || tags.has(filter);
+        item.hidden = !isVisible;
+        if (isVisible) visibleCount += 1;
+      });
+      const empty = grid.querySelector('[data-news-empty]');
+      if (empty) empty.hidden = visibleCount > 0;
+    };
+
+    grid.querySelector('[data-news-filters]')?.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-news-filter]');
+      if (!button) return;
+      grid.querySelectorAll('[data-news-filter]').forEach((item) => item.classList.remove('is-active'));
+      button.classList.add('is-active');
+      applyFilter(button.dataset.newsFilter);
+    });
   }
 
   async function renderImportantNews() {
