@@ -717,3 +717,45 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 .site-nav .nav-icon-link svg,.site-nav .shop-link svg{width:25px!important;height:25px!important}
 .site-nav .notification-link,.site-nav .settings-link{font-size:22px!important}
 @media(max-width:760px){.site-nav .nav-icon-link,.site-nav .shop-link,.site-nav .notification-link,.site-nav .settings-link{width:50px!important;height:50px!important;flex-basis:50px!important}.site-nav .nav-icon-link svg,.site-nav .shop-link svg{width:26px!important;height:26px!important}.site-nav .notification-link,.site-nav .settings-link{font-size:23px!important}}
+
+/* Centered mobile menu */
+@media(max-width:1120px){
+  body .site-nav.is-open{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    justify-items:center!important;
+    justify-content:center!important;
+    align-items:center!important;
+    gap:10px!important;
+    left:0!important;
+    right:auto!important;
+    width:100vw!important;
+    max-width:none!important;
+    margin:0!important;
+    transform:none!important;
+    padding:14px 14px 22px!important;
+  }
+  body .site-nav.is-open a{
+    margin:0!important;
+    justify-self:center!important;
+    transform:none!important;
+  }
+  body .site-nav.is-open .nav-icon-link,
+  body .site-nav.is-open .shop-link,
+  body .site-nav.is-open .notification-link,
+  body .site-nav.is-open .settings-link{
+    width:50px!important;
+    height:50px!important;
+    flex:0 0 50px!important;
+    padding:0!important;
+    border-radius:50%!important;
+  }
+  body .site-nav.is-open .nav-cta{
+    width:min(80%,320px)!important;
+    max-width:320px!important;
+    min-height:48px!important;
+    margin:0!important;
+    justify-self:center!important;
+    text-align:center;
+  }
+}
