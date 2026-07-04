@@ -67,6 +67,23 @@
         "u12",
         "general"
       ]
+    },
+    {
+      "title": "dd",
+      "type_evenement": "match",
+      "team": "Seniors",
+      "opponent": "CO",
+      "date": "2026-08-08",
+      "time": "18h00",
+      "home": false,
+      "location": "ici",
+      "status": "upcoming",
+      "category": "seniors",
+      "notification": true,
+      "audience": [
+        "general",
+        "seniors"
+      ]
     }
   ]
 }
