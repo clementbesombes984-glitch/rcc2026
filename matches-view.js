@@ -47,10 +47,24 @@
 
   const isRccName = (value) => RCC_NAMES.includes(String(value || '').trim().toLowerCase());
 
+  const asList = (value) => Array.isArray(value) ? value.filter(Boolean) : (value ? [value] : []);
+
+  function filterKey(value) {
+    const key = String(value || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (key === 'ecole de rugby') return 'ecole';
+    if (key === 'pole jeunes' || key === 'pôle jeunes') return 'jeunes';
+    if (key === 'feminines' || key === 'feminine' || key === 'féminines') return 'feminines';
+    if (key === 'seniors' || key === 'senior') return 'seniors';
+    return key.replace(/\s+/g, '-');
+  }
+
   function normalizeEvent(item) {
     const type = String(item.type_evenement || item.eventType || item.type || '').toLowerCase() || (item.title && !item.away && !item.opponent ? 'tournoi' : 'match');
     const isTournament = type === 'tournoi';
-    const team = item.team || item.category || item.categorie || (isTournament ? 'Ecole de rugby' : 'Seniors');
+    const selectedTeams = asList(item.teams);
+    const fallbackTeam = item.team || item.category || item.categorie || (isTournament ? 'Ecole de rugby' : 'Seniors');
+    const teams = selectedTeams.length ? selectedTeams : asList(fallbackTeam);
+    const team = teams.join(', ');
     const oldHomeTeam = typeof item.home === 'string' ? item.home : '';
     const oldAwayTeam = item.away || '';
     const isHome = typeof item.home === 'boolean' ? item.home : (oldHomeTeam ? isRccName(oldHomeTeam) : true);
@@ -74,8 +88,9 @@
       result: item.result || '',
       description: item.description || '',
       isHome,
+      teams,
       audience: Array.isArray(item.audience) ? item.audience : [],
-      category: String(item.category || team || '').toLowerCase()
+      category: filterKey(item.category || teams[0] || team)
     };
   }
 
@@ -101,7 +116,7 @@
   }
 
   function eventKeys(event) {
-    const values = [event.type, event.category, event.team, ...event.audience].map((value) => String(value || '').toLowerCase());
+    const values = [event.type, event.category, event.team, ...(event.teams || []), ...event.audience].map(filterKey);
     if (values.some((value) => ['u6', 'u8', 'u10', 'u12'].includes(value))) values.push('ecole');
     if (values.some((value) => ['u14', 'u16', 'u18', 'u19'].includes(value))) values.push('jeunes');
     return new Set(values);

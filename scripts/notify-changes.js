@@ -49,10 +49,25 @@ function matchIdFor(item) {
   ].join('|').toLowerCase();
 }
 
+function asList(value) {
+  return Array.isArray(value) ? value.filter(Boolean) : (value ? [value] : []);
+}
+
+function audienceKey(value) {
+  const key = String(value || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (key === 'ecole de rugby') return 'ecole';
+  if (key === 'pole jeunes') return 'jeunes';
+  if (key === 'feminines' || key === 'feminine') return 'feminines';
+  if (key === 'seniors' || key === 'senior') return 'seniors';
+  return key.replace(/\s+/g, '-');
+}
+
 function audiences(item, fallback) {
   const values = Array.isArray(item.audience) ? item.audience : [];
+  const teams = asList(item.teams).length ? asList(item.teams) : asList(item.team);
   if (item.important) values.push('important');
   if (fallback) values.push(fallback);
+  teams.map(audienceKey).forEach((team) => values.push(team));
   if (!values.length) values.push('general');
   return Array.from(new Set(values));
 }
@@ -85,12 +100,14 @@ function matchPayload(item) {
   const isResult = status === 'win' || status === 'loss' || Boolean(item.result);
   const eventType = String(item.type_evenement || item.type || 'match').toLowerCase() === 'tournoi' ? 'tournoi' : 'match';
   const eventAudience = eventType === 'tournoi' ? 'tournois' : 'matchs';
+  const teams = asList(item.teams).length ? asList(item.teams) : asList(item.team);
+  const teamsLabel = teams.join(', ');
   const title = eventType === 'tournoi'
-    ? (item.title || item.tournamentName || `Tournoi ${item.team || 'RCC'}`)
+    ? (item.title || item.tournamentName || `Tournoi ${teamsLabel || 'RCC'}`)
     : (item.title || `${item.home || 'RCC'} vs ${item.opponent || item.away || 'Adversaire'}`);
   const place = item.location || item.venue || '';
   const body = eventType === 'tournoi'
-    ? [`Tournoi ${item.team || 'RCC'}`, item.date, item.time, place].filter(Boolean).join(' - ')
+    ? [`Tournoi ${teamsLabel || 'RCC'}`, item.date, item.time, place].filter(Boolean).join(' - ')
     : [item.date, item.time, place, item.result].filter(Boolean).join(' - ');
   return {
     type: isResult ? 'resultat' : eventType,

@@ -48,6 +48,23 @@ content:
                 - U19
                 - Ecole de rugby
                 - Pole jeunes
+          - name: teams
+            label: Equipes / categories concernees pour un tournoi
+            type: select
+            list: true
+            options:
+              values:
+                - Seniors
+                - Feminines
+                - U6
+                - U8
+                - U10
+                - U12
+                - U14
+                - U16
+                - U19
+                - Ecole de rugby
+                - Pole jeunes
           - name: opponent
             label: Adversaire si match
             type: string
