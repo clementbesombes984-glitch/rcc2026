@@ -1,0 +1,21 @@
+{
+  "matches": [
+    {
+      "title": "RC Cubzaguais vs La Pimpine",
+      "type_evenement": "match",
+      "team": "Seniors",
+      "date": "2026-07-25",
+      "time": "15h00",
+      "location": "Plaine des sports Laurent Ricci",
+      "home": true,
+      "opponent": "La Pimpine",
+      "status": "upcoming",
+      "category": "seniors",
+      "notification": true,
+      "audience": [
+        "seniors",
+        "matchs"
+      ]
+    }
+  ]
+}
