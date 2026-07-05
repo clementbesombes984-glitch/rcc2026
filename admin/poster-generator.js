@@ -25,6 +25,10 @@
     loss: '#d31a52'
   };
 
+  const TITLE_FONT = '"Anton", "Arial Black", "Arial Narrow", Impact, sans-serif';
+  const BODY_FONT = '"Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+  const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@600;700;800;900&display=swap';
+
   const canvas = document.getElementById('posterCanvas');
   const ctx = canvas.getContext('2d');
   const form = document.querySelector('[data-poster-form]');
@@ -33,12 +37,14 @@
   const sourceNews = document.querySelector('[data-source-news]');
   const sourceEvent = document.querySelector('[data-source-event]');
   const downloadButton = document.querySelector('[data-download-poster]');
+  let fontStylesheetPromise = null;
 
   const state = {
     image: null,
     news: [],
     events: [],
-    settings: {}
+    settings: {},
+    fontsReady: false
   };
 
   const logo = new Image();
@@ -65,39 +71,144 @@
     return new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: '2-digit', month: 'short' }).format(date).replace('.', '');
   }
 
-  async function fetchJson(path, fallback) {
+  function collectionFrom(data, key) {
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data[key])) return data[key];
+    return [];
+  }
+
+  function setSelectLoading(select, label) {
+    if (!select) return;
+    select.disabled = true;
+    select.innerHTML = `<option value="">Chargement ${label}...</option>`;
+  }
+
+  function setSelectEmpty(select, label) {
+    if (!select) return;
+    select.disabled = false;
+    select.innerHTML = `<option value="">Aucun ${label} disponible</option>`;
+  }
+
+  function loadFontStylesheet() {
+    const existing = document.querySelector('[data-rcc-poster-fonts]');
+    if (existing?.dataset.loaded === 'true') return Promise.resolve();
+    if (fontStylesheetPromise) return fontStylesheetPromise;
+
+    fontStylesheetPromise = new Promise((resolve) => {
+      const link = existing || document.createElement('link');
+      const finish = () => {
+        link.dataset.loaded = 'true';
+        resolve();
+      };
+      link.addEventListener('load', finish, { once: true });
+      link.addEventListener('error', finish, { once: true });
+      window.setTimeout(finish, 2500);
+
+      if (!existing) {
+        link.dataset.rccPosterFonts = 'true';
+        link.rel = 'stylesheet';
+        link.href = FONT_CSS;
+        document.head.appendChild(link);
+      }
+    });
+
+    return fontStylesheetPromise;
+  }
+
+  async function loadFonts() {
+    if (!document.fonts) {
+      state.fontsReady = true;
+      return;
+    }
+
+    await loadFontStylesheet();
+
     try {
-      const response = await fetch(path, { cache: 'no-store' });
-      return response.ok ? response.json() : fallback;
+      await Promise.all([
+        document.fonts.load(`900 80px ${TITLE_FONT}`),
+        document.fonts.load(`800 42px ${BODY_FONT}`),
+        document.fonts.ready
+      ]);
+      state.fontsReady = true;
+      render();
     } catch (error) {
-      return fallback;
+      state.fontsReady = true;
     }
   }
 
+  async function fetchJson(paths, fallback) {
+    const candidates = Array.isArray(paths) ? paths : [paths];
+    const errors = [];
+
+    for (const path of candidates) {
+      try {
+        const response = await fetch(path, { cache: 'no-store' });
+        if (response.ok) {
+          return { data: await response.json(), error: null };
+        }
+        errors.push(`${path} (${response.status})`);
+      } catch (error) {
+        errors.push(path);
+      }
+    }
+
+    return { data: fallback, error: errors.join(', ') };
+  }
+
   async function loadSources() {
-    const [newsData, matchData, settingsData] = await Promise.all([
-      fetchJson('../data/news.json', { news: [] }),
-      fetchJson('../data/matches.json', { matches: [] }),
-      fetchJson('../data/settings.json', {})
-    ]);
-    state.news = Array.isArray(newsData.news) ? newsData.news : [];
-    state.events = Array.isArray(matchData.matches) ? matchData.matches : [];
-    state.settings = settingsData || {};
-    hydrateSources();
-    render();
+    setSelectLoading(sourceNews, 'des actualites');
+    setSelectLoading(sourceEvent, 'du calendrier');
+    setStatus('Chargement des actualites et du calendrier...');
+
+    try {
+      const [newsResult, matchResult, settingsResult] = await Promise.all([
+        fetchJson(['../data/news.json', '/data/news.json', './data/news.json'], { news: [] }),
+        fetchJson(['../data/matches.json', '/data/matches.json', './data/matches.json'], { matches: [] }),
+        fetchJson(['../data/settings.json', '/data/settings.json', './data/settings.json'], {})
+      ]);
+
+      state.news = collectionFrom(newsResult.data, 'news');
+      state.events = collectionFrom(matchResult.data, 'matches');
+      state.settings = settingsResult.data || {};
+      hydrateSources();
+
+      const failures = [newsResult.error && 'actualites', matchResult.error && 'calendrier'].filter(Boolean);
+      if (failures.length) {
+        setStatus(`Impossible de charger ${failures.join(' et ')}. Verifie la connexion ou les fichiers JSON.`);
+      } else {
+        setStatus(`${state.news.length} actualite(s) et ${state.events.length} evenement(s) charges.`);
+      }
+      render();
+    } catch (error) {
+      state.news = [];
+      state.events = [];
+      setSelectEmpty(sourceNews, 'actualite');
+      setSelectEmpty(sourceEvent, 'evenement');
+      setStatus('Les donnees du site ne se chargent pas. Verifie la connexion puis recharge la page.');
+    }
   }
 
   function hydrateSources() {
     if (sourceNews) {
-      sourceNews.innerHTML = '<option value="">Choisir une actualite</option>' + state.news.map((item, index) => (
-        `<option value="${index}">${clean(item.title || 'Actualite RCC')}</option>`
-      )).join('');
+      if (!state.news.length) {
+        setSelectEmpty(sourceNews, 'actualite');
+      } else {
+        sourceNews.disabled = false;
+        sourceNews.innerHTML = '<option value="">Choisir une actualite</option>' + state.news.map((item, index) => (
+          `<option value="${index}">${clean(item.title || 'Actualite RCC')}</option>`
+        )).join('');
+      }
     }
     if (sourceEvent) {
-      sourceEvent.innerHTML = '<option value="">Choisir un match ou tournoi</option>' + state.events.map((item, index) => {
-        const title = clean(item.title || item.tournamentName || item.opponent || 'Evenement RCC');
-        return `<option value="${index}">${item.date ? formatDate(item.date) + ' - ' : ''}${title}</option>`;
-      }).join('');
+      if (!state.events.length) {
+        setSelectEmpty(sourceEvent, 'evenement');
+      } else {
+        sourceEvent.disabled = false;
+        sourceEvent.innerHTML = '<option value="">Choisir un match ou tournoi</option>' + state.events.map((item, index) => {
+          const title = clean(item.title || item.tournamentName || item.opponent || 'Evenement RCC');
+          return `<option value="${index}">${item.date ? formatDate(item.date) + ' - ' : ''}${title}</option>`;
+        }).join('');
+      }
     }
   }
 
@@ -258,7 +369,7 @@
 
   function drawBadge(text, x, y, scale) {
     const label = clean(text || 'RCC').toUpperCase();
-    ctx.font = `900 ${Math.round(18 * scale)}px Arial, sans-serif`;
+    ctx.font = `900 ${Math.round(18 * scale)}px ${BODY_FONT}`;
     const width = ctx.measureText(label).width + 42 * scale;
     ctx.fillStyle = COLORS.red;
     roundRect(x, y, width, 42 * scale, 999);
@@ -280,7 +391,7 @@
     ctx.closePath();
   }
 
-  function wrapText(text, x, y, maxWidth, fontSize, lineHeight, maxLines, color = COLORS.text, family = '"Arial Narrow", Impact, Arial, sans-serif') {
+  function wrapText(text, x, y, maxWidth, fontSize, lineHeight, maxLines, color = COLORS.text, family = TITLE_FONT) {
     ctx.fillStyle = color;
     ctx.font = `900 ${fontSize}px ${family}`;
     ctx.textBaseline = 'top';
@@ -303,7 +414,7 @@
 
   function wrapSentence(text, x, y, maxWidth, fontSize, lineHeight, maxLines) {
     ctx.fillStyle = COLORS.muted;
-    ctx.font = `700 ${fontSize}px Arial, sans-serif`;
+    ctx.font = `700 ${fontSize}px ${BODY_FONT}`;
     ctx.textBaseline = 'top';
     const words = clean(text).split(/\s+/).filter(Boolean);
     let line = '';
@@ -325,7 +436,7 @@
     const site = 'rcc2026.pages.dev';
     const pad = Math.round(Math.min(w, h) * 0.055);
     ctx.fillStyle = 'rgba(255,255,255,.72)';
-    ctx.font = `900 ${Math.round(Math.min(w, h) * 0.018)}px Arial, sans-serif`;
+    ctx.font = `900 ${Math.round(Math.min(w, h) * 0.018)}px ${BODY_FONT}`;
     ctx.textBaseline = 'bottom';
     ctx.fillText(site.toUpperCase(), pad, h - pad);
   }
@@ -334,7 +445,7 @@
     const text = parts.filter(Boolean).join('  /  ').toUpperCase();
     if (!text) return;
     ctx.fillStyle = COLORS.text;
-    ctx.font = `900 ${Math.round(26 * scale)}px Arial, sans-serif`;
+    ctx.font = `900 ${Math.round(26 * scale)}px ${BODY_FONT}`;
     ctx.textBaseline = 'top';
     ctx.fillText(text, x, y);
   }
@@ -363,7 +474,7 @@
     const midY = h * 0.42;
     wrapText('RC CUBZAGUAIS', pad, midY, w * 0.78, Math.round(w * 0.075), Math.round(w * 0.074), 2);
     ctx.fillStyle = COLORS.redBright;
-    ctx.font = `900 ${Math.round(w * 0.058)}px "Arial Narrow", Impact, Arial, sans-serif`;
+    ctx.font = `900 ${Math.round(w * 0.058)}px ${TITLE_FONT}`;
     ctx.textBaseline = 'top';
     ctx.fillText('VS', pad, midY + Math.round(w * 0.13));
     wrapText(data.opponent || 'ADVERSAIRE', pad + Math.round(w * 0.12), midY + Math.round(w * 0.126), w * 0.72, Math.round(w * 0.058), Math.round(w * 0.06), 2);
@@ -382,11 +493,11 @@
     const resultWord = isLoss ? 'DEFAITE' : 'RESULTAT';
     drawBadge(data.category || resultWord, pad, pad, scale);
     ctx.fillStyle = isLoss ? COLORS.loss : COLORS.green;
-    ctx.font = `900 ${Math.round(w * 0.07)}px "Arial Narrow", Impact, Arial, sans-serif`;
+    ctx.font = `900 ${Math.round(w * 0.07)}px ${TITLE_FONT}`;
     ctx.textBaseline = 'top';
     ctx.fillText(resultWord, pad, h * 0.31);
     ctx.fillStyle = COLORS.text;
-    ctx.font = `900 ${Math.round(w * 0.16)}px "Arial Narrow", Impact, Arial, sans-serif`;
+    ctx.font = `900 ${Math.round(w * 0.16)}px ${TITLE_FONT}`;
     ctx.fillText(score, pad, h * 0.4);
     wrapText(data.title || 'RC CUBZAGUAIS', pad, h * 0.62, w - pad * 2, Math.round(w * 0.055), Math.round(w * 0.057), 2);
     wrapSentence(data.subtitle || data.opponent || '', pad, h * 0.75, w - pad * 2, Math.round(w * 0.027), Math.round(w * 0.04), 2);
@@ -433,7 +544,13 @@
     else renderNews(data, w, h, scale);
   }
 
-  function downloadPng() {
+  async function downloadPng() {
+    if (document.fonts && !state.fontsReady) {
+      setStatus('Preparation des polices avant export...');
+      await loadFonts();
+    } else if (document.fonts) {
+      await document.fonts.ready;
+    }
     render();
     const data = readForm();
     const name = `affiche-rcc-${data.template || 'publication'}-${data.format || 'format'}.png`;
@@ -451,6 +568,9 @@
   sourceEvent?.addEventListener('change', (event) => applyEvent(event.target.value));
   downloadButton?.addEventListener('click', downloadPng);
 
+  setSelectLoading(sourceNews, 'des actualites');
+  setSelectLoading(sourceEvent, 'du calendrier');
+  loadFonts();
   loadSources();
   render();
 })();
