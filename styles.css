@@ -1278,7 +1278,7 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 }
 .poster-actions{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr;
   gap:12px;
   margin-top:4px;
 }
@@ -1325,8 +1325,26 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
   width:auto;
   max-width:100%;
   max-height:74vh;
-  border-radius:10px;
+  border-radius:4px;
   box-shadow:0 24px 70px rgba(0,0,0,.48);
+}
+
+/* Cleaner poster generator direction */
+.poster-admin-hero{
+  min-height:128px;
+}
+.poster-admin-brand img{
+  width:72px;
+}
+.poster-admin-hero p:not(.section-kicker){
+  max-width:760px;
+}
+.poster-form textarea,
+.poster-form input[name="url"]{
+  display:none;
+}
+.poster-preview-toolbar strong{
+  color:var(--red-bright);
 }
 @media(max-width:1120px){
   .poster-admin-hero,

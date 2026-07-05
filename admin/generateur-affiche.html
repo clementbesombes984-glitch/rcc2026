@@ -30,8 +30,8 @@
       <section class="poster-admin-layout">
         <form class="poster-panel poster-form" data-poster-form>
           <div class="poster-panel-head">
-            <span>Modele</span>
-            <strong>Contenu de l'affiche</strong>
+            <span>Modele RCC</span>
+            <strong>Affiche reseaux sociaux</strong>
           </div>
 
           <div class="poster-field-grid">
@@ -43,17 +43,13 @@
                 <option value="facebook">Facebook - 1200x630</option>
               </select>
             </label>
-            <label>Type d'affiche
+            <label>Template
               <select name="template" data-poster-input>
                 <option value="news">Actualite</option>
                 <option value="upcoming">Match a venir</option>
                 <option value="result">Resultat</option>
                 <option value="tournament">Tournoi</option>
                 <option value="club">Vie du club</option>
-                <option value="volunteers">Benevoles</option>
-                <option value="partner">Partenaire</option>
-                <option value="shop">Boutique</option>
-                <option value="join">Recrutement / Nous rejoindre</option>
               </select>
             </label>
           </div>
@@ -99,26 +95,14 @@
           <label>Lieu
             <input name="location" type="text" value="Plaine des sports Lionel Ricci" data-poster-input />
           </label>
-          <label>Texte court
-            <textarea name="body" rows="4" data-poster-input>Respect, solidarite, engagement : une publication aux couleurs du RC Cubzaguais.</textarea>
+          <label>Photo principale
+            <input name="image" type="file" accept="image/*" data-poster-image />
           </label>
-          <label>Lien vers l'article ou la page
-            <input name="url" type="url" value="https://rcc2026.pages.dev/" data-poster-input />
-          </label>
-          <div class="poster-field-grid">
-            <label>Image principale
-              <input name="image" type="file" accept="image/*" data-poster-image />
-            </label>
-            <label>Logo RCC
-              <input name="logo" type="file" accept="image/*" data-poster-logo />
-            </label>
-          </div>
 
           <div class="poster-actions">
             <button class="button primary" type="button" data-download-poster>Telecharger PNG</button>
-            <button class="button ghost" type="button" data-copy-caption>Copier le texte de publication</button>
           </div>
-          <p class="poster-help" data-poster-status>La structure du visuel est verrouillee pour garder la charte RCC.</p>
+          <p class="poster-help" data-poster-status>Les templates sont fixes pour garder une identite RCC simple et reconnaissable.</p>
         </form>
 
         <aside class="poster-preview-panel">
