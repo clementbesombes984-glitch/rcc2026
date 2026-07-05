@@ -16,6 +16,22 @@
       "publishInstagram": false,
       "featured": true,
       "date": "2026-07-05"
+    },
+    {
+      "title": "Forum des Association 6 Septembre 2026",
+      "summary": "Le RCC sera présent au forum des associations de Saint André de Cubzac",
+      "body": "Salle du Champ de Foire 33240 Saint-André-de-Cubzac\ndimanche 6 septembre 2026 :\n10:00 - 17:00",
+      "image": "/assets/uploads/1.jpg",
+      "category": "Club",
+      "audience": [
+        "evenements"
+      ],
+      "important": false,
+      "notification": true,
+      "publishFacebook": false,
+      "publishInstagram": false,
+      "featured": false,
+      "date": "2026-07-05"
     }
   ]
 }
