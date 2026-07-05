@@ -166,7 +166,7 @@
       return tags;
     };
 
-    const featured = news.find((item) => item.important) || news[0];
+    const featured = news.find((item) => item.featured) || news.find((item) => item.important) || news[0];
     const secondary = news.filter((item) => item !== featured).slice(0, 3);
     const articleMeta = (item) => `
       <div class="journal-meta">

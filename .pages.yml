@@ -5,6 +5,113 @@ media:
   categories: [image]
 
 content:
+  - name: news
+    label: Actualites
+    type: file
+    path: data/news.json
+    format: json
+    fields:
+      - name: news
+        label: Articles du club
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{date} - {category} - {title}"
+        fields:
+          - name: title
+            label: Titre
+            type: string
+            required: true
+          - name: summary
+            label: Resume
+            type: text
+          - name: body
+            label: Contenu complet
+            type: text
+          - name: image
+            label: Image
+            type: image
+          - name: category
+            label: Categorie
+            type: select
+            required: true
+            options:
+              values:
+                - Club
+                - Seniors
+                - Ecole de rugby
+                - Pole jeunes
+                - Feminines
+                - Benevoles
+                - Partenaires
+                - Tournois
+                - Evenements
+          - name: audience
+            label: Public concerne
+            type: select
+            list: true
+            options:
+              values:
+                - value: general
+                  label: Tout le club
+                - value: seniors
+                  label: Seniors
+                - value: feminines
+                  label: Feminines
+                - value: u6
+                  label: U6
+                - value: u8
+                  label: U8
+                - value: u10
+                  label: U10
+                - value: u12
+                  label: U12
+                - value: u14
+                  label: U14
+                - value: u16
+                  label: U16
+                - value: u19
+                  label: U19
+                - value: ecole
+                  label: Ecole de rugby
+                - value: jeunes
+                  label: Pole jeunes
+                - value: benevoles
+                  label: Benevoles
+                - value: partenaires
+                  label: Partenaires
+                - value: evenements
+                  label: Evenements
+                - value: matchs
+                  label: Matchs
+                - value: tournois
+                  label: Tournois
+                - value: resultats
+                  label: Resultats
+                - value: entrainements
+                  label: Entrainements
+                - value: important
+                  label: Urgent / important
+          - name: important
+            label: Mettre en info importante
+            type: boolean
+          - name: notification
+            label: Envoyer une notification
+            type: boolean
+          - name: publishFacebook
+            label: Publier sur Facebook
+            type: boolean
+          - name: publishInstagram
+            label: Publier sur Instagram
+            type: boolean
+          - name: featured
+            label: Mettre a la une
+            type: boolean
+          - name: date
+            label: Date de publication
+            type: date
+
   - name: matches
     label: Calendrier
     type: file
@@ -12,7 +119,7 @@ content:
     format: json
     fields:
       - name: matches
-        label: Matchs, tournois et rendez-vous sportifs
+        label: Evenements du calendrier
         type: object
         list:
           collapsible:
@@ -22,8 +129,9 @@ content:
           - name: title
             label: Titre
             type: string
+            required: true
           - name: type_evenement
-            label: Type d evenement
+            label: Type d'evenement
             type: select
             required: true
             options:
@@ -32,8 +140,14 @@ content:
                   label: Match
                 - value: tournoi
                   label: Tournoi
+                - value: entrainement
+                  label: Entrainement
+                - value: reunion
+                  label: Reunion
+                - value: evenement
+                  label: Evenement club
           - name: team
-            label: Equipe / categorie concernee
+            label: Equipe / categorie principale
             type: select
             options:
               values:
@@ -48,8 +162,9 @@ content:
                 - U19
                 - Ecole de rugby
                 - Pole jeunes
+                - Tout le club
           - name: teams
-            label: Equipes / categories concernees pour un tournoi
+            label: Equipes / categories concernees
             type: select
             list: true
             options:
@@ -65,12 +180,7 @@ content:
                 - U19
                 - Ecole de rugby
                 - Pole jeunes
-          - name: opponent
-            label: Adversaire si match
-            type: string
-          - name: tournamentName
-            label: Nom du tournoi si tournoi
-            type: string
+                - Tout le club
           - name: date
             label: Date
             type: date
@@ -79,15 +189,6 @@ content:
             label: Heure
             type: string
             required: true
-          - name: home
-            label: Domicile
-            type: boolean
-          - name: away
-            label: Ancien champ adversaire / exterieur
-            type: string
-          - name: venue
-            label: Ancien champ lieu
-            type: string
           - name: location
             label: Lieu
             type: string
@@ -95,9 +196,18 @@ content:
           - name: address
             label: Adresse
             type: string
-          - name: competition
-            label: Competition
+          - name: home
+            label: A domicile
+            type: boolean
+          - name: opponent
+            label: Adversaire si match
             type: string
+          - name: tournamentName
+            label: Nom du tournoi si tournoi
+            type: string
+          - name: description
+            label: Description
+            type: text
           - name: status
             label: Statut
             type: select
@@ -110,355 +220,111 @@ content:
                 - value: loss
                   label: Defaite
                 - value: muted
-                  label: Neutre
+                  label: Information
           - name: result
-            label: Resultat / badge
+            label: Resultat
             type: string
           - name: category
-            label: Categorie
+            label: Categorie de filtre
             type: select
             options:
               values:
-                - seniors
-                - feminines
-                - u6
-                - u8
-                - u10
-                - u12
-                - u14
-                - u16
-                - u19
-                - ecole
-                - jeunes
-          - name: description
-            label: Description
-            type: text
+                - value: seniors
+                  label: Seniors
+                - value: feminines
+                  label: Feminines
+                - value: u6
+                  label: U6
+                - value: u8
+                  label: U8
+                - value: u10
+                  label: U10
+                - value: u12
+                  label: U12
+                - value: u14
+                  label: U14
+                - value: u16
+                  label: U16
+                - value: u19
+                  label: U19
+                - value: ecole
+                  label: Ecole de rugby
+                - value: jeunes
+                  label: Pole jeunes
+                - value: general
+                  label: Tout le club
           - name: notification
-            label: Preparer une notification
+            label: Envoyer une notification
             type: boolean
           - name: audience
-            label: Public cible
+            label: Public concerne
             type: select
             list: true
             options:
               values:
-                - general
-                - seniors
-                - feminines
-                - u6
-                - u8
-                - u10
-                - u12
-                - u14
-                - u16
-                - u19
-                - ecole
-                - jeunes
-                - benevoles
-                - partenaires
-                - evenements
-                - matchs
-                - tournois
-                - resultats
-                - entrainements
-                - important
-  - name: news
-    label: Actualités
-    type: file
-    path: data/news.json
-    format: json
-    fields:
-      - name: news
-        label: Actualités
-        type: object
-        list:
-          collapsible:
-            collapsed: true
-            summary: "{category} - {title}"
-        fields:
-          - name: category
-            label: Catégorie
-            type: string
-            required: true
-          - name: title
-            label: Titre
-            type: string
-            required: true
-          - name: summary
-            label: Résumé
-            type: text
-          - name: important
-            label: Actualité importante
-            type: boolean
-          - name: notification
-            label: Preparer une notification
-            type: boolean
-          - name: audience
-            label: Public cible
-            type: select
-            list: true
-            options:
-              values:
-                - general
-                - seniors
-                - feminines
-                - u6
-                - u8
-                - u10
-                - u12
-                - u14
-                - u16
-                - u19
-                - ecole
-                - jeunes
-                - benevoles
-                - partenaires
-                - evenements
-                - matchs
-                - tournois
-                - resultats
-                - entrainements
-                - important
-          - name: image
-            label: Image
-            type: image
-
-  - name: senior
-    label: Joueurs seniors
-    type: file
-    path: data/senior.json
-    format: json
-    fields:
-      - name: staff
-        label: Staff senior
-        type: object
-        list:
-          collapsible:
-            collapsed: true
-            summary: "{firstName} {lastName} - {role}"
-        fields:
-          - name: firstName
-            label: Prenom
-            type: string
-            required: true
-          - name: lastName
-            label: Nom
-            type: string
-            required: true
-          - name: role
-            label: Role
-            type: string
-          - name: photo
-            label: Photo
-            type: image
-      - name: players
-        label: Joueurs
-        type: object
-        list:
-          collapsible:
-            collapsed: true
-            summary: "{firstName} {lastName} - {position}"
-        fields:
-          - name: group
-            label: Groupe de poste
-            type: string
-            required: true
-          - name: firstName
-            label: Prénom
-            type: string
-            required: true
-          - name: lastName
-            label: Nom
-            type: string
-            required: true
-          - name: position
-            label: Poste
-            type: string
-          - name: weight
-            label: Poids / info
-            type: string
-          - name: tag
-            label: Qualité
-            type: string
-          - name: photo
-            label: Photo
-            type: image
-
-  - name: academy
-    label: École de rugby
-    type: file
-    path: data/academy.json
-    format: json
-    fields:
-      - name: categories
-        label: Catégories U6 à U12
-        type: object
-        list:
-          collapsible:
-            collapsed: true
-            summary: "{age} - {label}"
-        fields:
-          - name: age
-            label: Catégorie
-            type: string
-            required: true
-          - name: label
-            label: Titre
-            type: string
-          - name: summary
-            label: Résumé
-            type: text
-          - name: count
-            label: Effectif
-            type: string
-          - name: training
-            label: Entraînement
-            type: string
-          - name: teamPhoto
-            label: Photo effectif
-            type: image
-          - name: staff
-            label: Staff
-            type: object
-            list:
-              collapsible:
-                collapsed: true
-                summary: "{firstName} {lastName}"
-            fields:
-              - name: firstName
-                label: Prénom
-                type: string
-              - name: lastName
-                label: Nom
-                type: string
-              - name: photo
-                label: Photo
-                type: image
-
-  - name: youth
-    label: Pôle jeunes
-    type: file
-    path: data/youth.json
-    format: json
-    fields:
-      - name: categories
-        label: Catégories U14 à U18
-        type: object
-        list:
-          collapsible:
-            collapsed: true
-            summary: "{age} - {label}"
-        fields:
-          - name: age
-            label: Catégorie
-            type: string
-            required: true
-          - name: label
-            label: Titre
-            type: string
-          - name: summary
-            label: Résumé
-            type: text
-          - name: count
-            label: Effectif
-            type: string
-          - name: training
-            label: Entraînement
-            type: string
-          - name: teamPhoto
-            label: Photo effectif
-            type: image
-          - name: staff
-            label: Staff
-            type: object
-            list:
-              collapsible:
-                collapsed: true
-                summary: "{firstName} {lastName}"
-            fields:
-              - name: firstName
-                label: Prénom
-                type: string
-              - name: lastName
-                label: Nom
-                type: string
-              - name: photo
-                label: Photo
-                type: image
-
-  - name: feminines
-    label: Féminines
-    type: file
-    path: data/feminines.json
-    format: json
-    fields:
-      - name: categories
-        label: Catégorie cadettes
-        type: object
-        list:
-          collapsible:
-            collapsed: true
-            summary: "{age} - {label}"
-        fields:
-          - name: age
-            label: Catégorie
-            type: string
-            required: true
-          - name: label
-            label: Titre
-            type: string
-          - name: summary
-            label: Résumé
-            type: text
-          - name: count
-            label: Effectif
-            type: string
-          - name: training
-            label: Entraînement
-            type: string
-          - name: teamPhoto
-            label: Photo effectif
-            type: image
-          - name: staff
-            label: Staff
-            type: object
-            list:
-              collapsible:
-                collapsed: true
-                summary: "{firstName} {lastName}"
-            fields:
-              - name: firstName
-                label: Prénom
-                type: string
-              - name: lastName
-                label: Nom
-                type: string
-              - name: photo
-                label: Photo
-                type: image
-
+                - value: general
+                  label: Tout le club
+                - value: seniors
+                  label: Seniors
+                - value: feminines
+                  label: Feminines
+                - value: u6
+                  label: U6
+                - value: u8
+                  label: U8
+                - value: u10
+                  label: U10
+                - value: u12
+                  label: U12
+                - value: u14
+                  label: U14
+                - value: u16
+                  label: U16
+                - value: u19
+                  label: U19
+                - value: ecole
+                  label: Ecole de rugby
+                - value: jeunes
+                  label: Pole jeunes
+                - value: benevoles
+                  label: Benevoles
+                - value: partenaires
+                  label: Partenaires
+                - value: evenements
+                  label: Evenements
+                - value: matchs
+                  label: Matchs
+                - value: tournois
+                  label: Tournois
+                - value: resultats
+                  label: Resultats
+                - value: entrainements
+                  label: Entrainements
+                - value: important
+                  label: Urgent / important
 
   - name: gallery
-    label: Galerie photo
+    label: Galerie
     type: file
     path: data/gallery.json
     format: json
     fields:
       - name: albums
-        label: Albums
+        label: Albums photo
         type: object
         list:
           collapsible:
             collapsed: true
-            summary: "{category} - {title}"
+            summary: "{date} - {category} - {title}"
         fields:
           - name: title
-            label: Titre
+            label: Nom de l'album
             type: string
             required: true
           - name: category
             label: Rubrique
             type: select
+            required: true
             options:
               values:
                 - Entrainements
@@ -466,6 +332,7 @@ content:
                 - Ecole de rugby
                 - Benevoles
                 - Evenements
+                - Partenaires
           - name: date
             label: Date
             type: date
@@ -473,7 +340,7 @@ content:
             label: Description
             type: text
           - name: cover
-            label: Image de couverture
+            label: Photo de couverture
             type: image
           - name: photos
             label: Photos
@@ -487,78 +354,11 @@ content:
                 label: Photo
                 type: image
               - name: alt
-                label: Texte alternatif
+                label: Description de la photo
                 type: string
-
-  - name: partners
-    label: Partenaires
-    type: file
-    path: data/partners.json
-    format: json
-    fields:
-      - name: intro
-        label: Introduction
-        type: text
-      - name: partners
-        label: Liste des partenaires
-        type: object
-        list:
-          collapsible:
-            collapsed: true
-            summary: "{category} - {name}"
-        fields:
-          - name: category
-            label: Catégorie
-            type: string
-          - name: name
-            label: Nom
-            type: string
-            required: true
-          - name: description
-            label: Description
-            type: text
-          - name: logo
-            label: Logo
-            type: image
-          - name: url
-            label: Site internet
-            type: string
-
-  - name: project
-    label: Votre RCC demain
-    type: file
-    path: data/project.json
-    format: json
-    fields:
-      - name: title
-        label: Titre
-        type: string
-      - name: intro
-        label: Introduction
-        type: text
-      - name: contactEmail
-        label: Email de contact
-        type: string
-      - name: callout
-        label: Phrase d'appel
-        type: text
-      - name: sections
-        label: Sections du projet
-        type: object
-        list:
-          collapsible:
-            collapsed: true
-            summary: "{title}"
-        fields:
-          - name: title
-            label: Titre
-            type: string
-          - name: icon
-            label: Icône courte
-            type: string
-          - name: text
-            label: Texte
-            type: text
+          - name: featured
+            label: Mettre en avant
+            type: boolean
 
   - name: shop
     label: Boutique
@@ -599,7 +399,7 @@ content:
             label: Description courte
             type: text
           - name: url
-            label: Lien achat Sponsport
+            label: Lien Sponsport
             type: string
           - name: badge
             label: Badge optionnel
@@ -611,8 +411,42 @@ content:
                 - Promo
                 - Precommande
 
+  - name: partners
+    label: Partenaires
+    type: file
+    path: data/partners.json
+    format: json
+    fields:
+      - name: intro
+        label: Texte d'introduction
+        type: text
+      - name: partners
+        label: Liste des partenaires
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{name}"
+        fields:
+          - name: name
+            label: Nom du partenaire
+            type: string
+            required: true
+          - name: description
+            label: Description
+            type: text
+          - name: logo
+            label: Logo
+            type: image
+          - name: url
+            label: Site internet
+            type: string
+          - name: category
+            label: Groupe
+            type: string
+
   - name: settings
-    label: Paramètres du club
+    label: Parametres du site
     type: file
     path: data/settings.json
     format: json
@@ -630,7 +464,7 @@ content:
         label: Adresse
         type: string
       - name: phone
-        label: Téléphone
+        label: Telephone
         type: string
       - name: email
         label: Email
@@ -642,19 +476,19 @@ content:
         label: Instagram
         type: string
       - name: mapsUrl
-        label: Google Maps embed URL
+        label: Lien Google Maps
         type: string
       - name: ffrUrl
-        label: Lien FFR / rugby local
+        label: Lien FFR
         type: string
       - name: joinTitle
-        label: Titre Nous rejoindre
+        label: Titre de la page Nous rejoindre
         type: string
       - name: joinText
-        label: Texte Nous rejoindre
+        label: Texte de la page Nous rejoindre
         type: text
       - name: parameters
-        label: Blocs infos pratiques
+        label: Infos pratiques
         type: object
         list:
           collapsible:
@@ -668,10 +502,10 @@ content:
             label: Texte
             type: text
           - name: linkLabel
-            label: Libellé du lien
+            label: Texte du lien
             type: string
           - name: linkUrl
-            label: URL du lien
+            label: Adresse du lien
             type: string
 
 settings:
