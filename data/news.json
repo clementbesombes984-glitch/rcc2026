@@ -1,36 +1,21 @@
 {
   "news": [
     {
-      "category": "Club",
       "title": "Reprise de la préparation estivale",
-      "summary": "Le groupe senior retrouve le terrain avec un cycle axé sur la vitesse, la défense et la cohésion.",
-      "important": true,
-      "notification": false,
+      "summary": "Le groupe senior retrouve le terrain",
+      "body": "Le groupe senior et le staff retrouve le chemin des terrains le 4 Aout 2026 19H30 à la plaine des sports SAINT ANDRE DE CUBZAC",
+      "image": "/assets/uploads/fbimg1783257683941edit249153337759381.jpg",
+      "category": "Seniors",
       "audience": [
         "general",
         "seniors"
-      ]
-    },
-    {
-      "category": "Bénévoles",
-      "title": "Le club recrute des encadrants",
-      "summary": "Table de marque, buvette, accueil, logistique : chaque énergie compte les jours de match.",
-      "important": false,
-      "notification": false,
-      "audience": [
-        "benevoles",
-        "evenements"
-      ]
-    },
-    {
-      "category": "U8",
-      "title": "Nouveaux Coach",
-      "important": false,
+      ],
+      "important": true,
       "notification": true,
-      "audience": [
-        "u8",
-        "ecole"
-      ]
+      "publishFacebook": false,
+      "publishInstagram": false,
+      "featured": false,
+      "date": "2026-07-05"
     }
   ]
 }
