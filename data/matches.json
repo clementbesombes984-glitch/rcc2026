@@ -16,6 +16,24 @@
         "seniors",
         "matchs"
       ]
+    },
+    {
+      "title": "RCC - Blaye",
+      "type_evenement": "match",
+      "team": "Seniors",
+      "date": "2026-07-25",
+      "time": "15h00",
+      "location": "Plaine des sports ",
+      "address": "Laurent Ricci Saint André de Cubzac",
+      "home": true,
+      "opponent": "Blaye",
+      "status": "upcoming",
+      "category": "seniors",
+      "notification": true,
+      "audience": [
+        "seniors",
+        "matchs"
+      ]
     }
   ]
 }
