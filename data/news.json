@@ -32,6 +32,20 @@
       "publishInstagram": false,
       "featured": false,
       "date": "2026-07-05"
+    },
+    {
+      "title": "Tournoi touché ",
+      "summary": "Dernier tournoi touché senior de la saison ",
+      "category": "Club",
+      "audience": [
+        "seniors"
+      ],
+      "important": false,
+      "notification": true,
+      "publishFacebook": false,
+      "publishInstagram": false,
+      "featured": false,
+      "date": "2026-07-05"
     }
   ]
 }
