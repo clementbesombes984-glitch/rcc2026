@@ -14,7 +14,7 @@
       "notification": true,
       "publishFacebook": false,
       "publishInstagram": false,
-      "featured": false,
+      "featured": true,
       "date": "2026-07-05"
     }
   ]
