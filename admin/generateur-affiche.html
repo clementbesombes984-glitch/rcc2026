@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Generateur d'affiches - RC Cubzaguais</title>
+    <meta name="description" content="Generateur d'affiches RCC pour Instagram, Facebook, stories et site." />
+    <link rel="stylesheet" href="../styles.css" />
+    <meta name="theme-color" content="#b11845" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="RCC" />
+    <link rel="manifest" href="../manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="../assets/pwa-icon-192.png" />
+  </head>
+  <body class="poster-admin-page">
+    <main class="poster-admin-shell">
+      <section class="poster-admin-hero">
+        <a class="poster-admin-brand" href="../index.html">
+          <img src="../assets/logo-rcc.png" alt="RC Cubzaguais" />
+          <span>RC Cubzaguais</span>
+        </a>
+        <div>
+          <p class="section-kicker">Communication</p>
+          <h1>Generateur d'affiches</h1>
+          <p>Creer rapidement un visuel RCC coherent pour Instagram, Facebook, WhatsApp ou le site.</p>
+        </div>
+        <a class="button ghost" href="/cms-login">Retour administration</a>
+      </section>
+
+      <section class="poster-admin-layout">
+        <form class="poster-panel poster-form" data-poster-form>
+          <div class="poster-panel-head">
+            <span>Modele</span>
+            <strong>Contenu de l'affiche</strong>
+          </div>
+
+          <div class="poster-field-grid">
+            <label>Format
+              <select name="format" data-poster-input>
+                <option value="square">Instagram carre - 1080x1080</option>
+                <option value="portrait">Instagram portrait - 1080x1350</option>
+                <option value="story">Story - 1080x1920</option>
+                <option value="facebook">Facebook - 1200x630</option>
+              </select>
+            </label>
+            <label>Type d'affiche
+              <select name="template" data-poster-input>
+                <option value="news">Actualite</option>
+                <option value="upcoming">Match a venir</option>
+                <option value="result">Resultat</option>
+                <option value="tournament">Tournoi</option>
+                <option value="club">Vie du club</option>
+                <option value="volunteers">Benevoles</option>
+                <option value="partner">Partenaire</option>
+                <option value="shop">Boutique</option>
+                <option value="join">Recrutement / Nous rejoindre</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="poster-field-grid">
+            <label>Depuis une actualite
+              <select name="sourceNews" data-source-news>
+                <option value="">Choisir une actualite</option>
+              </select>
+            </label>
+            <label>Depuis le calendrier
+              <select name="sourceEvent" data-source-event>
+                <option value="">Choisir un match ou tournoi</option>
+              </select>
+            </label>
+          </div>
+
+          <label>Titre
+            <input name="title" type="text" value="Reprise de la preparation" data-poster-input />
+          </label>
+          <label>Sous-titre
+            <input name="subtitle" type="text" value="Le RCC retrouve le terrain" data-poster-input />
+          </label>
+          <div class="poster-field-grid">
+            <label>Categorie
+              <input name="category" type="text" value="Club" data-poster-input />
+            </label>
+            <label>Adversaire / partenaire
+              <input name="opponent" type="text" value="" data-poster-input />
+            </label>
+          </div>
+          <div class="poster-field-grid poster-field-grid-three">
+            <label>Date
+              <input name="date" type="text" value="" data-poster-input />
+            </label>
+            <label>Heure
+              <input name="time" type="text" value="" data-poster-input />
+            </label>
+            <label>Score
+              <input name="score" type="text" value="" data-poster-input />
+            </label>
+          </div>
+          <label>Lieu
+            <input name="location" type="text" value="Plaine des sports Lionel Ricci" data-poster-input />
+          </label>
+          <label>Texte court
+            <textarea name="body" rows="4" data-poster-input>Respect, solidarite, engagement : une publication aux couleurs du RC Cubzaguais.</textarea>
+          </label>
+          <label>Lien vers l'article ou la page
+            <input name="url" type="url" value="https://rcc2026.pages.dev/" data-poster-input />
+          </label>
+          <div class="poster-field-grid">
+            <label>Image principale
+              <input name="image" type="file" accept="image/*" data-poster-image />
+            </label>
+            <label>Logo RCC
+              <input name="logo" type="file" accept="image/*" data-poster-logo />
+            </label>
+          </div>
+
+          <div class="poster-actions">
+            <button class="button primary" type="button" data-download-poster>Telecharger PNG</button>
+            <button class="button ghost" type="button" data-copy-caption>Copier le texte de publication</button>
+          </div>
+          <p class="poster-help" data-poster-status>La structure du visuel est verrouillee pour garder la charte RCC.</p>
+        </form>
+
+        <aside class="poster-preview-panel">
+          <div class="poster-preview-toolbar">
+            <span>Apercu en direct</span>
+            <strong data-poster-size>1080 x 1080</strong>
+          </div>
+          <div class="poster-canvas-wrap">
+            <canvas id="posterCanvas" width="1080" height="1080" aria-label="Apercu de l'affiche RCC"></canvas>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script src="../script.js"></script>
+    <script src="./poster-generator.js"></script>
+  </body>
+</html>

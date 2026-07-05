@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v10';
+const CACHE_VERSION = 'rcc-pwa-v11';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -18,6 +18,7 @@ const STATIC_ASSETS = [
   '/galerie.html',
   '/rcc-demain.html',
   '/notifications.html',
+  '/admin/generateur-affiche.html',
   '/nous-rejoindre.html',
   '/contact.html',
   '/styles.css',
@@ -25,6 +26,7 @@ const STATIC_ASSETS = [
   '/data-loader.js',
   '/matches-view.js',
   '/notifications.js',
+  '/admin/poster-generator.js',
   '/manifest.webmanifest',
   '/assets/logo-rcc.png',
   '/assets/pwa-icon-192.png',
@@ -126,7 +128,7 @@ async function cacheFirst(request) {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin || event.request.method !== 'GET') return;
-  if (url.pathname.startsWith('/cms-login') || url.pathname.startsWith('/admin')) return;
+  if (url.pathname.startsWith('/cms-login')) return;
 
   if (event.request.mode === 'navigate' || event.request.destination === 'document') {
     event.respondWith(networkFirst(event.request, STATIC_CACHE, '/index.html'));
