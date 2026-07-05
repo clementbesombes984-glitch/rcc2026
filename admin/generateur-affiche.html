@@ -12,8 +12,23 @@
     <link rel="manifest" href="../manifest.webmanifest" />
     <link rel="apple-touch-icon" href="../assets/pwa-icon-192.png" />
   </head>
-  <body class="poster-admin-page">
-    <main class="poster-admin-shell">
+  <body class="poster-admin-page poster-locked">
+    <section class="poster-lock" data-poster-lock>
+      <form class="poster-lock-box" data-poster-lock-form>
+        <img src="../assets/logo-rcc.png" alt="RC Cubzaguais" />
+        <span>Acces communication</span>
+        <h1>Generateur d'affiches</h1>
+        <p>Entrez le mot de passe du club pour acceder aux visuels RCC.</p>
+        <label>Mot de passe
+          <input type="password" name="password" autocomplete="current-password" required autofocus />
+        </label>
+        <button class="button primary" type="submit">Entrer</button>
+        <p class="poster-lock-error" data-poster-lock-error hidden>Mot de passe incorrect.</p>
+        <a href="/cms-login">Retour administration</a>
+      </form>
+    </section>
+
+    <main class="poster-admin-shell" data-poster-admin>
       <section class="poster-admin-hero">
         <a class="poster-admin-brand" href="../index.html">
           <img src="../assets/logo-rcc.png" alt="RC Cubzaguais" />
@@ -117,6 +132,7 @@
       </section>
     </main>
 
+    <script src="./poster-auth.js"></script>
     <script src="../script.js"></script>
     <script src="./poster-generator.js"></script>
   </body>

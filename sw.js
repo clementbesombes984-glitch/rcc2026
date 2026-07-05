@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v13';
+const CACHE_VERSION = 'rcc-pwa-v14';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -27,6 +27,7 @@ const STATIC_ASSETS = [
   '/matches-view.js',
   '/notifications.js',
   '/admin/poster-generator.js',
+  '/admin/poster-auth.js',
   '/manifest.webmanifest',
   '/assets/logo-rcc.png',
   '/assets/pwa-icon-192.png',
