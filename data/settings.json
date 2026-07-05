@@ -1,10 +1,13 @@
 {
   "clubName": "Racing Club Cubzaguais",
-  "stadium": "Plaine des sports Lionel Ricci",
+  "stadium": "Plaine des sports Laurent Ricci",
   "city": "Saint-André-de-Cubzac",
-  "address": "Plaine des sports Lionel Ricci, Saint-André-de-Cubzac",
+  "address": "Plaine des sports Laurent Ricci, Saint-André-de-Cubzac",
+  "email": "lerccdemain@gmail.com",
+  "mapsUrl": "https://www.google.com/maps?q=Plaine%20des%20sports%20Lionel%20Ricci%2C%20Saint-Andr%C3%A9-de-Cubzac&output=embed",
+  "ffrUrl": "https://www.ffr.fr/",
   "joinTitle": "Porte nos couleurs",
-  "joinText": "Joueur, joueuse, parent, éducateur ou bénévole : viens rencontrer le club à la Plaine des sports Lionel Ricci, à Saint-André-de-Cubzac.",
+  "joinText": "Joueur, joueuse, parent, éducateur ou bénévole : viens rencontrer le club à la Plaine des sports Laurent Ricci, à Saint-André-de-Cubzac.",
   "parameters": [
     {
       "title": "Adresse du stade",
@@ -24,11 +27,5 @@
       "linkLabel": "Voir école",
       "linkUrl": "./ecole.html"
     }
-  ],
-  "email": "lerccdemain@gmail.com",
-  "phone": "",
-  "facebook": "",
-  "instagram": "",
-  "mapsUrl": "https://www.google.com/maps?q=Plaine%20des%20sports%20Lionel%20Ricci%2C%20Saint-Andr%C3%A9-de-Cubzac&output=embed",
-  "ffrUrl": "https://www.ffr.fr/"
+  ]
 }
