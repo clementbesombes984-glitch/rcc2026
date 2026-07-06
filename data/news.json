@@ -1,23 +1,6 @@
 {
   "news": [
     {
-      "title": "Reprise de la préparation estivale",
-      "summary": "Le groupe senior retrouve le terrain",
-      "body": "Le groupe senior et le staff retrouve le chemin des terrains le 4 Aout 2026 19H30 à la plaine des sports SAINT ANDRE DE CUBZAC",
-      "image": "/assets/uploads/fbimg1783257683941edit249153337759381.jpg",
-      "category": "Seniors",
-      "audience": [
-        "general",
-        "seniors"
-      ],
-      "important": true,
-      "notification": true,
-      "publishFacebook": false,
-      "publishInstagram": false,
-      "featured": true,
-      "date": "2026-07-05"
-    },
-    {
       "title": "Forum des Association 6 Septembre 2026",
       "summary": "Le RCC sera présent au forum des associations de Saint André de Cubzac",
       "body": "Salle du Champ de Foire 33240 Saint-André-de-Cubzac\ndimanche 6 septembre 2026 :\n10:00 - 17:00",
@@ -25,28 +8,6 @@
       "category": "Club",
       "audience": [
         "evenements"
-      ],
-      "important": false,
-      "notification": true,
-      "publishFacebook": false,
-      "publishInstagram": false,
-      "featured": false,
-      "date": "2026-07-05"
-    },
-    {
-      "title": "Reprise entraînement école de rugby ",
-      "summary": "Reprise entraînement école de rugby 5 Septembre 2026",
-      "body": "Et oui c'est la rentrée aussi pour le rugby dans la joie la bonne humeur et en forme pour attaquer une nouvelle saison pleine d'émotions, de passion et d'amusement ",
-      "category": "Ecole de rugby",
-      "audience": [
-        "jeunes",
-        "u6",
-        "u8",
-        "u10",
-        "u12",
-        "u14",
-        "u16",
-        "u19"
       ],
       "important": false,
       "notification": true,
