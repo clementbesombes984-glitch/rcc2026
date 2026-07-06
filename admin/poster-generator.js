@@ -3,31 +3,48 @@
     square: { width: 1080, height: 1080 },
     portrait: { width: 1080, height: 1350 },
     story: { width: 1080, height: 1920 },
-    facebook: { width: 1200, height: 630 }
+    facebook: { width: 1200, height: 630 },
+    a4: { width: 1748, height: 2480 }
   };
 
-  const TEMPLATE_LABELS = {
-    news: 'Actualite',
-    upcoming: 'Match a venir',
-    result: 'Resultat',
-    tournament: 'Tournoi',
-    club: 'Vie du club'
-  };
+  const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=League+Spartan:wght@700;800;900&family=Oswald:wght@500;600;700&family=Rajdhani:wght@600;700&display=swap';
+  const TITLE_FONT = '"Bebas Neue", "Anton", "Arial Black", Impact, sans-serif';
+  const IMPACT_FONT = '"Anton", "Bebas Neue", Impact, sans-serif';
+  const BODY_FONT = '"Rajdhani", "Oswald", Arial, sans-serif';
 
   const COLORS = {
-    black: '#050505',
+    black: '#030303',
+    charcoal: '#0b0b0d',
     red: '#b11845',
     redBright: '#d31a52',
-    text: '#fffaf3',
-    muted: '#d4ccc3',
-    darkText: '#090909',
-    green: '#08a351',
-    loss: '#d31a52'
+    navy: '#061b38',
+    navyBright: '#0d3467',
+    white: '#fff8ef',
+    muted: '#d8d0c6',
+    panel: 'rgba(3,3,3,.72)'
   };
 
-  const TITLE_FONT = '"Anton", "Arial Black", "Arial Narrow", Impact, sans-serif';
-  const BODY_FONT = '"Barlow Condensed", "Arial Narrow", Arial, sans-serif';
-  const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@600;700;800;900&display=swap';
+  const TEMPLATE_TITLES = {
+    news: 'ACTUALITE',
+    upcoming: 'MATCH',
+    result: 'RESULTAT',
+    tournament: 'TOURNOI',
+    training: 'ENTRAINEMENT',
+    recruitment: 'REJOINS LE RCC',
+    partner: 'PARTENAIRE',
+    club: 'VIE DU CLUB'
+  };
+
+  const STYLE_DEFAULTS = {
+    news: 'magazine',
+    upcoming: 'match',
+    result: 'match',
+    tournament: 'announcement',
+    training: 'announcement',
+    recruitment: 'announcement',
+    partner: 'partner',
+    club: 'club'
+  };
 
   const canvas = document.getElementById('posterCanvas');
   const ctx = canvas.getContext('2d');
@@ -41,6 +58,7 @@
 
   const state = {
     image: null,
+    opponentLogo: null,
     news: [],
     events: [],
     settings: {},
@@ -64,11 +82,19 @@
     return String(value || '').replace(/\s+/g, ' ').trim();
   }
 
+  function upper(value) {
+    return clean(value).toUpperCase();
+  }
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
   function formatDate(value) {
     if (!value) return '';
-    const date = new Date(value + 'T12:00:00');
+    const date = new Date(`${value}T12:00:00`);
     if (Number.isNaN(date.getTime())) return value;
-    return new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: '2-digit', month: 'short' }).format(date).replace('.', '');
+    return new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: '2-digit', month: 'long' }).format(date);
   }
 
   function collectionFrom(data, key) {
@@ -125,8 +151,9 @@
 
     try {
       await Promise.all([
-        document.fonts.load(`900 80px ${TITLE_FONT}`),
-        document.fonts.load(`800 42px ${BODY_FONT}`),
+        document.fonts.load(`900 120px ${TITLE_FONT}`),
+        document.fonts.load(`900 92px ${IMPACT_FONT}`),
+        document.fonts.load(`700 42px ${BODY_FONT}`),
         document.fonts.ready
       ]);
       state.fontsReady = true;
@@ -143,9 +170,7 @@
     for (const path of candidates) {
       try {
         const response = await fetch(path, { cache: 'no-store' });
-        if (response.ok) {
-          return { data: await response.json(), error: null };
-        }
+        if (response.ok) return { data: await response.json(), error: null };
         errors.push(`${path} (${response.status})`);
       } catch (error) {
         errors.push(path);
@@ -158,7 +183,7 @@
   async function loadSources() {
     setSelectLoading(sourceNews, 'des actualites');
     setSelectLoading(sourceEvent, 'du calendrier');
-    setStatus('Chargement des actualites et du calendrier...');
+    setStatus('Chargement des donnees du CMS...');
 
     try {
       const [newsResult, matchResult, settingsResult] = await Promise.all([
@@ -173,11 +198,9 @@
       hydrateSources();
 
       const failures = [newsResult.error && 'actualites', matchResult.error && 'calendrier'].filter(Boolean);
-      if (failures.length) {
-        setStatus(`Impossible de charger ${failures.join(' et ')}. Verifie la connexion ou les fichiers JSON.`);
-      } else {
-        setStatus(`${state.news.length} actualite(s) et ${state.events.length} evenement(s) charges.`);
-      }
+      setStatus(failures.length
+        ? `Impossible de charger ${failures.join(' et ')}. Verifie la connexion ou les fichiers JSON.`
+        : `${state.news.length} actualite(s) et ${state.events.length} evenement(s) charges.`);
       render();
     } catch (error) {
       state.news = [];
@@ -199,12 +222,13 @@
         )).join('');
       }
     }
+
     if (sourceEvent) {
       if (!state.events.length) {
         setSelectEmpty(sourceEvent, 'evenement');
       } else {
         sourceEvent.disabled = false;
-        sourceEvent.innerHTML = '<option value="">Choisir un match ou tournoi</option>' + state.events.map((item, index) => {
+        sourceEvent.innerHTML = '<option value="">Choisir un match, tournoi ou evenement</option>' + state.events.map((item, index) => {
           const title = clean(item.title || item.tournamentName || item.opponent || 'Evenement RCC');
           return `<option value="${index}">${item.date ? formatDate(item.date) + ' - ' : ''}${title}</option>`;
         }).join('');
@@ -220,15 +244,19 @@
   function applyNews(index) {
     const item = state.news[Number(index)];
     if (!item) return;
-    setField('template', 'news');
+    setField('template', item.category === 'Partenaires' ? 'partner' : 'news');
+    setField('style', item.category === 'Partenaires' ? 'partner' : 'magazine');
+    setField('layout', item.image ? 'photo' : 'balanced');
     setField('title', item.title || '');
-    setField('subtitle', item.summary || item.body || '');
+    setField('subtitle', item.subtitle || item.category || '');
     setField('category', item.category || 'Club');
     setField('date', item.date ? formatDate(item.date) : '');
     setField('time', '');
     setField('location', '');
     setField('score', '');
     setField('opponent', '');
+    setField('summary', item.summary || item.body || item.content || '');
+    state.opponentLogo = null;
     if (item.image) loadRemoteImage(item.image);
     render();
   }
@@ -238,17 +266,33 @@
     if (!item) return;
     const eventType = String(item.type_evenement || item.type || 'match').toLowerCase();
     const isTournament = eventType === 'tournoi';
+    const isTraining = eventType === 'entrainement' || eventType === 'training';
     const isResult = Boolean(item.result) || item.status === 'win' || item.status === 'loss';
-    setField('template', isTournament ? 'tournament' : isResult ? 'result' : 'upcoming');
-    setField('title', isTournament ? (item.tournamentName || item.title || 'Tournoi RCC') : 'RC CUBZAGUAIS');
-    setField('subtitle', item.team || item.category || '');
-    setField('category', isTournament ? 'Tournoi' : (item.team || 'Match'));
-    setField('opponent', item.opponent || item.away || '');
+    const template = isTournament ? 'tournament' : isTraining ? 'training' : isResult ? 'result' : 'upcoming';
+    const teams = Array.isArray(item.teams) ? item.teams.join(' / ') : '';
+
+    setField('template', template);
+    setField('style', STYLE_DEFAULTS[template] || 'match');
+    setField('layout', item.image ? 'photo' : 'balanced');
+    setField('title', isTournament ? (item.tournamentName || item.title || 'Tournoi RCC') : item.title || 'RC CUBZAGUAIS');
+    setField('subtitle', teams || item.team || item.category || '');
+    setField('category', isTournament ? (teams || item.team || 'Tournoi') : (item.team || item.category || 'Match'));
+    setField('opponent', item.opponent || item.away || item.partner || '');
     setField('date', formatDate(item.date));
     setField('time', item.time || '');
     setField('location', item.location || item.venue || '');
     setField('score', item.result || '');
+    setField('summary', item.description || item.summary || item.body || '');
+    state.opponentLogo = null;
+    if (item.image) loadRemoteImage(item.image);
+    if (item.opponentLogo || item.partnerLogo) loadRemoteOpponentLogo(item.opponentLogo || item.partnerLogo);
     render();
+  }
+
+  function normalizeAssetPath(src) {
+    if (!src) return '';
+    if (/^https?:\/\//i.test(src) || src.startsWith('data:')) return src;
+    return src.startsWith('/') ? '..' + src : src;
   }
 
   function loadRemoteImage(src) {
@@ -258,16 +302,26 @@
       state.image = img;
       render();
     };
-    img.src = src.startsWith('/') ? '..' + src : src;
+    img.src = normalizeAssetPath(src);
   }
 
-  function loadImageFromFile(file) {
+  function loadRemoteOpponentLogo(src) {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      state.opponentLogo = img;
+      render();
+    };
+    img.src = normalizeAssetPath(src);
+  }
+
+  function loadImageFromFile(file, key) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       const img = new Image();
       img.onload = () => {
-        state.image = img;
+        state[key] = img;
         render();
       };
       img.src = reader.result;
@@ -303,83 +357,6 @@
     return true;
   }
 
-  function fillBackground(w, h) {
-    const gradient = ctx.createLinearGradient(0, 0, w, h);
-    gradient.addColorStop(0, COLORS.black);
-    gradient.addColorStop(0.58, '#090909');
-    gradient.addColorStop(1, '#1d0610');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, w, h);
-
-    ctx.save();
-    ctx.globalAlpha = 0.12;
-    ctx.fillStyle = COLORS.red;
-    ctx.fillRect(0, h * 0.88, w, h * 0.12);
-    ctx.restore();
-  }
-
-  function drawPhoto(w, h, mode = 'full') {
-    if (!state.image) {
-      const gradient = ctx.createRadialGradient(w * 0.68, h * 0.24, 20, w * 0.68, h * 0.24, Math.max(w, h) * 0.72);
-      gradient.addColorStop(0, 'rgba(177,24,69,.42)');
-      gradient.addColorStop(0.46, 'rgba(18,18,18,.9)');
-      gradient.addColorStop(1, COLORS.black);
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, w, h);
-      return;
-    }
-    if (mode === 'top') {
-      coverImage(state.image, 0, 0, w, h * 0.72);
-    } else {
-      coverImage(state.image, 0, 0, w, h);
-    }
-  }
-
-  function overlay(w, h, strength = 0.74, bottom = 0.98) {
-    const vertical = ctx.createLinearGradient(0, 0, 0, h);
-    vertical.addColorStop(0, `rgba(0,0,0,${strength * 0.35})`);
-    vertical.addColorStop(0.48, `rgba(0,0,0,${strength * 0.36})`);
-    vertical.addColorStop(1, `rgba(0,0,0,${bottom})`);
-    ctx.fillStyle = vertical;
-    ctx.fillRect(0, 0, w, h);
-
-    const side = ctx.createLinearGradient(0, 0, w, 0);
-    side.addColorStop(0, 'rgba(0,0,0,.86)');
-    side.addColorStop(0.46, 'rgba(0,0,0,.16)');
-    side.addColorStop(1, 'rgba(0,0,0,.48)');
-    ctx.fillStyle = side;
-    ctx.fillRect(0, 0, w, h);
-  }
-
-  function drawAccent(w, h) {
-    ctx.fillStyle = COLORS.red;
-    ctx.fillRect(0, h - Math.max(14, h * 0.012), w, Math.max(14, h * 0.012));
-  }
-
-  function drawLogo(w, h, align = 'right') {
-    const size = Math.round(Math.min(w, h) * 0.105);
-    const pad = Math.round(Math.min(w, h) * 0.055);
-    const x = align === 'left' ? pad : w - pad - size;
-    const y = pad;
-    ctx.save();
-    ctx.globalAlpha = 0.96;
-    fitImage(logo, x, y, size, size);
-    ctx.restore();
-  }
-
-  function drawBadge(text, x, y, scale) {
-    const label = clean(text || 'RCC').toUpperCase();
-    ctx.font = `900 ${Math.round(18 * scale)}px ${BODY_FONT}`;
-    const width = ctx.measureText(label).width + 42 * scale;
-    ctx.fillStyle = COLORS.red;
-    roundRect(x, y, width, 42 * scale, 999);
-    ctx.fill();
-    ctx.fillStyle = COLORS.text;
-    ctx.textBaseline = 'middle';
-    ctx.fillText(label, x + 21 * scale, y + 21 * scale);
-    return width;
-  }
-
   function roundRect(x, y, w, h, r) {
     const radius = Math.min(r, w / 2, h / 2);
     ctx.beginPath();
@@ -391,16 +368,174 @@
     ctx.closePath();
   }
 
-  function wrapText(text, x, y, maxWidth, fontSize, lineHeight, maxLines, color = COLORS.text, family = TITLE_FONT) {
-    ctx.fillStyle = color;
-    ctx.font = `900 ${fontSize}px ${family}`;
+  function fillRounded(x, y, w, h, r, fillStyle, strokeStyle, lineWidth = 1) {
+    roundRect(x, y, w, h, r);
+    if (fillStyle) {
+      ctx.fillStyle = fillStyle;
+      ctx.fill();
+    }
+    if (strokeStyle) {
+      ctx.strokeStyle = strokeStyle;
+      ctx.lineWidth = lineWidth;
+      ctx.stroke();
+    }
+  }
+
+  function polygon(points) {
+    ctx.beginPath();
+    points.forEach(([x, y], index) => index ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+    ctx.closePath();
+  }
+
+  function drawBackground(w, h, data) {
+    const mode = data.colorMode || 'red';
+    const main = mode === 'blue' ? COLORS.navyBright : COLORS.red;
+    const secondary = mode === 'dark' ? '#111' : COLORS.navy;
+    const photoMode = data.layout !== 'graphic' && state.image;
+
+    const base = ctx.createLinearGradient(0, 0, w, h);
+    base.addColorStop(0, COLORS.black);
+    base.addColorStop(0.55, COLORS.charcoal);
+    base.addColorStop(1, '#13030a');
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, w, h);
+
+    if (photoMode) {
+      coverImage(state.image, 0, 0, w, h);
+      ctx.filter = 'contrast(1.14) saturate(.9)';
+      coverImage(state.image, 0, 0, w, h);
+      ctx.filter = 'none';
+      ctx.fillStyle = 'rgba(0,0,0,.65)';
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(177,24,69,.16)';
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    const radial = ctx.createRadialGradient(w * 0.78, h * 0.16, 20, w * 0.78, h * 0.16, Math.max(w, h) * 0.62);
+    radial.addColorStop(0, `${main}70`);
+    radial.addColorStop(0.42, `${secondary}24`);
+    radial.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = radial;
+    ctx.fillRect(0, 0, w, h);
+
+    drawGraphicStripes(w, h, main, secondary, data.style);
+    drawNoise(w, h);
+    drawVignette(w, h);
+  }
+
+  function drawGraphicStripes(w, h, main, secondary, style) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.globalAlpha = style === 'partner' ? 0.12 : 0.18;
+    ctx.fillStyle = main;
+    polygon([[w * 0.62, 0], [w, 0], [w, h * 0.09], [w * 0.56, h * 0.24]]);
+    ctx.fill();
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = secondary;
+    polygon([[w * 0.72, h * 0.24], [w, h * 0.16], [w, h * 0.42], [w * 0.62, h * 0.52]]);
+    ctx.fill();
+    ctx.globalAlpha = 0.16;
+    for (let i = 0; i < 7; i += 1) {
+      const y = h * (0.09 + i * 0.035);
+      ctx.fillStyle = i % 2 ? secondary : main;
+      polygon([[w * (0.06 + i * 0.03), y], [w * (0.35 + i * 0.08), y - h * 0.012], [w * (0.31 + i * 0.08), y + h * 0.006], [w * (0.04 + i * 0.03), y + h * 0.018]]);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawNoise(w, h) {
+    ctx.save();
+    ctx.globalAlpha = 0.11;
+    ctx.fillStyle = COLORS.white;
+    const count = Math.round((w * h) / 23000);
+    for (let i = 0; i < count; i += 1) {
+      const size = 1 + (i % 3);
+      ctx.fillRect((i * 97) % w, (i * 193) % h, size, size);
+    }
+    ctx.restore();
+  }
+
+  function drawVignette(w, h) {
+    const vignette = ctx.createRadialGradient(w / 2, h * 0.42, Math.min(w, h) * 0.2, w / 2, h / 2, Math.max(w, h) * 0.74);
+    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+    vignette.addColorStop(1, 'rgba(0,0,0,.82)');
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  function drawTop(w, h, data, scale) {
+    const pad = w * 0.058;
+    const logoSize = Math.min(w, h) * 0.095;
+    fitImage(logo, pad, pad * 0.72, logoSize, logoSize);
+
     ctx.textBaseline = 'top';
-    const words = clean(text).toUpperCase().split(/\s+/).filter(Boolean);
+    ctx.fillStyle = COLORS.white;
+    ctx.font = `900 ${42 * scale}px ${BODY_FONT}`;
+    ctx.fillText('RC CUBZAGUAIS', pad + logoSize + 22 * scale, pad * 0.9);
+
+    ctx.fillStyle = COLORS.redBright;
+    ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
+    ctx.letterSpacing = '0px';
+    const meta = upper(data.category || data.subtitle || 'RCC');
+    ctx.fillText(meta, pad + logoSize + 22 * scale, pad * 0.9 + 48 * scale);
+
+    const season = state.settings?.season || 'SAISON 2025-2026';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(255,248,239,.78)';
+    ctx.font = `800 ${24 * scale}px ${BODY_FONT}`;
+    ctx.fillText(upper(season), w - pad, pad * 0.96);
+    ctx.textAlign = 'left';
+  }
+
+  function drawMainTitle(w, h, data, scale) {
+    const textScale = clamp(Number(data.textScale || 100) / 100, 0.85, 1.18);
+    const title = upper(TEMPLATE_TITLES[data.template] || data.title || 'RCC');
+    const pad = w * 0.055;
+    const maxWidth = w - pad * 2;
+    const baseSize = Math.min(w * 0.19, h * 0.14) * textScale;
+    const y = h * 0.15;
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(211,26,82,.34)';
+    ctx.shadowBlur = 20 * scale;
+    drawFittedLines(title, pad, y, maxWidth, baseSize, baseSize * 0.86, 2, COLORS.white, TITLE_FONT);
+    ctx.restore();
+
+    const accent = data.template === 'upcoming' ? 'DE RUGBY' : upper(data.title || data.subtitle || 'RCC');
+    if (accent && accent !== title) {
+      ctx.save();
+      ctx.rotate(-0.025);
+      ctx.fillStyle = COLORS.redBright;
+      ctx.font = `900 ${Math.min(w * 0.075, h * 0.052) * textScale}px ${IMPACT_FONT}`;
+      ctx.fillText(accent.slice(0, 38), pad, y + baseSize * 1.03);
+      ctx.restore();
+    }
+  }
+
+  function drawFittedLines(text, x, y, maxWidth, fontSize, lineHeight, maxLines, color, family) {
+    let size = fontSize;
+    let lines = [];
+    while (size > fontSize * 0.48) {
+      ctx.font = `900 ${size}px ${family}`;
+      lines = buildLines(text, maxWidth, maxLines);
+      if (lines.every((line) => ctx.measureText(line).width <= maxWidth)) break;
+      size -= 4;
+    }
+    ctx.fillStyle = color;
+    ctx.font = `900 ${size}px ${family}`;
+    ctx.textBaseline = 'top';
+    lines.slice(0, maxLines).forEach((line, index) => ctx.fillText(line, x, y + index * lineHeight));
+    return y + lines.slice(0, maxLines).length * lineHeight;
+  }
+
+  function buildLines(text, maxWidth, maxLines) {
+    const words = upper(text).split(/\s+/).filter(Boolean);
     const lines = [];
     let line = '';
     words.forEach((word) => {
       const test = line ? `${line} ${word}` : word;
-      if (ctx.measureText(test).width > maxWidth && line) {
+      if (ctx.measureText(test).width > maxWidth && line && lines.length < maxLines - 1) {
         lines.push(line);
         line = word;
       } else {
@@ -408,17 +543,154 @@
       }
     });
     if (line) lines.push(line);
-    lines.slice(0, maxLines).forEach((entry, index) => ctx.fillText(entry, x, y + index * lineHeight));
-    return y + Math.min(lines.length, maxLines) * lineHeight;
+    return lines;
   }
 
-  function wrapSentence(text, x, y, maxWidth, fontSize, lineHeight, maxLines) {
-    ctx.fillStyle = COLORS.muted;
-    ctx.font = `700 ${fontSize}px ${BODY_FONT}`;
-    ctx.textBaseline = 'top';
+  function drawBadges(w, h, data, scale) {
+    if (data.showBadges !== 'yes') return;
+    const badges = [
+      ['DATE', data.date],
+      ['HEURE', data.time],
+      ['LIEU', data.location],
+      ['COMPETITION', data.category || data.subtitle]
+    ].filter((item) => clean(item[1]));
+    if (!badges.length) return;
+
+    const pad = w * 0.055;
+    const gap = 14 * scale;
+    const maxBadgeWidth = (w - pad * 2 - gap * (badges.length - 1)) / badges.length;
+    let x = pad;
+    const y = h * 0.35;
+    badges.forEach(([label, value]) => {
+      drawInfoBadge(label, value, x, y, maxBadgeWidth, 72 * scale, scale);
+      x += maxBadgeWidth + gap;
+    });
+  }
+
+  function drawInfoBadge(label, value, x, y, w, h, scale) {
+    fillRounded(x, y, w, h, 10 * scale, 'rgba(3,3,3,.62)', 'rgba(211,26,82,.52)', 1.5 * scale);
+    ctx.fillStyle = COLORS.redBright;
+    ctx.font = `900 ${17 * scale}px ${BODY_FONT}`;
+    ctx.fillText(upper(label), x + 16 * scale, y + 10 * scale);
+    ctx.fillStyle = COLORS.white;
+    ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
+    drawSingleLine(upper(value), x + 16 * scale, y + 34 * scale, w - 32 * scale, 24 * scale, BODY_FONT);
+  }
+
+  function drawSingleLine(text, x, y, maxWidth, fontSize, family) {
+    let size = fontSize;
+    while (size > fontSize * 0.62) {
+      ctx.font = `900 ${size}px ${family}`;
+      if (ctx.measureText(text).width <= maxWidth) break;
+      size -= 1;
+    }
+    ctx.fillText(text, x, y);
+  }
+
+  function drawMatchZone(w, h, data, scale) {
+    const y = h * 0.45;
+    const shieldW = w * 0.25;
+    const shieldH = Math.min(h * 0.19, shieldW * 1.08);
+    const leftX = w * 0.08;
+    const rightX = w - leftX - shieldW;
+    drawTeamShield(leftX, y, shieldW, shieldH, 'RCC', logo, COLORS.red, scale);
+    drawTeamShield(rightX, y, shieldW, shieldH, data.opponent || 'ADVERSAIRE', state.opponentLogo, COLORS.navyBright, scale);
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(211,26,82,.45)';
+    ctx.shadowBlur = 26 * scale;
+    ctx.fillStyle = COLORS.white;
+    ctx.font = `900 ${Math.min(w * 0.09, h * 0.064)}px ${IMPACT_FONT}`;
+    ctx.textAlign = 'center';
+    ctx.fillText('VS', w / 2, y + shieldH * 0.34);
+    ctx.textAlign = 'left';
+    ctx.restore();
+  }
+
+  function drawTeamShield(x, y, w, h, name, img, color, scale) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,.55)';
+    ctx.shadowBlur = 24 * scale;
+    polygon([
+      [x + w * 0.5, y],
+      [x + w, y + h * 0.22],
+      [x + w * 0.92, y + h],
+      [x + w * 0.08, y + h],
+      [x, y + h * 0.22]
+    ]);
+    ctx.fillStyle = 'rgba(3,3,3,.76)';
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4 * scale;
+    ctx.stroke();
+    ctx.restore();
+
+    if (img) fitImage(img, x + w * 0.18, y + h * 0.12, w * 0.64, h * 0.44);
+    ctx.fillStyle = COLORS.white;
+    ctx.font = `900 ${Math.min(w * 0.18, h * 0.16)}px ${IMPACT_FONT}`;
+    ctx.textAlign = 'center';
+    drawFittedCentered(upper(name), x + w / 2, y + h * 0.65, w * 0.82, Math.min(w * 0.18, h * 0.16), IMPACT_FONT);
+    ctx.textAlign = 'left';
+  }
+
+  function drawFittedCentered(text, cx, y, maxWidth, fontSize, family) {
+    let size = fontSize;
+    while (size > fontSize * 0.45) {
+      ctx.font = `900 ${size}px ${family}`;
+      if (ctx.measureText(text).width <= maxWidth) break;
+      size -= 2;
+    }
+    ctx.fillText(text, cx, y);
+  }
+
+  function drawFeatureZone(w, h, data, scale) {
+    if (data.template === 'upcoming' || data.template === 'result') {
+      drawMatchZone(w, h, data, scale);
+      return;
+    }
+
+    const pad = w * 0.055;
+    const y = h * 0.45;
+    const label = data.template === 'tournament'
+      ? (data.subtitle || data.category || 'Categories RCC')
+      : data.template === 'partner'
+        ? (data.opponent || data.title || 'Partenaire RCC')
+        : (data.subtitle || data.category || 'RC Cubzaguais');
+
+    ctx.save();
+    ctx.globalAlpha = 0.95;
+    fillRounded(pad, y, w - pad * 2, h * 0.14, 14 * scale, 'rgba(3,3,3,.48)', 'rgba(255,255,255,.09)', 1 * scale);
+    ctx.fillStyle = COLORS.redBright;
+    ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
+    ctx.fillText(upper(data.template === 'partner' ? 'MERCI' : 'RCC'), pad + 28 * scale, y + 22 * scale);
+    ctx.fillStyle = COLORS.white;
+    drawFittedLines(label, pad + 28 * scale, y + 54 * scale, w - pad * 2 - 56 * scale, Math.min(w * 0.06, h * 0.045), Math.min(w * 0.058, h * 0.042), 2, COLORS.white, IMPACT_FONT);
+    if (data.template === 'partner' && state.opponentLogo) fitImage(state.opponentLogo, w - pad - h * 0.11, y + h * 0.02, h * 0.1, h * 0.1);
+    ctx.restore();
+  }
+
+  function drawBottomPanel(w, h, data, scale) {
+    const pad = w * 0.055;
+    const panelH = h * 0.18;
+    const y = h - panelH - h * 0.075;
+    fillRounded(pad, y, w - pad * 2, panelH, 16 * scale, 'rgba(3,3,3,.78)', 'rgba(177,24,69,.42)', 1.5 * scale);
+
+    const heading = data.template === 'news' || data.template === 'club' ? 'PRESENTATION' : 'INFORMATIONS';
+    ctx.fillStyle = COLORS.redBright;
+    ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
+    ctx.fillText(heading, pad + 26 * scale, y + 22 * scale);
+
+    const summary = clean(data.summary || data.subtitle || data.title || 'Retrouvez les informations du RC Cubzaguais.');
+    ctx.fillStyle = COLORS.white;
+    ctx.font = `800 ${Math.min(w * 0.036, h * 0.028)}px ${BODY_FONT}`;
+    wrapParagraph(summary, pad + 26 * scale, y + 62 * scale, w - pad * 2 - 52 * scale, Math.min(w * 0.036, h * 0.028), Math.min(w * 0.043, h * 0.033), 3);
+  }
+
+  function wrapParagraph(text, x, y, maxWidth, fontSize, lineHeight, maxLines) {
     const words = clean(text).split(/\s+/).filter(Boolean);
     let line = '';
     let lines = 0;
+    ctx.textBaseline = 'top';
     words.forEach((word) => {
       const test = line ? `${line} ${word}` : word;
       if (ctx.measureText(test).width > maxWidth && line) {
@@ -432,101 +704,28 @@
     if (line && lines < maxLines) ctx.fillText(line, x, y + lines * lineHeight);
   }
 
-  function drawFooter(w, h) {
-    const site = 'rcc2026.pages.dev';
-    const pad = Math.round(Math.min(w, h) * 0.055);
-    ctx.fillStyle = 'rgba(255,255,255,.72)';
-    ctx.font = `900 ${Math.round(Math.min(w, h) * 0.018)}px ${BODY_FONT}`;
+  function drawFooter(w, h, scale) {
+    const pad = w * 0.055;
+    const y = h - pad * 0.78;
+    ctx.fillStyle = 'rgba(255,248,239,.82)';
+    ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
     ctx.textBaseline = 'bottom';
-    ctx.fillText(site.toUpperCase(), pad, h - pad);
-  }
-
-  function drawInfoLine(parts, x, y, scale) {
-    const text = parts.filter(Boolean).join('  /  ').toUpperCase();
-    if (!text) return;
-    ctx.fillStyle = COLORS.text;
-    ctx.font = `900 ${Math.round(26 * scale)}px ${BODY_FONT}`;
-    ctx.textBaseline = 'top';
-    ctx.fillText(text, x, y);
-  }
-
-  function renderNews(data, w, h, scale) {
-    drawPhoto(w, h);
-    overlay(w, h, 0.64, 0.94);
-    drawAccent(w, h);
-    drawLogo(w, h, 'right');
-    const pad = Math.round(Math.min(w, h) * 0.07);
-    const titleY = h * 0.58;
-    drawBadge(data.category || 'Actualite', pad, titleY - 62 * scale, scale);
-    const end = wrapText(data.title || 'Actualite RCC', pad, titleY, w - pad * 2, Math.round(w * 0.078), Math.round(w * 0.074), 3);
-    wrapSentence(data.subtitle || '', pad, end + 20 * scale, w - pad * 2, Math.round(w * 0.028), Math.round(w * 0.04), 2);
-    drawFooter(w, h);
-  }
-
-  function renderUpcoming(data, w, h, scale) {
-    fillBackground(w, h);
-    drawPhoto(w, h, 'top');
-    overlay(w, h, 0.68, 0.96);
-    drawAccent(w, h);
-    drawLogo(w, h, 'right');
-    const pad = Math.round(Math.min(w, h) * 0.07);
-    drawBadge(data.category || 'Match', pad, pad, scale);
-    const midY = h * 0.42;
-    wrapText('RC CUBZAGUAIS', pad, midY, w * 0.78, Math.round(w * 0.075), Math.round(w * 0.074), 2);
+    ctx.fillText('RCCUBZAGUAIS.FR', pad, y);
+    ctx.textAlign = 'right';
+    ctx.fillText('FACEBOOK  INSTAGRAM', w - pad, y);
+    ctx.textAlign = 'left';
     ctx.fillStyle = COLORS.redBright;
-    ctx.font = `900 ${Math.round(w * 0.058)}px ${TITLE_FONT}`;
-    ctx.textBaseline = 'top';
-    ctx.fillText('VS', pad, midY + Math.round(w * 0.13));
-    wrapText(data.opponent || 'ADVERSAIRE', pad + Math.round(w * 0.12), midY + Math.round(w * 0.126), w * 0.72, Math.round(w * 0.058), Math.round(w * 0.06), 2);
-    drawInfoLine([data.date, data.time, data.location], pad, h - pad - Math.round(w * 0.12), scale);
-    drawFooter(w, h);
+    ctx.fillRect(pad, h - pad * 0.45, w - pad * 2, Math.max(4, 5 * scale));
   }
 
-  function renderResult(data, w, h, scale) {
-    drawPhoto(w, h);
-    overlay(w, h, 0.72, 0.98);
-    drawAccent(w, h);
-    drawLogo(w, h, 'right');
-    const pad = Math.round(Math.min(w, h) * 0.07);
-    const score = clean(data.score || '0 - 0');
-    const isLoss = data.status === 'loss' || /defaite/i.test(data.subtitle || '');
-    const resultWord = isLoss ? 'DEFAITE' : 'RESULTAT';
-    drawBadge(data.category || resultWord, pad, pad, scale);
-    ctx.fillStyle = isLoss ? COLORS.loss : COLORS.green;
-    ctx.font = `900 ${Math.round(w * 0.07)}px ${TITLE_FONT}`;
-    ctx.textBaseline = 'top';
-    ctx.fillText(resultWord, pad, h * 0.31);
-    ctx.fillStyle = COLORS.text;
-    ctx.font = `900 ${Math.round(w * 0.16)}px ${TITLE_FONT}`;
-    ctx.fillText(score, pad, h * 0.4);
-    wrapText(data.title || 'RC CUBZAGUAIS', pad, h * 0.62, w - pad * 2, Math.round(w * 0.055), Math.round(w * 0.057), 2);
-    wrapSentence(data.subtitle || data.opponent || '', pad, h * 0.75, w - pad * 2, Math.round(w * 0.027), Math.round(w * 0.04), 2);
-    drawFooter(w, h);
-  }
-
-  function renderTournament(data, w, h, scale) {
-    drawPhoto(w, h);
-    overlay(w, h, 0.58, 0.96);
-    drawAccent(w, h);
-    drawLogo(w, h, 'right');
-    const pad = Math.round(Math.min(w, h) * 0.07);
-    drawBadge(data.category || 'Tournoi', pad, pad, scale);
-    const end = wrapText(data.title || 'Tournoi RCC', pad, h * 0.48, w - pad * 2, Math.round(w * 0.084), Math.round(w * 0.08), 3);
-    wrapSentence(data.subtitle || 'Rendez-vous aux couleurs du RCC', pad, end + 18 * scale, w - pad * 2, Math.round(w * 0.029), Math.round(w * 0.042), 2);
-    drawInfoLine([data.date, data.time, data.location], pad, h - pad - Math.round(w * 0.12), scale);
-    drawFooter(w, h);
-  }
-
-  function renderClub(data, w, h, scale) {
-    drawPhoto(w, h);
-    overlay(w, h, 0.5, 0.92);
-    drawAccent(w, h);
-    drawLogo(w, h, 'right');
-    const pad = Math.round(Math.min(w, h) * 0.07);
-    drawBadge(data.category || 'Vie du club', pad, pad, scale);
-    const end = wrapText(data.title || 'RC CUBZAGUAIS', pad, h * 0.56, w - pad * 2, Math.round(w * 0.082), Math.round(w * 0.078), 3);
-    wrapSentence(data.subtitle || 'Une vie de club faite de rugby, de joie et de partage.', pad, end + 18 * scale, w - pad * 2, Math.round(w * 0.029), Math.round(w * 0.042), 2);
-    drawFooter(w, h);
+  function renderPoster(data, w, h, scale) {
+    drawBackground(w, h, data);
+    drawTop(w, h, data, scale);
+    drawMainTitle(w, h, data, scale);
+    drawBadges(w, h, data, scale);
+    drawFeatureZone(w, h, data, scale);
+    drawBottomPanel(w, h, data, scale);
+    drawFooter(w, h, scale);
   }
 
   function render() {
@@ -535,13 +734,8 @@
     const format = resizeCanvas(data.format);
     const w = format.width;
     const h = format.height;
-    const scale = w / 1080;
-    const template = data.template || 'news';
-    if (template === 'upcoming') renderUpcoming(data, w, h, scale);
-    else if (template === 'result') renderResult(data, w, h, scale);
-    else if (template === 'tournament') renderTournament(data, w, h, scale);
-    else if (template === 'club') renderClub(data, w, h, scale);
-    else renderNews(data, w, h, scale);
+    const scale = Math.min(w / 1080, h / 1080);
+    renderPoster(data, w, h, scale);
   }
 
   async function downloadPng() {
@@ -563,7 +757,8 @@
 
   form?.addEventListener('input', render);
   form?.addEventListener('change', render);
-  document.querySelector('[data-poster-image]')?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0]));
+  document.querySelector('[data-poster-image]')?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'image'));
+  document.querySelector('[data-opponent-logo]')?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'opponentLogo'));
   sourceNews?.addEventListener('change', (event) => applyNews(event.target.value));
   sourceEvent?.addEventListener('change', (event) => applyEvent(event.target.value));
   downloadButton?.addEventListener('click', downloadPng);

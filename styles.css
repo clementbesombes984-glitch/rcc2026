@@ -1359,6 +1359,25 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
   background:#0d0d0d;
   box-shadow:0 0 0 3px rgba(177,24,69,.14);
 }
+.poster-form input[type="range"]{
+  padding:0;
+  accent-color:var(--red-bright);
+}
+.poster-check{
+  display:flex!important;
+  grid-template-columns:none!important;
+  align-items:center;
+  gap:12px!important;
+  min-height:44px;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;
+  background:rgba(255,255,255,.03);
+}
+.poster-check input{
+  width:auto!important;
+  accent-color:var(--red-bright);
+}
 .poster-field-grid{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -1430,7 +1449,6 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 .poster-admin-hero p:not(.section-kicker){
   max-width:760px;
 }
-.poster-form textarea,
 .poster-form input[name="url"]{
   display:none;
 }

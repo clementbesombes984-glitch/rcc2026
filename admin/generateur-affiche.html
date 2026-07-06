@@ -56,6 +56,7 @@
                 <option value="portrait">Instagram portrait - 1080x1350</option>
                 <option value="story">Story - 1080x1920</option>
                 <option value="facebook">Facebook - 1200x630</option>
+                <option value="a4">Affiche A4 - 1748x2480</option>
               </select>
             </label>
             <label>Template
@@ -64,7 +65,29 @@
                 <option value="upcoming">Match a venir</option>
                 <option value="result">Resultat</option>
                 <option value="tournament">Tournoi</option>
+                <option value="training">Entrainement</option>
+                <option value="recruitment">Recrutement</option>
+                <option value="partner">Partenaire</option>
                 <option value="club">Vie du club</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="poster-field-grid">
+            <label>Style d'affiche
+              <select name="style" data-poster-input>
+                <option value="match">Match percutant</option>
+                <option value="magazine">Magazine sportif</option>
+                <option value="club">Vie du club</option>
+                <option value="partner">Partenaire sobre</option>
+                <option value="announcement">Annonce dynamique</option>
+              </select>
+            </label>
+            <label>Disposition
+              <select name="layout" data-poster-input>
+                <option value="balanced">Equilibree</option>
+                <option value="photo">Photo dominante</option>
+                <option value="graphic">Graphique RCC</option>
               </select>
             </label>
           </div>
@@ -110,14 +133,37 @@
           <label>Lieu
             <input name="location" type="text" value="Plaine des sports Lionel Ricci" data-poster-input />
           </label>
+          <label>Resume / informations
+            <textarea name="summary" rows="3" data-poster-input>Ensemble, vivons notre passion aux couleurs du RCC.</textarea>
+          </label>
           <label>Photo principale
             <input name="image" type="file" accept="image/*" data-poster-image />
+          </label>
+          <label>Logo adverse / partenaire
+            <input name="opponentLogo" type="file" accept="image/*" data-opponent-logo />
+          </label>
+
+          <div class="poster-field-grid">
+            <label>Couleur dominante
+              <select name="colorMode" data-poster-input>
+                <option value="red">Bordeaux RCC</option>
+                <option value="blue">Bleu marine</option>
+                <option value="dark">Noir premium</option>
+              </select>
+            </label>
+            <label>Taille du titre
+              <input name="textScale" type="range" min="85" max="118" value="100" data-poster-input />
+            </label>
+          </div>
+          <label class="poster-check">
+            <input name="showBadges" type="checkbox" value="yes" checked data-poster-input />
+            Afficher les badges date, heure, lieu et competition
           </label>
 
           <div class="poster-actions">
             <button class="button primary" type="button" data-download-poster>Telecharger PNG</button>
           </div>
-          <p class="poster-help" data-poster-status>Les templates sont fixes pour garder une identite RCC simple et reconnaissable.</p>
+          <p class="poster-help" data-poster-status>Choisis une actualite ou un evenement : l'affiche se remplit automatiquement.</p>
         </form>
 
         <aside class="poster-preview-panel">
