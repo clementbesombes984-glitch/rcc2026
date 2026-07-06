@@ -6,10 +6,11 @@
     ['all', 'Tous'],
     ['match', 'Matchs'],
     ['tournoi', 'Tournois'],
+    ['entrainement', 'Entrainements'],
     ['seniors', 'Seniors'],
     ['ecole', 'Ecole de rugby'],
     ['jeunes', 'Pole jeunes'],
-    ['feminines', 'Feminines'],
+    ['cadettes', 'Cadettes'],
     ['u6', 'U6'],
     ['u8', 'U8'],
     ['u10', 'U10'],
@@ -18,6 +19,14 @@
     ['u16', 'U16'],
     ['u19', 'U19']
   ];
+
+  const TYPE_LABELS = {
+    match: 'Match',
+    tournoi: 'Tournoi',
+    entrainement: 'Entrainement',
+    reunion: 'Reunion',
+    evenement_club: 'Evenement club'
+  };
 
   const formatDate = (value) => {
     if (!value) return '';
@@ -46,20 +55,32 @@
   };
 
   const isRccName = (value) => RCC_NAMES.includes(String(value || '').trim().toLowerCase());
-
   const asList = (value) => Array.isArray(value) ? value.filter(Boolean) : (value ? [value] : []);
 
   function filterKey(value) {
     const key = String(value || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     if (key === 'ecole de rugby') return 'ecole';
-    if (key === 'pole jeunes' || key === 'pôle jeunes') return 'jeunes';
-    if (key === 'feminines' || key === 'feminine' || key === 'féminines') return 'feminines';
+    if (key === 'pole jeunes') return 'jeunes';
+    if (key === 'feminines' || key === 'feminine' || key === 'feminines' || key === 'cadette') return 'cadettes';
     if (key === 'seniors' || key === 'senior') return 'seniors';
+    if (key === 'entrainement' || key === 'entrainements' || key === 'training') return 'entrainement';
+    if (key === 'reunion') return 'reunion';
+    if (key === 'evenement' || key === 'evenement club' || key === 'event') return 'evenement_club';
     return key.replace(/\s+/g, '-');
   }
 
+  function normalizeType(value) {
+    const key = filterKey(value || '');
+    if (key === 'tournoi') return 'tournoi';
+    if (key === 'entrainement') return 'entrainement';
+    if (key === 'reunion') return 'reunion';
+    if (key === 'evenement_club') return 'evenement_club';
+    return 'match';
+  }
+
   function normalizeEvent(item) {
-    const type = String(item.type_evenement || item.eventType || item.type || '').toLowerCase() || (item.title && !item.away && !item.opponent ? 'tournoi' : 'match');
+    const rawType = item.type_evenement || item.eventType || item.type || (item.title && !item.away && !item.opponent ? 'tournoi' : 'match');
+    const type = normalizeType(rawType);
     const isTournament = type === 'tournoi';
     const selectedTeams = asList(item.teams);
     const fallbackTeam = item.team || item.category || item.categorie || (isTournament ? 'Ecole de rugby' : 'Seniors');
@@ -71,11 +92,13 @@
     const opponent = item.opponent || oldAwayTeam || (oldHomeTeam && !isRccName(oldHomeTeam) ? oldHomeTeam : '');
     const title = isTournament
       ? (item.title || item.tournamentName || item.nom_tournoi || `Tournoi ${team}`)
-      : (item.title || `${isHome ? 'RCC' : (opponent || 'Adversaire')} vs ${isHome ? (opponent || 'Adversaire') : 'RCC'}`);
+      : type === 'match'
+        ? (item.title || `${isHome ? 'RCC' : (opponent || 'Adversaire')} vs ${isHome ? (opponent || 'Adversaire') : 'RCC'}`)
+        : (item.title || TYPE_LABELS[type] || 'Rendez-vous RCC');
 
     return {
       raw: item,
-      type: isTournament ? 'tournoi' : 'match',
+      type,
       title,
       team,
       opponent,
@@ -117,8 +140,9 @@
 
   function eventKeys(event) {
     const values = [event.type, event.category, event.team, ...(event.teams || []), ...event.audience].map(filterKey);
-    if (values.some((value) => ['u6', 'u8', 'u10', 'u12'].includes(value))) values.push('ecole');
+    if (values.some((value) => ['u6', 'u8', 'u10', 'u12', 'u14'].includes(value))) values.push('ecole');
     if (values.some((value) => ['u14', 'u16', 'u18', 'u19'].includes(value))) values.push('jeunes');
+    if (values.includes('cadettes')) values.push('cadettes');
     return new Set(values);
   }
 
@@ -128,11 +152,12 @@
   }
 
   function typeLabel(event) {
-    return event.type === 'tournoi' ? 'Tournoi' : 'Match';
+    return TYPE_LABELS[event.type] || 'Evenement';
   }
 
   function eventMainLine(event) {
     if (event.type === 'tournoi') return event.title;
+    if (event.type !== 'match') return event.title || typeLabel(event);
     return event.title || `RCC vs ${event.opponent || 'Adversaire'}`;
   }
 
@@ -155,7 +180,7 @@
         <div class="calendar-main">
           <div class="calendar-badges">
             <span class="calendar-badge ${event.type}">${typeLabel(event)}</span>
-            <span class="calendar-badge">${escapeHtml(event.team)}</span>
+            ${event.teams.map((team) => `<span class="calendar-badge">${escapeHtml(team)}</span>`).join('')}
             ${event.type === 'match' ? `<span class="calendar-badge">${event.isHome ? 'Domicile' : 'Exterieur'}</span>` : ''}
           </div>
           <h2>${escapeHtml(eventMainLine(event))}</h2>
@@ -169,8 +194,7 @@
 
   function updateCountdown(date, node) {
     if (!node) return;
-    const diff = date.getTime() - Date.now();
-    const safeDiff = Math.max(0, diff);
+    const safeDiff = Math.max(0, date.getTime() - Date.now());
     const days = Math.floor(safeDiff / 86400000);
     const hours = Math.floor((safeDiff % 86400000) / 3600000);
     const minutes = Math.floor((safeDiff % 3600000) / 60000);
@@ -197,7 +221,7 @@
     if (next && nextCard) {
       nextCard.classList.remove('is-empty');
       const nextDate = parseEventDate(next);
-      const label = next.type === 'tournoi' ? 'Prochain tournoi' : 'Prochain match';
+      const label = next.type === 'tournoi' ? 'Prochain tournoi' : next.type === 'entrainement' ? 'Prochain entrainement' : next.type === 'match' ? 'Prochain match' : 'Prochain rendez-vous';
       nextCard.innerHTML = '<span>' + label + '</span><h3>' + escapeHtml(eventMainLine(next)) + '</h3><p>' + escapeHtml(formatDate(next.date)) + ' · ' + escapeHtml(eventMeta(next)) + '</p><div class="countdown-units" data-countdown></div>';
       const countdown = nextCard.querySelector('[data-countdown]');
       updateCountdown(nextDate, countdown);

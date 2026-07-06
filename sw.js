@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v16';
+const CACHE_VERSION = 'rcc-pwa-v17';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -11,6 +11,7 @@ const STATIC_ASSETS = [
   '/senior.html',
   '/ecole.html',
   '/jeunes.html',
+  '/cadettes.html',
   '/feminines.html',
   '/actualites.html',
   '/histoire.html',
@@ -153,7 +154,7 @@ function notificationTarget(data) {
   const type = data && data.type ? String(data.type) : '';
   if (data && data.url) return data.url;
   if (type === 'news' || type === 'actualite') return '/actualites.html';
-  if (type === 'match' || type === 'tournoi' || type === 'resultat') return '/calendrier.html';
+  if (type === 'match' || type === 'tournoi' || type === 'resultat' || type === 'entrainement' || type === 'reunion' || type === 'evenement_club') return '/calendrier.html';
   if (type === 'gallery' || type === 'galerie') return '/galerie.html';
   if (type === 'join' || type === 'contact') return '/nous-rejoindre.html';
   return '/';

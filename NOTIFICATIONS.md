@@ -161,7 +161,7 @@ Pour envoyer automatiquement une notification quand une actu ou un match est pub
 
 - `general`
 - `seniors`
-- `feminines`
+- `Cadettes`
 - `u6`
 - `u8`
 - `u10`

@@ -66,9 +66,23 @@ function audienceKey(value) {
   const key = String(value || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   if (key === 'ecole de rugby') return 'ecole';
   if (key === 'pole jeunes') return 'jeunes';
-  if (key === 'feminines' || key === 'feminine') return 'feminines';
+  if (key === 'feminines' || key === 'feminine' || key === 'feminines' || key === 'cadette') return 'cadettes';
   if (key === 'seniors' || key === 'senior') return 'seniors';
+  if (key === 'entrainement' || key === 'entrainements' || key === 'training') return 'entrainements';
+  if (key === 'tournoi') return 'tournois';
+  if (key === 'match') return 'matchs';
+  if (key === 'evenement_club' || key === 'evenement club' || key === 'evenement') return 'evenements';
   return key.replace(/\s+/g, '-');
+}
+
+function expandAudience(values) {
+  const set = new Set(values.map(audienceKey).filter(Boolean));
+  if (set.has('ecole') || ['u6', 'u8', 'u10', 'u12', 'u14'].some((key) => set.has(key))) {
+    set.add('ecole');
+    ['u6', 'u8', 'u10', 'u12', 'u14'].forEach((key) => set.add(key));
+  }
+  if (set.has('cadettes')) set.add('feminines');
+  return Array.from(set);
 }
 
 function audiences(item, fallback) {
@@ -78,7 +92,21 @@ function audiences(item, fallback) {
   if (fallback) values.push(fallback);
   teams.map(audienceKey).forEach((team) => values.push(team));
   if (!values.length) values.push('general');
-  return Array.from(new Set(values));
+  return expandAudience(values);
+}
+
+function shortTitle(value, fallback = 'Info RCC') {
+  const text = String(value || fallback).replace(/\s+/g, ' ').trim();
+  return text.length > 40 ? text.slice(0, 37).trimEnd() + '...' : text;
+}
+
+function eventTypeFor(item) {
+  const key = audienceKey(item.type_evenement || item.type || 'match');
+  if (key === 'tournois') return 'tournoi';
+  if (key === 'entrainements') return 'entrainement';
+  if (key === 'reunion') return 'reunion';
+  if (key === 'evenements' || key === 'evenement-club' || key === 'evenement_club' || key === 'evenement') return 'evenement_club';
+  return 'match';
 }
 
 function signatureForNews(item) {
@@ -121,7 +149,7 @@ function signatureForMatch(item) {
 function newsPayload(item) {
   return {
     type: 'news',
-    title: item.title || 'Actualite RCC',
+    title: shortTitle(item.title, 'Actualite RCC'),
     body: item.summary || item.body || item.category || 'Nouvelle actualite du club.',
     url: item.url || '/actualites.html',
     audience: audiences(item, 'general'),
@@ -132,23 +160,29 @@ function newsPayload(item) {
 function matchPayload(item) {
   const status = String(item.status || '').toLowerCase();
   const isResult = status === 'win' || status === 'loss' || Boolean(item.result);
-  const eventType = String(item.type_evenement || item.type || 'match').toLowerCase() === 'tournoi' ? 'tournoi' : 'match';
-  const eventAudience = eventType === 'tournoi' ? 'tournois' : 'matchs';
+  const eventType = eventTypeFor(item);
+  const eventAudience = isResult ? 'resultats' : eventType === 'tournoi' ? 'tournois' : eventType === 'entrainement' ? 'entrainements' : eventType === 'match' ? 'matchs' : 'evenements';
   const teams = asList(item.teams).length ? asList(item.teams) : asList(item.team);
   const teamsLabel = teams.join(', ');
   const title = eventType === 'tournoi'
     ? (item.title || item.tournamentName || `Tournoi ${teamsLabel || 'RCC'}`)
-    : (item.title || `${item.home || 'RCC'} vs ${item.opponent || item.away || 'Adversaire'}`);
+    : eventType === 'entrainement'
+      ? (item.title || `Entrainement ${teamsLabel || 'RCC'}`)
+      : eventType === 'match'
+        ? (item.title || `RCC vs ${item.opponent || item.away || 'Adversaire'}`)
+        : (item.title || 'Rendez-vous RCC');
   const place = item.location || item.venue || '';
   const body = eventType === 'tournoi'
     ? [`Tournoi ${teamsLabel || 'RCC'}`, item.date, item.time, place].filter(Boolean).join(' - ')
-    : [item.date, item.time, place, item.result].filter(Boolean).join(' - ');
+    : eventType === 'entrainement'
+      ? [teamsLabel, item.date, item.time, place].filter(Boolean).join(' - ')
+      : [item.date, item.time, place, item.result].filter(Boolean).join(' - ');
   return {
-    type: 'match',
-    title,
+    type: isResult ? 'resultat' : eventType,
+    title: shortTitle(title, eventType === 'entrainement' ? 'Entrainement RCC' : 'Rendez-vous RCC'),
     body,
     url: '/calendrier.html',
-    audience: audiences(item, isResult ? 'resultats' : eventAudience),
+    audience: audiences(item, eventAudience),
     tag: `${eventType}-${matchIdFor(item)}`
   };
 }
@@ -219,7 +253,7 @@ console.log('Derniere actu detectee:', lastNews ? JSON.stringify({
   audience: Array.isArray(lastNews.audience) ? lastNews.audience : []
 }, null, 2) : 'aucune');
 console.log('Evenements calendrier lus:', currentMatches.length);
-console.log('Matchs/tournois detectes avec notification=true:', currentMatches.filter((item) => item.notification).length);
+console.log('Evenements calendrier detectes avec notification=true:', currentMatches.filter((item) => item.notification).length);
 
 const newsPayloads = currentNews.filter(shouldNotifyNews).map(newsPayload);
 const matchPayloads = currentMatches.filter(shouldNotifyMatch).map(matchPayload);

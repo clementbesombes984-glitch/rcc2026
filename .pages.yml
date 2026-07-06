@@ -42,7 +42,7 @@ content:
                 - Seniors
                 - Ecole de rugby
                 - Pole jeunes
-                - Feminines
+                - Cadettes
                 - Benevoles
                 - Partenaires
                 - Tournois
@@ -57,8 +57,8 @@ content:
                   label: Tout le club
                 - value: seniors
                   label: Seniors
-                - value: feminines
-                  label: Feminines
+                - value: cadettes
+                  label: Cadettes
                 - value: u6
                   label: U6
                 - value: u8
@@ -144,7 +144,7 @@ content:
                   label: Entrainement
                 - value: reunion
                   label: Reunion
-                - value: evenement
+                - value: evenement_club
                   label: Evenement club
           - name: team
             label: Equipe / categorie principale
@@ -152,7 +152,7 @@ content:
             options:
               values:
                 - Seniors
-                - Feminines
+                - Cadettes
                 - U6
                 - U8
                 - U10
@@ -170,7 +170,7 @@ content:
             options:
               values:
                 - Seniors
-                - Feminines
+                - Cadettes
                 - U6
                 - U8
                 - U10
@@ -231,8 +231,8 @@ content:
               values:
                 - value: seniors
                   label: Seniors
-                - value: feminines
-                  label: Feminines
+                - value: cadettes
+                  label: Cadettes
                 - value: u6
                   label: U6
                 - value: u8
@@ -266,8 +266,8 @@ content:
                   label: Tout le club
                 - value: seniors
                   label: Seniors
-                - value: feminines
-                  label: Feminines
+                - value: cadettes
+                  label: Cadettes
                 - value: u6
                   label: U6
                 - value: u8
@@ -444,6 +444,288 @@ content:
           - name: category
             label: Groupe
             type: string
+
+  - name: senior
+    label: Seniors
+    type: file
+    path: data/senior.json
+    format: json
+    fields:
+      - name: staff
+        label: Staff senior
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{role} - {firstName} {lastName}"
+        fields:
+          - name: firstName
+            label: Prenom
+            type: string
+          - name: lastName
+            label: Nom
+            type: string
+          - name: role
+            label: Role
+            type: string
+          - name: phone
+            label: Telephone optionnel
+            type: string
+          - name: email
+            label: Email optionnel
+            type: string
+          - name: photo
+            label: Photo du staff
+            type: image
+      - name: players
+        label: Joueurs
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{group} - {firstName} {lastName}"
+        fields:
+          - name: group
+            label: Poste / groupe
+            type: string
+          - name: firstName
+            label: Prenom
+            type: string
+          - name: lastName
+            label: Nom
+            type: string
+          - name: position
+            label: Poste
+            type: string
+          - name: tag
+            label: Description courte
+            type: string
+          - name: photo
+            label: Photo joueur
+            type: image
+
+  - name: academy
+    label: Ecole de rugby
+    type: file
+    path: data/academy.json
+    format: json
+    fields:
+      - name: categories
+        label: Categories U6 a U14
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{age} - {training}"
+        fields:
+          - name: age
+            label: Categorie
+            type: select
+            options:
+              values: [U6, U8, U10, U12, U14]
+          - name: label
+            label: Titre court
+            type: string
+          - name: summary
+            label: Description courte
+            type: text
+          - name: training
+            label: Horaires d'entrainement
+            type: string
+          - name: location
+            label: Lieu d'entrainement
+            type: string
+          - name: teamPhoto
+            label: Photo principale de l'equipe
+            type: image
+          - name: photos
+            label: Photos secondaires
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{alt}"
+            fields:
+              - name: image
+                label: Photo
+                type: image
+              - name: alt
+                label: Description de la photo
+                type: string
+          - name: staff
+            label: Staff / educateurs
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{role} - {firstName} {lastName}"
+            fields:
+              - name: firstName
+                label: Prenom
+                type: string
+              - name: lastName
+                label: Nom
+                type: string
+              - name: role
+                label: Role
+                type: string
+              - name: phone
+                label: Telephone optionnel
+                type: string
+              - name: email
+                label: Email optionnel
+                type: string
+              - name: photo
+                label: Photo du staff
+                type: image
+
+  - name: youth
+    label: Pole jeunes
+    type: file
+    path: data/youth.json
+    format: json
+    fields:
+      - name: categories
+        label: Categories jeunes
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{age} - {training}"
+        fields:
+          - name: age
+            label: Categorie
+            type: select
+            options:
+              values: [U16, U18, U19, Cadets, Juniors]
+          - name: label
+            label: Titre court
+            type: string
+          - name: summary
+            label: Description courte
+            type: text
+          - name: training
+            label: Horaires d'entrainement
+            type: string
+          - name: location
+            label: Lieu d'entrainement
+            type: string
+          - name: teamPhoto
+            label: Photo principale de l'equipe
+            type: image
+          - name: photos
+            label: Photos secondaires
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{alt}"
+            fields:
+              - name: image
+                label: Photo
+                type: image
+              - name: alt
+                label: Description de la photo
+                type: string
+          - name: staff
+            label: Staff / educateurs
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{role} - {firstName} {lastName}"
+            fields:
+              - name: firstName
+                label: Prenom
+                type: string
+              - name: lastName
+                label: Nom
+                type: string
+              - name: role
+                label: Role
+                type: string
+              - name: phone
+                label: Telephone optionnel
+                type: string
+              - name: email
+                label: Email optionnel
+                type: string
+              - name: photo
+                label: Photo du staff
+                type: image
+
+  - name: cadettes
+    label: Cadettes
+    type: file
+    path: data/feminines.json
+    format: json
+    fields:
+      - name: categories
+        label: Equipe cadettes
+        type: object
+        list:
+          collapsible:
+            collapsed: false
+            summary: "{age} - {training}"
+        fields:
+          - name: age
+            label: Categorie
+            type: string
+          - name: label
+            label: Titre court
+            type: string
+          - name: summary
+            label: Description courte
+            type: text
+          - name: training
+            label: Horaires d'entrainement
+            type: string
+          - name: location
+            label: Lieu d'entrainement
+            type: string
+          - name: teamPhoto
+            label: Photo principale de l'equipe
+            type: image
+          - name: photos
+            label: Photos secondaires
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{alt}"
+            fields:
+              - name: image
+                label: Photo
+                type: image
+              - name: alt
+                label: Description de la photo
+                type: string
+          - name: staff
+            label: Staff / educateurs
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{role} - {firstName} {lastName}"
+            fields:
+              - name: firstName
+                label: Prenom
+                type: string
+              - name: lastName
+                label: Nom
+                type: string
+              - name: role
+                label: Role
+                type: string
+              - name: phone
+                label: Telephone optionnel
+                type: string
+              - name: email
+                label: Email optionnel
+                type: string
+              - name: photo
+                label: Photo du staff
+                type: image
 
   - name: settings
     label: Parametres du site

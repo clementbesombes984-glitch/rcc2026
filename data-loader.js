@@ -143,7 +143,7 @@
       { label: 'Seniors', value: 'seniors' },
       { label: 'Ecole de rugby', value: 'ecole' },
       { label: 'Jeunes', value: 'jeunes' },
-      { label: 'Feminines', value: 'feminines' },
+      { label: 'Cadettes', value: 'cadettes' },
       { label: 'Benevoles', value: 'benevoles' },
       { label: 'Tournois', value: 'tournois' }
     ];
@@ -157,10 +157,10 @@
     const itemTags = (item) => {
       const tags = new Set([normalize(item.category)]);
       (Array.isArray(item.audience) ? item.audience : []).forEach((tag) => tags.add(normalize(tag)));
-      if (['u6', 'u8', 'u10', 'u12', 'ecole-de-rugby'].some((tag) => tags.has(tag))) tags.add('ecole');
+      if (['u6', 'u8', 'u10', 'u12', 'u14', 'ecole-de-rugby'].some((tag) => tags.has(tag))) tags.add('ecole');
       if (['u14', 'u16', 'u18', 'u19', 'pole-jeunes'].some((tag) => tags.has(tag))) tags.add('jeunes');
       if (tags.has('senior')) tags.add('seniors');
-      if (tags.has('feminine')) tags.add('feminines');
+      if (tags.has('feminine') || tags.has('feminines') || tags.has('cadette')) tags.add('cadettes');
       if (tags.has('benevole')) tags.add('benevoles');
       if (['tournoi', 'tournois'].some((tag) => tags.has(tag))) tags.add('tournois');
       return tags;
@@ -397,6 +397,13 @@
     `;
   }
 
+  function photoItemUrl(item) {
+    return typeof item === 'string' ? item : (item?.image || item?.photo || item?.url || '');
+  }
+
+  function photoItemAlt(item, fallback) {
+    return typeof item === 'string' ? fallback : (item?.alt || item?.title || fallback);
+  }
   async function renderCategories(dataName, kicker) {
     const page = document.querySelector(`[data-category-page="${dataName}"]`);
     if (!page) return;
@@ -404,7 +411,35 @@
     const data = await fetchData(dataName);
     const categories = Array.isArray(data) ? data : (data.categories || []);
 
-    page.innerHTML = categories.map((cat, idx) => `
+    page.innerHTML = categories.map((cat, idx) => {
+      const staff = (cat.staff || []).filter((person) => person && (person.firstName || person.lastName || person.role || person.photo));
+      const photos = (cat.photos || []).map((photo) => ({
+        url: photoItemUrl(photo),
+        alt: photoItemAlt(photo, `Photo ${cat.age}`)
+      })).filter((photo) => photo.url);
+      const meta = [cat.count, cat.training, cat.location].filter(Boolean);
+      const photosBlock = photos.length ? `
+          <div class="team-gallery">
+            ${photos.map((photo) => `<figure class="team-gallery-item"${imageStyle(photo.url)}><span>${escapeHtml(photo.alt)}</span></figure>`).join('')}
+          </div>
+      ` : '';
+      const staffBlock = staff.length ? `
+          <h3>Staff educateur</h3>
+          <div class="staff-grid">
+            ${staff.map((person, i) => `
+              <article class="staff-card">
+                <div class="staff-avatar avatar-${((idx + i) % 6) + 1} cms-avatar"${imageStyle(person.photo)}></div>
+                <div>
+                  <strong>${escapeHtml(person.firstName)}</strong>
+                  <span>${escapeHtml(person.lastName)}</span>
+                  <small>${escapeHtml(person.role || `Educateur ${cat.age}`)}</small>
+                  ${person.phone || person.email ? `<p class="staff-contact">${escapeHtml([person.phone, person.email].filter(Boolean).join(' - '))}</p>` : ''}
+                </div>
+              </article>
+            `).join('')}
+          </div>
+      ` : '';
+      return `
       <section class="academy-category" id="${escapeHtml(String(cat.age).toLowerCase())}">
         <div class="team-photo photo-${(idx % 4) + 1} cms-team-photo"${imageStyle(cat.teamPhoto)} aria-label="Photo de l'effectif ${escapeHtml(cat.age)}">
           ${teamRows()}
@@ -414,28 +449,14 @@
           <p class="section-kicker">${escapeHtml(kicker)}</p>
           <h2>${escapeHtml(cat.age)} <span>${escapeHtml(cat.label)}</span></h2>
           <p>${escapeHtml(cat.summary)}</p>
-          <div class="academy-meta">
-            <span>${escapeHtml(cat.count)}</span>
-            <span>${escapeHtml(cat.training)}</span>
-          </div>
-          <h3>Staff éducateur</h3>
-          <div class="staff-grid">
-            ${(cat.staff || []).map((person, i) => `
-              <article class="staff-card">
-                <div class="staff-avatar avatar-${((idx + i) % 6) + 1} cms-avatar"${imageStyle(person.photo)}></div>
-                <div>
-                  <strong>${escapeHtml(person.firstName)}</strong>
-                  <span>${escapeHtml(person.lastName)}</span>
-                  <small>Éducateur ${escapeHtml(cat.age)}</small>
-                </div>
-              </article>
-            `).join('')}
-          </div>
+          ${meta.length ? `<div class="academy-meta">${meta.map((item) => `<span>${escapeHtml(item)}</span>`).join('')}</div>` : ''}
+          ${photosBlock}
+          ${staffBlock}
         </div>
       </section>
-    `).join('');
+    `;
+    }).join('');
   }
-
   async function renderPartners() {
     const grid = document.querySelector('[data-partners]');
     if (!grid) return;
@@ -611,7 +632,7 @@
     renderSenior().catch(console.error);
     renderCategories('academy', 'École de rugby').catch(console.error);
     renderCategories('youth', 'Pôle jeunes').catch(console.error);
-    renderCategories('feminines', 'Féminines').catch(console.error);
+    renderCategories('feminines', 'Cadettes').catch(console.error);
     renderPartners().catch(console.error);
     renderProject().catch(console.error);
     renderImportantNews().catch(console.error);

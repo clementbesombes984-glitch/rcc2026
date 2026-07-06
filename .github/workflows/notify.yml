@@ -31,6 +31,6 @@ jobs:
         env:
           BEFORE_REF: ${{ github.event.before }}
           CURRENT_REF: ${{ github.sha }}
-          RCC_SITE_URL: ${{ vars.RCC_SITE_URL }}
+          RCC_SITE_URL: ${{ vars.RCC_SITE_URL || secrets.RCC_SITE_URL }}
           RCC_PUSH_ADMIN_TOKEN: ${{ secrets.RCC_PUSH_ADMIN_TOKEN }}
         run: node scripts/notify-changes.js

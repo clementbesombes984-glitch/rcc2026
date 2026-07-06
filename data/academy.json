@@ -4,7 +4,7 @@
       "age": "U6",
       "label": "Premiers pas",
       "summary": "Découverte du ballon, motricité, jeux collectifs et plaisir de venir au stade.",
-      "count": "18 enfants",
+      "count": "",
       "training": "Samedi 10h",
       "teamPhoto": "",
       "staff": [
@@ -29,7 +29,7 @@
       "age": "U8",
       "label": "Apprendre ensemble",
       "summary": "Courses, passes, repères sur le terrain et premiers réflexes de soutien.",
-      "count": "22 enfants",
+      "count": "",
       "training": "Mercredi 18h · Samedi 10h",
       "teamPhoto": "",
       "staff": [
@@ -49,7 +49,7 @@
       "age": "U10",
       "label": "Construire le jeu",
       "summary": "Technique individuelle, placement, contact maîtrisé et esprit d’équipe.",
-      "count": "24 enfants",
+      "count": "",
       "training": "Mercredi 18h · Samedi 10h",
       "teamPhoto": "",
       "staff": [
@@ -74,7 +74,7 @@
       "age": "U12",
       "label": "Grandir en collectif",
       "summary": "Lecture du jeu, organisation défensive, conservation et prise d’initiative.",
-      "count": "26 jeunes",
+      "count": "",
       "training": "Mercredi 18h · Samedi 10h",
       "teamPhoto": "",
       "staff": [
@@ -91,6 +91,31 @@
         {
           "firstName": "Alexandre",
           "lastName": "Roy",
+          "photo": ""
+        }
+      ]
+    },
+    {
+      "age": "U14",
+      "label": "Entrer dans le grand terrain",
+      "summary": "Travail technique, premières organisations collectives complètes, attitude défensive et confiance dans le contact.",
+      "count": "",
+      "training": "Mardi 18h30 · Vendredi 18h30",
+      "teamPhoto": "",
+      "staff": [
+        {
+          "firstName": "Sébastien",
+          "lastName": "Caron",
+          "photo": ""
+        },
+        {
+          "firstName": "Laura",
+          "lastName": "Besson",
+          "photo": ""
+        },
+        {
+          "firstName": "Yanis",
+          "lastName": "Dumas",
           "photo": ""
         }
       ]

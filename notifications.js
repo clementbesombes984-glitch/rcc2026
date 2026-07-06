@@ -34,9 +34,8 @@
       title: 'Equipes',
       items: [
         ['seniors', 'Seniors'],
-        ['feminines', 'Feminines'],
+        ['cadettes', 'Cadettes'],
         ['jeunes', 'Pole jeunes'],
-        ['u14', 'U14'],
         ['u16', 'U16'],
         ['u19', 'U19']
       ]
@@ -48,7 +47,8 @@
         ['u6', 'U6'],
         ['u8', 'U8'],
         ['u10', 'U10'],
-        ['u12', 'U12']
+        ['u12', 'U12'],
+        ['u14', 'U14']
       ]
     },
     {
@@ -160,9 +160,23 @@
     const key = String(value || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     if (key === 'ecole de rugby') return 'ecole';
     if (key === 'pole jeunes') return 'jeunes';
-    if (key === 'feminines' || key === 'feminine') return 'feminines';
+    if (key === 'feminines' || key === 'feminine' || key === 'feminines' || key === 'cadette') return 'cadettes';
     if (key === 'seniors' || key === 'senior') return 'seniors';
+    if (key === 'entrainement' || key === 'entrainements' || key === 'training') return 'entrainements';
+    if (key === 'tournoi') return 'tournois';
+    if (key === 'match') return 'matchs';
+    if (key === 'evenement_club' || key === 'evenement club' || key === 'evenement') return 'evenements';
     return key.replace(/\s+/g, '-');
+  }
+
+  function expandAudience(values) {
+    const set = new Set(values.map(audienceKey).filter(Boolean));
+    if (set.has('ecole') || ['u6', 'u8', 'u10', 'u12', 'u14'].some((key) => set.has(key))) {
+      set.add('ecole');
+      ['u6', 'u8', 'u10', 'u12', 'u14'].forEach((key) => set.add(key));
+    }
+    if (set.has('cadettes')) set.add('feminines');
+    return Array.from(set);
   }
 
   function itemAudiences(item, fallback) {
@@ -171,12 +185,12 @@
     const extra = [];
     if (item.important) extra.push('important');
     if (fallback) extra.push(fallback);
-    return Array.from(new Set([...audience, ...teams.map(audienceKey), ...extra, 'general']));
+    return expandAudience([...audience, ...teams, ...extra, 'general']);
   }
 
   function matchesPreferences(audiences) {
     const preferences = loadPreferences();
-    return audiences.some((key) => preferences[key]);
+    return expandAudience(audiences).some((key) => preferences[key]);
   }
 
   function itemId(type, item) {
@@ -250,21 +264,26 @@
       ...matches.filter((item) => item.notification).map((item) => {
         const status = String(item.status || '').toLowerCase();
         const isResult = status === 'win' || status === 'loss' || Boolean(item.result);
-        const eventType = String(item.type_evenement || item.type || 'match').toLowerCase() === 'tournoi' ? 'tournoi' : 'match';
-        const eventAudience = eventType === 'tournoi' ? 'tournois' : 'matchs';
+        const rawType = audienceKey(item.type_evenement || item.type || 'match');
+        const eventType = rawType === 'tournois' ? 'tournoi' : rawType === 'entrainements' ? 'entrainement' : rawType === 'evenements' ? 'evenement' : 'match';
+        const eventAudience = eventType === 'tournoi' ? 'tournois' : eventType === 'entrainement' ? 'entrainements' : eventType === 'evenement' ? 'evenements' : 'matchs';
         const audience = itemAudiences(item, isResult ? 'resultats' : eventAudience);
         const teams = asList(item.teams).length ? asList(item.teams) : asList(item.team);
         const teamsLabel = teams.join(', ');
         const title = eventType === 'tournoi'
           ? (item.title || item.tournamentName || ('Tournoi ' + (teamsLabel || 'RCC')))
-          : (item.title || (item.home || 'RCC') + ' vs ' + (item.opponent || item.away || 'Adversaire'));
+          : eventType === 'entrainement'
+            ? (item.title || ('Entrainement ' + (teamsLabel || 'RCC')))
+            : eventType === 'evenement'
+              ? (item.title || 'Evenement RCC')
+              : (item.title || (item.home || 'RCC') + ' vs ' + (item.opponent || item.away || 'Adversaire'));
         const place = item.location || item.venue || '';
         return {
           id: itemId(eventType, item),
           type: isResult ? 'resultat' : eventType,
-          title,
-          body: [eventType === 'tournoi' ? teamsLabel : '', item.date, item.time, place, item.result].filter(Boolean).join(' - '),
-          url: '/matchs.html',
+          title: title.length > 40 ? title.slice(0, 37).trimEnd() + '...' : title,
+          body: [eventType === 'tournoi' || eventType === 'entrainement' || eventType === 'evenement' ? teamsLabel : '', item.date, item.time, place, item.result].filter(Boolean).join(' - '),
+          url: '/calendrier.html',
           audience
         };
       })
@@ -331,6 +350,12 @@
       if (!input) return;
       const next = loadPreferences();
       next[input.value] = input.checked;
+      if (input.value === 'ecole' && input.checked) {
+        ['u6', 'u8', 'u10', 'u12', 'u14'].forEach((key) => { next[key] = true; });
+        root.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+          if (['u6', 'u8', 'u10', 'u12', 'u14'].includes(checkbox.value)) checkbox.checked = true;
+        });
+      }
       savePreferences(next);
       setStatus('Preferences enregistrees sur cet appareil.', 'success');
     });

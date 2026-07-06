@@ -10,8 +10,30 @@ function json(data, status = 200) {
 }
 
 function hasMatchingPreference(preferences, audience) {
-  const targets = Array.isArray(audience) && audience.length ? audience : ['general'];
+  const targets = expandAudience(Array.isArray(audience) && audience.length ? audience : ['general']);
   return targets.some((key) => preferences && preferences[key]);
+}
+
+function audienceKey(value) {
+  const key = String(value || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (key === 'ecole de rugby') return 'ecole';
+  if (key === 'feminines' || key === 'feminine' || key === 'feminines' || key === 'cadette') return 'cadettes';
+  return key.replace(/\s+/g, '-');
+}
+
+function expandAudience(values) {
+  const set = new Set(values.map(audienceKey).filter(Boolean));
+  if (set.has('ecole') || ['u6', 'u8', 'u10', 'u12', 'u14'].some((key) => set.has(key))) {
+    set.add('ecole');
+    ['u6', 'u8', 'u10', 'u12', 'u14'].forEach((key) => set.add(key));
+  }
+  if (set.has('cadettes')) set.add('feminines');
+  return Array.from(set);
+}
+
+function shortTitle(value, fallback = 'RC Cubzaguais') {
+  const text = String(value || fallback).replace(/\s+/g, ' ').trim();
+  return text.length > 40 ? text.slice(0, 37).trimEnd() + '...' : text;
 }
 
 function isAuthorized(request, env) {
@@ -258,7 +280,7 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'JSON invalide.' }, 400);
   }
 
-  const audience = Array.isArray(payload.audience) ? payload.audience : ['general'];
+  const audience = expandAudience(Array.isArray(payload.audience) ? payload.audience : ['general']);
   const list = await env.RCC_PUSH_SUBSCRIPTIONS.list();
   let sent = 0;
   let skipped = 0;
@@ -285,7 +307,7 @@ export async function onRequestPost({ request, env }) {
     try {
       await sendWebPush(record.subscription, {
         type: payload.type || 'news',
-        title: payload.title || 'RC Cubzaguais',
+        title: shortTitle(payload.title, 'RC Cubzaguais'),
         body: payload.body || 'Nouvelle information du club.',
         url: payload.url || '/',
         audience,

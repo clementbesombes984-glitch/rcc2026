@@ -25,7 +25,7 @@ html {
 #matches,
 #actus,
 #rejoindre,
-#feminines,
+#cadettes,
 #accueil {
   scroll-margin-top: 96px;
 }
@@ -454,14 +454,19 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 .calendar-main h2{margin:10px 0 8px;font-family:"Arial Narrow",Impact,Haettenschweiler,sans-serif;font-size:clamp(26px,3vw,40px);font-weight:900;line-height:1.02;text-transform:uppercase}
 .calendar-main p{margin:0;color:#aaa49d;line-height:1.55}
 .calendar-description{margin-top:8px!important;color:#d0c8c0!important}
-.calendar-badges{display:flex;flex-wrap:wrap;gap:8px}
-.calendar-badge,.calendar-result{display:inline-flex;align-items:center;justify-content:center;min-height:30px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.045);color:#e9e3dd;padding:0 11px;font-size:11px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase;white-space:nowrap}
+.calendar-badges{display:flex;flex-wrap:wrap;gap:8px;max-width:100%}
+.calendar-badge,.calendar-result{display:inline-flex;align-items:center;justify-content:center;min-height:30px;max-width:100%;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.045);color:#e9e3dd;padding:0 11px;font-size:11px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase;white-space:normal;text-align:center;line-height:1.15;overflow-wrap:anywhere}
 .calendar-badge.match{border-color:rgba(211,26,82,.48);background:rgba(177,24,69,.2);color:#fff}
 .calendar-badge.tournoi{border-color:rgba(255,255,255,.2);background:linear-gradient(135deg,rgba(177,24,69,.26),rgba(8,33,62,.34));color:#fff}
+.calendar-badge.entrainement{border-color:rgba(13,52,103,.58);background:rgba(13,52,103,.32);color:#fff}
+.calendar-badge.reunion,.calendar-badge.evenement_club{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff}
 .calendar-badge.upcoming{background:var(--red);border-color:var(--red);color:#fff}
 .calendar-result.win{border-color:rgba(8,163,81,.5);background:rgba(8,163,81,.24);color:#35e889}
 .calendar-result.loss{border-color:rgba(211,26,82,.42);background:rgba(177,24,69,.28);color:#ff8aaa}
 .calendar-side{display:flex;justify-content:flex-end}
+.academy-meta span:empty{display:none}
+
+.staff-contact{margin:6px 0 0!important;color:var(--muted)!important;font-size:13px!important;line-height:1.35!important;overflow-wrap:anywhere}.team-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 28px}.team-gallery-item{position:relative;min-height:130px;margin:0;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:#111 center/cover no-repeat}.team-gallery-item:after{position:absolute;inset:0;content:"";background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.78))}.team-gallery-item span{position:absolute;left:12px;right:12px;bottom:10px;z-index:1;color:#fff;font-size:12px;font-weight:900;letter-spacing:1px;text-transform:uppercase;overflow-wrap:anywhere}@media(max-width:760px){.team-gallery{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}.team-gallery-item{min-height:112px}.academy-meta span{max-width:100%;overflow-wrap:anywhere;white-space:normal}}
 @media(max-width:900px){
   .calendar-card{grid-template-columns:1fr;gap:14px;padding:18px}
   .calendar-side{justify-content:flex-start}
@@ -473,6 +478,8 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
   .calendar-filters button{padding:10px 12px;font-size:11px;letter-spacing:.8px}
   .calendar-events{gap:32px}
   .calendar-card{border-radius:10px}
+  .calendar-badges{gap:6px}
+  .calendar-badge,.calendar-result{max-width:min(100%,220px);min-height:28px;padding:6px 10px;font-size:10px;letter-spacing:.8px}
 }
 
 /* Final mobile home flow guard */
