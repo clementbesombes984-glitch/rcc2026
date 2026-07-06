@@ -157,8 +157,9 @@
     const itemTags = (item) => {
       const tags = new Set([normalize(item.category)]);
       (Array.isArray(item.audience) ? item.audience : []).forEach((tag) => tags.add(normalize(tag)));
+      if (tags.has('ecole') || tags.has('ecole-de-rugby')) ['u6', 'u8', 'u10', 'u12', 'u14'].forEach((tag) => tags.add(tag));
       if (['u6', 'u8', 'u10', 'u12', 'u14', 'ecole-de-rugby'].some((tag) => tags.has(tag))) tags.add('ecole');
-      if (['u14', 'u16', 'u18', 'u19', 'pole-jeunes'].some((tag) => tags.has(tag))) tags.add('jeunes');
+      if (['u16', 'u18', 'u19', 'pole-jeunes'].some((tag) => tags.has(tag))) tags.add('jeunes');
       if (tags.has('senior')) tags.add('seniors');
       if (tags.has('feminine') || tags.has('feminines') || tags.has('cadette')) tags.add('cadettes');
       if (tags.has('benevole')) tags.add('benevoles');

@@ -17,7 +17,7 @@
     ['u12', 'U12'],
     ['u14', 'U14'],
     ['u16', 'U16'],
-    ['u19', 'U19']
+    ['u18', 'U18']
   ];
 
   const TYPE_LABELS = {
@@ -140,8 +140,9 @@
 
   function eventKeys(event) {
     const values = [event.type, event.category, event.team, ...(event.teams || []), ...event.audience].map(filterKey);
+    if (values.includes('ecole')) values.push('u6', 'u8', 'u10', 'u12', 'u14');
     if (values.some((value) => ['u6', 'u8', 'u10', 'u12', 'u14'].includes(value))) values.push('ecole');
-    if (values.some((value) => ['u14', 'u16', 'u18', 'u19'].includes(value))) values.push('jeunes');
+    if (values.some((value) => ['u16', 'u18', 'u19'].includes(value))) values.push('jeunes');
     if (values.includes('cadettes')) values.push('cadettes');
     return new Set(values);
   }

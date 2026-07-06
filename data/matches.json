@@ -15,15 +15,12 @@
       "type_evenement": "entrainement",
       "team": "Ecole de rugby",
       "teams": [
-        "Pole jeunes",
+        "Ecole de rugby",
         "U6",
         "U8",
         "U10",
         "U12",
-        "U14",
-        "U16",
-        "U19",
-        "Cadettes"
+        "U14"
       ],
       "date": "2026-09-05",
       "time": "10h00",

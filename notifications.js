@@ -37,7 +37,7 @@
         ['cadettes', 'Cadettes'],
         ['jeunes', 'Pole jeunes'],
         ['u16', 'U16'],
-        ['u19', 'U19']
+        ['u18', 'U18']
       ]
     },
     {

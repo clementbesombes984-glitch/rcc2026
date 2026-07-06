@@ -71,8 +71,8 @@ content:
                   label: U14
                 - value: u16
                   label: U16
-                - value: u19
-                  label: U19
+                - value: u18
+                  label: U18
                 - value: ecole
                   label: Ecole de rugby
                 - value: jeunes
@@ -159,7 +159,7 @@ content:
                 - U12
                 - U14
                 - U16
-                - U19
+                - U18
                 - Ecole de rugby
                 - Pole jeunes
                 - Tout le club
@@ -177,7 +177,7 @@ content:
                 - U12
                 - U14
                 - U16
-                - U19
+                - U18
                 - Ecole de rugby
                 - Pole jeunes
                 - Tout le club
@@ -245,8 +245,8 @@ content:
                   label: U14
                 - value: u16
                   label: U16
-                - value: u19
-                  label: U19
+                - value: u18
+                  label: U18
                 - value: ecole
                   label: Ecole de rugby
                 - value: jeunes
@@ -280,8 +280,8 @@ content:
                   label: U14
                 - value: u16
                   label: U16
-                - value: u19
-                  label: U19
+                - value: u18
+                  label: U18
                 - value: ecole
                   label: Ecole de rugby
                 - value: jeunes
@@ -597,7 +597,7 @@ content:
             label: Categorie
             type: select
             options:
-              values: [U16, U18, U19, Cadets, Juniors]
+              values: [U16, U18, Cadets, Juniors]
           - name: label
             label: Titre court
             type: string
