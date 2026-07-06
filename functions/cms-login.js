@@ -32,7 +32,7 @@ function page(error = "") {
         <button type="submit">Entrer</button>
       </form>
       ${errorHtml}
-      <a class="tool" href="/admin/generateur-affiche.html">Generateur d'affiches</a>
+      <a class="tool" href="/admin/generateur-affiche.html">Studio RCC</a>
       <a class="back" href="/">Retour au site</a>
     </main>
   </body>

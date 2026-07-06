@@ -4,24 +4,24 @@
     portrait: { width: 1080, height: 1350 },
     story: { width: 1080, height: 1920 },
     facebook: { width: 1200, height: 630 },
+    linkedin: { width: 1200, height: 627 },
     a4: { width: 1748, height: 2480 }
   };
 
-  const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=League+Spartan:wght@700;800;900&family=Oswald:wght@500;600;700&family=Rajdhani:wght@600;700&display=swap';
-  const TITLE_FONT = '"Bebas Neue", "Anton", "Arial Black", Impact, sans-serif';
-  const IMPACT_FONT = '"Anton", "Bebas Neue", Impact, sans-serif';
+  const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=League+Spartan:wght@700;800;900&family=Montserrat:wght@800;900&family=Oswald:wght@500;600;700&family=Rajdhani:wght@600;700&display=swap';
+  const TITLE_FONT = '"Bebas Neue", "Anton", Impact, sans-serif';
+  const IMPACT_FONT = '"Anton", "League Spartan", Impact, sans-serif';
   const BODY_FONT = '"Rajdhani", "Oswald", Arial, sans-serif';
 
   const COLORS = {
-    black: '#030303',
-    charcoal: '#0b0b0d',
+    black: '#020203',
+    deep: '#09090b',
     red: '#b11845',
     redBright: '#d31a52',
     navy: '#061b38',
     navyBright: '#0d3467',
     white: '#fff8ef',
-    muted: '#d8d0c6',
-    panel: 'rgba(3,3,3,.72)'
+    muted: '#d8d0c6'
   };
 
   const TEMPLATE_TITLES = {
@@ -30,9 +30,17 @@
     result: 'RESULTAT',
     tournament: 'TOURNOI',
     training: 'ENTRAINEMENT',
+    club: 'VIE DU CLUB',
     recruitment: 'REJOINS LE RCC',
     partner: 'PARTENAIRE',
-    club: 'VIE DU CLUB'
+    shop: 'BOUTIQUE',
+    birthday: 'ANNIVERSAIRE',
+    thanks: 'MERCI',
+    congrats: 'FELICITATIONS',
+    weekend: 'WEEK-END RCC',
+    team: 'EQUIPE RCC',
+    educator: 'PORTRAIT',
+    newsletter: 'NEWSLETTER'
   };
 
   const STYLE_DEFAULTS = {
@@ -41,34 +49,64 @@
     result: 'match',
     tournament: 'announcement',
     training: 'announcement',
+    club: 'club',
     recruitment: 'announcement',
     partner: 'partner',
-    club: 'club'
+    shop: 'partner',
+    birthday: 'club',
+    thanks: 'club',
+    congrats: 'match',
+    weekend: 'announcement',
+    team: 'club',
+    educator: 'club',
+    newsletter: 'magazine'
   };
 
   const canvas = document.getElementById('posterCanvas');
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas?.getContext('2d');
   const form = document.querySelector('[data-poster-form]');
   const sizeNode = document.querySelector('[data-poster-size]');
   const statusNode = document.querySelector('[data-poster-status]');
-  const sourceNews = document.querySelector('[data-source-news]');
-  const sourceEvent = document.querySelector('[data-source-event]');
+  const sourceButtons = document.querySelector('[data-source-buttons]');
+  const sourceSelect = document.querySelector('[data-source-select]');
+  const templateButtons = document.querySelector('[data-template-buttons]');
+  const captionOutput = document.querySelector('[data-caption-output]');
   const downloadButton = document.querySelector('[data-download-poster]');
-  let fontStylesheetPromise = null;
+  const downloadPdfButton = document.querySelector('[data-download-pdf]');
+  const copyCaptionButton = document.querySelector('[data-copy-caption]');
+  const zoomInButton = document.querySelector('[data-zoom-in]');
+  const zoomOutButton = document.querySelector('[data-zoom-out]');
+  const toggleGridButton = document.querySelector('[data-toggle-grid]');
+  const resetPhotoButton = document.querySelector('[data-reset-photo]');
 
   const state = {
+    activeSource: 'blank',
     image: null,
     opponentLogo: null,
-    news: [],
-    events: [],
-    settings: {},
-    fontsReady: false
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    showGrid: false,
+    fontsReady: false,
+    data: {
+      news: [],
+      events: [],
+      partners: [],
+      products: [],
+      albums: [],
+      teams: [],
+      settings: {}
+    }
   };
 
   const logo = new Image();
   logo.crossOrigin = 'anonymous';
   logo.src = '../assets/logo-rcc.png';
   logo.onload = render;
+
+  const clean = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+  const upper = (value) => clean(value).toUpperCase();
+  const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+  const asList = (value) => Array.isArray(value) ? value.filter(Boolean) : (value ? [value] : []);
 
   function readForm() {
     return Object.fromEntries(new FormData(form).entries());
@@ -78,16 +116,9 @@
     if (statusNode) statusNode.textContent = message;
   }
 
-  function clean(value) {
-    return String(value || '').replace(/\s+/g, ' ').trim();
-  }
-
-  function upper(value) {
-    return clean(value).toUpperCase();
-  }
-
-  function clamp(value, min, max) {
-    return Math.max(min, Math.min(max, value));
+  function setField(name, value) {
+    const field = form?.elements[name];
+    if (field && value !== undefined && value !== null) field.value = value;
   }
 
   function formatDate(value) {
@@ -103,24 +134,16 @@
     return [];
   }
 
-  function setSelectLoading(select, label) {
-    if (!select) return;
-    select.disabled = true;
-    select.innerHTML = `<option value="">Chargement ${label}...</option>`;
-  }
-
-  function setSelectEmpty(select, label) {
-    if (!select) return;
-    select.disabled = false;
-    select.innerHTML = `<option value="">Aucun ${label} disponible</option>`;
+  function normalizeAssetPath(src) {
+    if (!src) return '';
+    if (/^https?:\/\//i.test(src) || src.startsWith('data:')) return src;
+    return src.startsWith('/') ? '..' + src : src;
   }
 
   function loadFontStylesheet() {
     const existing = document.querySelector('[data-rcc-poster-fonts]');
     if (existing?.dataset.loaded === 'true') return Promise.resolve();
-    if (fontStylesheetPromise) return fontStylesheetPromise;
-
-    fontStylesheetPromise = new Promise((resolve) => {
+    return new Promise((resolve) => {
       const link = existing || document.createElement('link');
       const finish = () => {
         link.dataset.loaded = 'true';
@@ -128,8 +151,7 @@
       };
       link.addEventListener('load', finish, { once: true });
       link.addEventListener('error', finish, { once: true });
-      window.setTimeout(finish, 2500);
-
+      setTimeout(finish, 2500);
       if (!existing) {
         link.dataset.rccPosterFonts = 'true';
         link.rel = 'stylesheet';
@@ -137,8 +159,6 @@
         document.head.appendChild(link);
       }
     });
-
-    return fontStylesheetPromise;
   }
 
   async function loadFonts() {
@@ -146,27 +166,23 @@
       state.fontsReady = true;
       return;
     }
-
     await loadFontStylesheet();
-
     try {
       await Promise.all([
-        document.fonts.load(`900 120px ${TITLE_FONT}`),
-        document.fonts.load(`900 92px ${IMPACT_FONT}`),
-        document.fonts.load(`700 42px ${BODY_FONT}`),
+        document.fonts.load(`900 140px ${TITLE_FONT}`),
+        document.fonts.load(`900 90px ${IMPACT_FONT}`),
+        document.fonts.load(`700 38px ${BODY_FONT}`),
         document.fonts.ready
       ]);
+    } finally {
       state.fontsReady = true;
       render();
-    } catch (error) {
-      state.fontsReady = true;
     }
   }
 
   async function fetchJson(paths, fallback) {
     const candidates = Array.isArray(paths) ? paths : [paths];
     const errors = [];
-
     for (const path of candidates) {
       try {
         const response = await fetch(path, { cache: 'no-store' });
@@ -176,79 +192,116 @@
         errors.push(path);
       }
     }
-
     return { data: fallback, error: errors.join(', ') };
   }
 
   async function loadSources() {
-    setSelectLoading(sourceNews, 'des actualites');
-    setSelectLoading(sourceEvent, 'du calendrier');
     setStatus('Chargement des donnees du CMS...');
+    setSourceSelectLoading('Chargement...');
+    const [news, matches, partners, shop, gallery, senior, academy, youth, feminines, settings] = await Promise.all([
+      fetchJson(['../data/news.json', '/data/news.json'], { news: [] }),
+      fetchJson(['../data/matches.json', '/data/matches.json'], { matches: [] }),
+      fetchJson(['../data/partners.json', '/data/partners.json'], { partners: [] }),
+      fetchJson(['../data/shop.json', '/data/shop.json'], { products: [] }),
+      fetchJson(['../data/gallery.json', '/data/gallery.json'], { albums: [] }),
+      fetchJson(['../data/senior.json', '/data/senior.json'], { players: [], staff: [] }),
+      fetchJson(['../data/academy.json', '/data/academy.json'], { categories: [] }),
+      fetchJson(['../data/youth.json', '/data/youth.json'], { categories: [] }),
+      fetchJson(['../data/feminines.json', '/data/feminines.json'], { categories: [] }),
+      fetchJson(['../data/settings.json', '/data/settings.json'], {})
+    ]);
 
-    try {
-      const [newsResult, matchResult, settingsResult] = await Promise.all([
-        fetchJson(['../data/news.json', '/data/news.json', './data/news.json'], { news: [] }),
-        fetchJson(['../data/matches.json', '/data/matches.json', './data/matches.json'], { matches: [] }),
-        fetchJson(['../data/settings.json', '/data/settings.json', './data/settings.json'], {})
-      ]);
+    state.data.news = collectionFrom(news.data, 'news');
+    state.data.events = collectionFrom(matches.data, 'matches');
+    state.data.partners = collectionFrom(partners.data, 'partners');
+    state.data.products = collectionFrom(shop.data, 'products');
+    state.data.albums = collectionFrom(gallery.data, 'albums');
+    state.data.teams = [
+      ...collectionFrom(academy.data, 'categories').map((item) => ({ ...item, source: 'Ecole de rugby' })),
+      ...collectionFrom(youth.data, 'categories').map((item) => ({ ...item, source: 'Pole jeunes' })),
+      ...collectionFrom(feminines.data, 'categories').map((item) => ({ ...item, source: 'Cadettes' })),
+      ...(senior.data?.players || []).map((item) => ({ ...item, age: `${item.firstName || ''} ${item.lastName || ''}`, label: item.position || item.group || 'Senior', source: 'Senior', teamPhoto: item.photo })),
+      ...(senior.data?.staff || []).map((item) => ({ ...item, age: `${item.firstName || ''} ${item.lastName || ''}`, label: item.role || 'Staff senior', source: 'Staff', teamPhoto: item.photo }))
+    ];
+    state.data.settings = settings.data || {};
+    hydrateSourceSelect();
+    const count = state.data.news.length + state.data.events.length + state.data.partners.length + state.data.products.length + state.data.albums.length + state.data.teams.length;
+    setStatus(`${count} element(s) CMS disponibles pour le Studio RCC.`);
+    render();
+  }
 
-      state.news = collectionFrom(newsResult.data, 'news');
-      state.events = collectionFrom(matchResult.data, 'matches');
-      state.settings = settingsResult.data || {};
-      hydrateSources();
+  function setSourceSelectLoading(label) {
+    if (!sourceSelect) return;
+    sourceSelect.innerHTML = `<option value="">${label}</option>`;
+    sourceSelect.disabled = true;
+  }
 
-      const failures = [newsResult.error && 'actualites', matchResult.error && 'calendrier'].filter(Boolean);
-      setStatus(failures.length
-        ? `Impossible de charger ${failures.join(' et ')}. Verifie la connexion ou les fichiers JSON.`
-        : `${state.news.length} actualite(s) et ${state.events.length} evenement(s) charges.`);
+  function currentItems() {
+    if (state.activeSource === 'news') return state.data.news;
+    if (state.activeSource === 'event') return state.data.events;
+    if (state.activeSource === 'partner') return state.data.partners;
+    if (state.activeSource === 'shop') return state.data.products;
+    if (state.activeSource === 'gallery') return state.data.albums;
+    if (state.activeSource === 'team') return state.data.teams;
+    return [];
+  }
+
+  function labelForItem(item) {
+    if (state.activeSource === 'event') return `${item.date ? formatDate(item.date) + ' - ' : ''}${clean(item.title || item.tournamentName || item.opponent || item.team || 'Evenement RCC')}`;
+    if (state.activeSource === 'partner') return clean(item.name || 'Partenaire RCC');
+    if (state.activeSource === 'shop') return clean(`${item.name || 'Produit RCC'} ${item.price ? '- ' + item.price : ''}`);
+    if (state.activeSource === 'gallery') return clean(item.title || item.category || 'Album RCC');
+    if (state.activeSource === 'team') return clean(`${item.source || 'RCC'} - ${item.age || item.label || item.role || 'Equipe'}`);
+    return clean(item.title || 'Actualite RCC');
+  }
+
+  function hydrateSourceSelect() {
+    if (!sourceSelect) return;
+    const items = currentItems();
+    if (!items.length) {
+      sourceSelect.disabled = state.activeSource === 'blank';
+      sourceSelect.innerHTML = `<option value="">${state.activeSource === 'blank' ? 'Affiche vierge' : 'Aucun contenu disponible'}</option>`;
+      return;
+    }
+    sourceSelect.disabled = false;
+    sourceSelect.innerHTML = '<option value="">Choisir dans le CMS</option>' + items.map((item, index) => `<option value="${index}">${labelForItem(item)}</option>`).join('');
+  }
+
+  function loadRemoteImage(src, key = 'image') {
+    const normalized = normalizeAssetPath(src);
+    if (!normalized) return;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      state[key] = img;
+      state.imageOffsetX = 0;
+      state.imageOffsetY = 0;
       render();
-    } catch (error) {
-      state.news = [];
-      state.events = [];
-      setSelectEmpty(sourceNews, 'actualite');
-      setSelectEmpty(sourceEvent, 'evenement');
-      setStatus('Les donnees du site ne se chargent pas. Verifie la connexion puis recharge la page.');
-    }
+    };
+    img.onerror = () => setStatus('Image non chargee dans le Studio. Le visuel reste utilisable avec le fond RCC.');
+    img.src = normalized;
   }
 
-  function hydrateSources() {
-    if (sourceNews) {
-      if (!state.news.length) {
-        setSelectEmpty(sourceNews, 'actualite');
-      } else {
-        sourceNews.disabled = false;
-        sourceNews.innerHTML = '<option value="">Choisir une actualite</option>' + state.news.map((item, index) => (
-          `<option value="${index}">${clean(item.title || 'Actualite RCC')}</option>`
-        )).join('');
-      }
-    }
-
-    if (sourceEvent) {
-      if (!state.events.length) {
-        setSelectEmpty(sourceEvent, 'evenement');
-      } else {
-        sourceEvent.disabled = false;
-        sourceEvent.innerHTML = '<option value="">Choisir un match, tournoi ou evenement</option>' + state.events.map((item, index) => {
-          const title = clean(item.title || item.tournamentName || item.opponent || 'Evenement RCC');
-          return `<option value="${index}">${item.date ? formatDate(item.date) + ' - ' : ''}${title}</option>`;
-        }).join('');
-      }
-    }
-  }
-
-  function setField(name, value) {
-    const field = form.elements[name];
-    if (field && value !== undefined && value !== null) field.value = value;
-  }
-
-  function applyNews(index) {
-    const item = state.news[Number(index)];
+  function applySource(index) {
+    const item = currentItems()[Number(index)];
     if (!item) return;
-    setField('template', item.category === 'Partenaires' ? 'partner' : 'news');
-    setField('style', item.category === 'Partenaires' ? 'partner' : 'magazine');
-    setField('layout', item.image ? 'photo' : 'balanced');
+    state.image = null;
+    state.opponentLogo = null;
+
+    if (state.activeSource === 'news') applyNews(item);
+    if (state.activeSource === 'event') applyEvent(item);
+    if (state.activeSource === 'partner') applyPartner(item);
+    if (state.activeSource === 'shop') applyShop(item);
+    if (state.activeSource === 'gallery') applyGallery(item);
+    if (state.activeSource === 'team') applyTeam(item);
+    updateCaption();
+    render();
+  }
+
+  function applyNews(item) {
+    setTemplate(item.category === 'Partenaires' ? 'partner' : 'news');
     setField('title', item.title || '');
-    setField('subtitle', item.subtitle || item.category || '');
+    setField('subtitle', item.category || 'Actualite RCC');
     setField('category', item.category || 'Club');
     setField('date', item.date ? formatDate(item.date) : '');
     setField('time', '');
@@ -256,63 +309,75 @@
     setField('score', '');
     setField('opponent', '');
     setField('summary', item.summary || item.body || item.content || '');
-    state.opponentLogo = null;
     if (item.image) loadRemoteImage(item.image);
-    render();
   }
 
-  function applyEvent(index) {
-    const item = state.events[Number(index)];
-    if (!item) return;
-    const eventType = String(item.type_evenement || item.type || 'match').toLowerCase();
+  function applyEvent(item) {
+    const eventType = clean(item.type_evenement || item.type || 'match').toLowerCase();
     const isTournament = eventType === 'tournoi';
     const isTraining = eventType === 'entrainement' || eventType === 'training';
     const isResult = Boolean(item.result) || item.status === 'win' || item.status === 'loss';
     const template = isTournament ? 'tournament' : isTraining ? 'training' : isResult ? 'result' : 'upcoming';
-    const teams = Array.isArray(item.teams) ? item.teams.join(' / ') : '';
-
-    setField('template', template);
-    setField('style', STYLE_DEFAULTS[template] || 'match');
-    setField('layout', item.image ? 'photo' : 'balanced');
-    setField('title', isTournament ? (item.tournamentName || item.title || 'Tournoi RCC') : item.title || 'RC CUBZAGUAIS');
-    setField('subtitle', teams || item.team || item.category || '');
-    setField('category', isTournament ? (teams || item.team || 'Tournoi') : (item.team || item.category || 'Match'));
-    setField('opponent', item.opponent || item.away || item.partner || '');
+    const teams = asList(item.teams).length ? asList(item.teams).join(' / ') : item.team || item.category || '';
+    setTemplate(template);
+    setField('title', isTournament ? (item.tournamentName || item.title || 'Tournoi RCC') : item.title || (template === 'training' ? 'Entrainement RCC' : 'RC CUBZAGUAIS'));
+    setField('subtitle', teams || item.competition || '');
+    setField('category', item.competition || teams || (isTournament ? 'Tournoi' : 'Match'));
+    setField('opponent', item.opponent || item.away || '');
     setField('date', formatDate(item.date));
     setField('time', item.time || '');
     setField('location', item.location || item.venue || '');
     setField('score', item.result || '');
-    setField('summary', item.description || item.summary || item.body || '');
-    state.opponentLogo = null;
+    setField('summary', item.description || item.summary || '');
     if (item.image) loadRemoteImage(item.image);
-    if (item.opponentLogo || item.partnerLogo) loadRemoteOpponentLogo(item.opponentLogo || item.partnerLogo);
-    render();
+    if (item.opponentLogo || item.partnerLogo) loadRemoteImage(item.opponentLogo || item.partnerLogo, 'opponentLogo');
   }
 
-  function normalizeAssetPath(src) {
-    if (!src) return '';
-    if (/^https?:\/\//i.test(src) || src.startsWith('data:')) return src;
-    return src.startsWith('/') ? '..' + src : src;
+  function applyPartner(item) {
+    setTemplate('partner');
+    setField('title', 'Merci');
+    setField('subtitle', item.name || 'Partenaire RCC');
+    setField('category', item.category || 'Partenaire');
+    setField('opponent', item.name || '');
+    setField('summary', item.description || 'Merci pour votre soutien au RC Cubzaguais.');
+    if (item.logo) loadRemoteImage(item.logo, 'opponentLogo');
   }
 
-  function loadRemoteImage(src) {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      state.image = img;
-      render();
-    };
-    img.src = normalizeAssetPath(src);
+  function applyShop(item) {
+    setTemplate('shop');
+    setField('title', item.name || 'Boutique RCC');
+    setField('subtitle', item.category || 'Boutique officielle');
+    setField('category', item.price || 'Boutique');
+    setField('summary', item.description || 'Retrouvez cet article dans la boutique officielle du RCC.');
+    if (item.image) loadRemoteImage(item.image);
   }
 
-  function loadRemoteOpponentLogo(src) {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      state.opponentLogo = img;
-      render();
-    };
-    img.src = normalizeAssetPath(src);
+  function applyGallery(item) {
+    setTemplate('club');
+    setField('title', item.title || 'Vie du club');
+    setField('subtitle', item.category || 'Galerie RCC');
+    setField('category', item.category || 'Club');
+    setField('date', item.date ? formatDate(item.date) : '');
+    setField('summary', item.description || '');
+    if (item.cover) loadRemoteImage(item.cover);
+    else if (item.photos?.[0]?.image) loadRemoteImage(item.photos[0].image);
+  }
+
+  function applyTeam(item) {
+    setTemplate(item.source === 'Staff' ? 'educator' : 'team');
+    setField('title', item.age || 'Equipe RCC');
+    setField('subtitle', item.label || item.role || item.source || '');
+    setField('category', item.source || 'Equipe RCC');
+    setField('date', '');
+    setField('time', item.training || '');
+    setField('location', item.location || 'Plaine des Sports Laurent Ricci');
+    setField('summary', item.summary || item.position || item.role || 'Presentation officielle du RC Cubzaguais.');
+    if (item.teamPhoto) loadRemoteImage(item.teamPhoto);
+  }
+
+  function setTemplate(template) {
+    setField('template', template);
+    setField('style', STYLE_DEFAULTS[template] || 'match');
   }
 
   function loadImageFromFile(file, key) {
@@ -337,13 +402,13 @@
     return format;
   }
 
-  function coverImage(img, x, y, w, h) {
+  function coverImage(img, x, y, w, h, zoom = 1, offsetX = 0, offsetY = 0) {
     if (!img || !img.width || !img.height) return false;
-    const scale = Math.max(w / img.width, h / img.height);
+    const scale = Math.max(w / img.width, h / img.height) * zoom;
     const sw = w / scale;
     const sh = h / scale;
-    const sx = (img.width - sw) / 2;
-    const sy = (img.height - sh) / 2;
+    const sx = clamp((img.width - sw) / 2 - offsetX * img.width, 0, Math.max(0, img.width - sw));
+    const sy = clamp((img.height - sh) / 2 - offsetY * img.height, 0, Math.max(0, img.height - sh));
     ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
     return true;
   }
@@ -391,54 +456,59 @@
     const mode = data.colorMode || 'red';
     const main = mode === 'blue' ? COLORS.navyBright : COLORS.red;
     const secondary = mode === 'dark' ? '#111' : COLORS.navy;
-    const photoMode = data.layout !== 'graphic' && state.image;
+    const overlay = clamp(Number(data.overlay || 65) / 100, 0.45, 0.82);
+    const zoom = clamp(Number(data.photoZoom || 112) / 100, 1, 1.7);
 
     const base = ctx.createLinearGradient(0, 0, w, h);
     base.addColorStop(0, COLORS.black);
-    base.addColorStop(0.55, COLORS.charcoal);
+    base.addColorStop(0.5, COLORS.deep);
     base.addColorStop(1, '#13030a');
     ctx.fillStyle = base;
     ctx.fillRect(0, 0, w, h);
 
-    if (photoMode) {
-      coverImage(state.image, 0, 0, w, h);
-      ctx.filter = 'contrast(1.14) saturate(.9)';
-      coverImage(state.image, 0, 0, w, h);
-      ctx.filter = 'none';
-      ctx.fillStyle = 'rgba(0,0,0,.65)';
+    if (state.image) {
+      coverImage(state.image, 0, 0, w, h, zoom, state.imageOffsetX, state.imageOffsetY);
+      ctx.fillStyle = `rgba(0,0,0,${overlay})`;
       ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = 'rgba(177,24,69,.16)';
+      ctx.fillStyle = 'rgba(177,24,69,.14)';
       ctx.fillRect(0, 0, w, h);
+    } else {
+      drawRccGraphicBackground(w, h, main, secondary);
     }
-
-    const radial = ctx.createRadialGradient(w * 0.78, h * 0.16, 20, w * 0.78, h * 0.16, Math.max(w, h) * 0.62);
-    radial.addColorStop(0, `${main}70`);
-    radial.addColorStop(0.42, `${secondary}24`);
-    radial.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = radial;
-    ctx.fillRect(0, 0, w, h);
 
     drawGraphicStripes(w, h, main, secondary, data.style);
     drawNoise(w, h);
     drawVignette(w, h);
   }
 
+  function drawRccGraphicBackground(w, h, main, secondary) {
+    const radial = ctx.createRadialGradient(w * 0.78, h * 0.15, 20, w * 0.78, h * 0.15, Math.max(w, h) * 0.7);
+    radial.addColorStop(0, `${main}88`);
+    radial.addColorStop(0.42, `${secondary}38`);
+    radial.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = radial;
+    ctx.fillRect(0, 0, w, h);
+    ctx.globalAlpha = 0.12;
+    fitImage(logo, w * 0.62, h * 0.2, w * 0.42, h * 0.42);
+    ctx.globalAlpha = 1;
+  }
+
   function drawGraphicStripes(w, h, main, secondary, style) {
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
-    ctx.globalAlpha = style === 'partner' ? 0.12 : 0.18;
+    ctx.globalAlpha = style === 'partner' ? 0.11 : 0.2;
     ctx.fillStyle = main;
-    polygon([[w * 0.62, 0], [w, 0], [w, h * 0.09], [w * 0.56, h * 0.24]]);
+    polygon([[w * 0.64, 0], [w, 0], [w, h * 0.1], [w * 0.54, h * 0.28]]);
     ctx.fill();
     ctx.globalAlpha = 0.22;
     ctx.fillStyle = secondary;
-    polygon([[w * 0.72, h * 0.24], [w, h * 0.16], [w, h * 0.42], [w * 0.62, h * 0.52]]);
+    polygon([[w * 0.72, h * 0.25], [w, h * 0.16], [w, h * 0.48], [w * 0.6, h * 0.58]]);
     ctx.fill();
-    ctx.globalAlpha = 0.16;
-    for (let i = 0; i < 7; i += 1) {
-      const y = h * (0.09 + i * 0.035);
+    ctx.globalAlpha = 0.18;
+    for (let i = 0; i < 9; i += 1) {
+      const y = h * (0.08 + i * 0.038);
       ctx.fillStyle = i % 2 ? secondary : main;
-      polygon([[w * (0.06 + i * 0.03), y], [w * (0.35 + i * 0.08), y - h * 0.012], [w * (0.31 + i * 0.08), y + h * 0.006], [w * (0.04 + i * 0.03), y + h * 0.018]]);
+      polygon([[w * (0.04 + i * 0.02), y], [w * (0.42 + i * 0.06), y - h * 0.012], [w * (0.38 + i * 0.06), y + h * 0.01], [w * (0.03 + i * 0.02), y + h * 0.02]]);
       ctx.fill();
     }
     ctx.restore();
@@ -446,9 +516,9 @@
 
   function drawNoise(w, h) {
     ctx.save();
-    ctx.globalAlpha = 0.11;
+    ctx.globalAlpha = 0.09;
     ctx.fillStyle = COLORS.white;
-    const count = Math.round((w * h) / 23000);
+    const count = Math.round((w * h) / 18000);
     for (let i = 0; i < count; i += 1) {
       const size = 1 + (i % 3);
       ctx.fillRect((i * 97) % w, (i * 193) % h, size, size);
@@ -457,58 +527,51 @@
   }
 
   function drawVignette(w, h) {
-    const vignette = ctx.createRadialGradient(w / 2, h * 0.42, Math.min(w, h) * 0.2, w / 2, h / 2, Math.max(w, h) * 0.74);
+    const vignette = ctx.createRadialGradient(w / 2, h * 0.42, Math.min(w, h) * 0.18, w / 2, h / 2, Math.max(w, h) * 0.78);
     vignette.addColorStop(0, 'rgba(0,0,0,0)');
-    vignette.addColorStop(1, 'rgba(0,0,0,.82)');
+    vignette.addColorStop(1, 'rgba(0,0,0,.86)');
     ctx.fillStyle = vignette;
     ctx.fillRect(0, 0, w, h);
   }
 
   function drawTop(w, h, data, scale) {
-    const pad = w * 0.058;
+    const pad = w * 0.055;
     const logoSize = Math.min(w, h) * 0.095;
-    fitImage(logo, pad, pad * 0.72, logoSize, logoSize);
-
+    fitImage(logo, pad, pad * 0.68, logoSize, logoSize);
     ctx.textBaseline = 'top';
     ctx.fillStyle = COLORS.white;
-    ctx.font = `900 ${42 * scale}px ${BODY_FONT}`;
-    ctx.fillText('RC CUBZAGUAIS', pad + logoSize + 22 * scale, pad * 0.9);
-
+    ctx.font = `900 ${40 * scale}px ${BODY_FONT}`;
+    ctx.fillText('RC CUBZAGUAIS', pad + logoSize + 22 * scale, pad * 0.88);
     ctx.fillStyle = COLORS.redBright;
-    ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
-    ctx.letterSpacing = '0px';
-    const meta = upper(data.category || data.subtitle || 'RCC');
-    ctx.fillText(meta, pad + logoSize + 22 * scale, pad * 0.9 + 48 * scale);
-
-    const season = state.settings?.season || 'SAISON 2025-2026';
+    ctx.font = `900 ${22 * scale}px ${BODY_FONT}`;
+    ctx.fillText(upper(data.category || data.subtitle || 'RCC'), pad + logoSize + 22 * scale, pad * 0.88 + 48 * scale);
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(255,248,239,.78)';
-    ctx.font = `800 ${24 * scale}px ${BODY_FONT}`;
-    ctx.fillText(upper(season), w - pad, pad * 0.96);
+    ctx.font = `800 ${22 * scale}px ${BODY_FONT}`;
+    ctx.fillText(upper(state.data.settings.season || 'SAISON 2025-2026'), w - pad, pad);
     ctx.textAlign = 'left';
   }
 
   function drawMainTitle(w, h, data, scale) {
-    const textScale = clamp(Number(data.textScale || 100) / 100, 0.85, 1.18);
+    const textScale = clamp(Number(data.textScale || 100) / 100, 0.82, 1.22);
     const title = upper(TEMPLATE_TITLES[data.template] || data.title || 'RCC');
     const pad = w * 0.055;
     const maxWidth = w - pad * 2;
-    const baseSize = Math.min(w * 0.19, h * 0.14) * textScale;
-    const y = h * 0.15;
-
+    const baseSize = Math.min(w * 0.21, h * 0.16) * textScale;
+    const y = data.textPosition === 'center' ? h * 0.2 : h * 0.155;
     ctx.save();
-    ctx.shadowColor = 'rgba(211,26,82,.34)';
-    ctx.shadowBlur = 20 * scale;
+    ctx.shadowColor = 'rgba(211,26,82,.38)';
+    ctx.shadowBlur = 24 * scale;
     drawFittedLines(title, pad, y, maxWidth, baseSize, baseSize * 0.86, 2, COLORS.white, TITLE_FONT);
     ctx.restore();
 
-    const accent = data.template === 'upcoming' ? 'DE RUGBY' : upper(data.title || data.subtitle || 'RCC');
+    const accent = upper(data.title || data.subtitle || '');
     if (accent && accent !== title) {
       ctx.save();
-      ctx.rotate(-0.025);
+      ctx.rotate(-0.02);
       ctx.fillStyle = COLORS.redBright;
-      ctx.font = `900 ${Math.min(w * 0.075, h * 0.052) * textScale}px ${IMPACT_FONT}`;
-      ctx.fillText(accent.slice(0, 38), pad, y + baseSize * 1.03);
+      ctx.font = `900 ${Math.min(w * 0.074, h * 0.052) * textScale}px ${IMPACT_FONT}`;
+      ctx.fillText(accent.slice(0, 44), pad, y + baseSize * 1.03);
       ctx.restore();
     }
   }
@@ -516,7 +579,7 @@
   function drawFittedLines(text, x, y, maxWidth, fontSize, lineHeight, maxLines, color, family) {
     let size = fontSize;
     let lines = [];
-    while (size > fontSize * 0.48) {
+    while (size > fontSize * 0.45) {
       ctx.font = `900 ${size}px ${family}`;
       lines = buildLines(text, maxWidth, maxLines);
       if (lines.every((line) => ctx.measureText(line).width <= maxWidth)) break;
@@ -552,34 +615,33 @@
       ['DATE', data.date],
       ['HEURE', data.time],
       ['LIEU', data.location],
-      ['COMPETITION', data.category || data.subtitle]
+      ['INFO', data.category || data.subtitle]
     ].filter((item) => clean(item[1]));
     if (!badges.length) return;
-
     const pad = w * 0.055;
     const gap = 14 * scale;
-    const maxBadgeWidth = (w - pad * 2 - gap * (badges.length - 1)) / badges.length;
-    let x = pad;
+    const columns = Math.min(badges.length, w < h ? 2 : 4);
+    const badgeWidth = (w - pad * 2 - gap * (columns - 1)) / columns;
     const y = h * 0.35;
-    badges.forEach(([label, value]) => {
-      drawInfoBadge(label, value, x, y, maxBadgeWidth, 72 * scale, scale);
-      x += maxBadgeWidth + gap;
+    badges.forEach(([label, value], index) => {
+      const row = Math.floor(index / columns);
+      const col = index % columns;
+      drawInfoBadge(label, value, pad + col * (badgeWidth + gap), y + row * 82 * scale, badgeWidth, 68 * scale, scale);
     });
   }
 
   function drawInfoBadge(label, value, x, y, w, h, scale) {
-    fillRounded(x, y, w, h, 10 * scale, 'rgba(3,3,3,.62)', 'rgba(211,26,82,.52)', 1.5 * scale);
+    fillRounded(x, y, w, h, 11 * scale, 'rgba(3,3,3,.66)', 'rgba(211,26,82,.54)', 1.4 * scale);
     ctx.fillStyle = COLORS.redBright;
-    ctx.font = `900 ${17 * scale}px ${BODY_FONT}`;
-    ctx.fillText(upper(label), x + 16 * scale, y + 10 * scale);
+    ctx.font = `900 ${16 * scale}px ${BODY_FONT}`;
+    ctx.fillText(upper(label), x + 15 * scale, y + 9 * scale);
     ctx.fillStyle = COLORS.white;
-    ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
-    drawSingleLine(upper(value), x + 16 * scale, y + 34 * scale, w - 32 * scale, 24 * scale, BODY_FONT);
+    drawSingleLine(upper(value), x + 15 * scale, y + 32 * scale, w - 30 * scale, 23 * scale, BODY_FONT);
   }
 
   function drawSingleLine(text, x, y, maxWidth, fontSize, family) {
     let size = fontSize;
-    while (size > fontSize * 0.62) {
+    while (size > fontSize * 0.58) {
       ctx.font = `900 ${size}px ${family}`;
       if (ctx.measureText(text).width <= maxWidth) break;
       size -= 1;
@@ -587,49 +649,50 @@
     ctx.fillText(text, x, y);
   }
 
-  function drawMatchZone(w, h, data, scale) {
-    const y = h * 0.45;
-    const shieldW = w * 0.25;
-    const shieldH = Math.min(h * 0.19, shieldW * 1.08);
-    const leftX = w * 0.08;
-    const rightX = w - leftX - shieldW;
-    drawTeamShield(leftX, y, shieldW, shieldH, 'RCC', logo, COLORS.red, scale);
-    drawTeamShield(rightX, y, shieldW, shieldH, data.opponent || 'ADVERSAIRE', state.opponentLogo, COLORS.navyBright, scale);
+  function drawFeatureZone(w, h, data, scale) {
+    if (data.template === 'upcoming' || data.template === 'result') return drawMatchZone(w, h, data, scale);
+    if (data.template === 'weekend') return drawWeekendZone(w, h, scale);
+    if (data.template === 'partner' || data.template === 'shop') return drawPartnerZone(w, h, data, scale);
+    const pad = w * 0.055;
+    const y = h * 0.47;
+    fillRounded(pad, y, w - pad * 2, h * 0.14, 16 * scale, 'rgba(3,3,3,.5)', 'rgba(255,255,255,.1)', 1 * scale);
+    ctx.fillStyle = COLORS.redBright;
+    ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
+    ctx.fillText(upper(data.template === 'recruitment' ? 'PORTES OUVERTES' : 'RCC'), pad + 28 * scale, y + 22 * scale);
+    drawFittedLines(data.subtitle || data.category || 'RC Cubzaguais', pad + 28 * scale, y + 54 * scale, w - pad * 2 - 56 * scale, Math.min(w * 0.058, h * 0.044), Math.min(w * 0.055, h * 0.041), 2, COLORS.white, IMPACT_FONT);
+  }
 
-    ctx.save();
-    ctx.shadowColor = 'rgba(211,26,82,.45)';
-    ctx.shadowBlur = 26 * scale;
-    ctx.fillStyle = COLORS.white;
-    ctx.font = `900 ${Math.min(w * 0.09, h * 0.064)}px ${IMPACT_FONT}`;
+  function drawMatchZone(w, h, data, scale) {
+    const y = h * 0.47;
+    const shieldW = w * 0.25;
+    const shieldH = Math.min(h * 0.18, shieldW * 1.08);
+    drawTeamShield(w * 0.08, y, shieldW, shieldH, 'RCC', logo, COLORS.red, scale);
+    drawTeamShield(w - w * 0.08 - shieldW, y, shieldW, shieldH, data.opponent || 'ADVERSAIRE', state.opponentLogo, COLORS.navyBright, scale);
     ctx.textAlign = 'center';
-    ctx.fillText('VS', w / 2, y + shieldH * 0.34);
+    ctx.fillStyle = COLORS.white;
+    ctx.shadowColor = 'rgba(211,26,82,.5)';
+    ctx.shadowBlur = 28 * scale;
+    ctx.font = `900 ${Math.min(w * 0.095, h * 0.07)}px ${IMPACT_FONT}`;
+    ctx.fillText(data.template === 'result' && data.score ? data.score : 'VS', w / 2, y + shieldH * 0.45);
+    ctx.shadowBlur = 0;
     ctx.textAlign = 'left';
-    ctx.restore();
   }
 
   function drawTeamShield(x, y, w, h, name, img, color, scale) {
     ctx.save();
     ctx.shadowColor = 'rgba(0,0,0,.55)';
     ctx.shadowBlur = 24 * scale;
-    polygon([
-      [x + w * 0.5, y],
-      [x + w, y + h * 0.22],
-      [x + w * 0.92, y + h],
-      [x + w * 0.08, y + h],
-      [x, y + h * 0.22]
-    ]);
-    ctx.fillStyle = 'rgba(3,3,3,.76)';
+    polygon([[x + w * 0.5, y], [x + w, y + h * 0.22], [x + w * 0.92, y + h], [x + w * 0.08, y + h], [x, y + h * 0.22]]);
+    ctx.fillStyle = 'rgba(3,3,3,.78)';
     ctx.fill();
     ctx.strokeStyle = color;
     ctx.lineWidth = 4 * scale;
     ctx.stroke();
     ctx.restore();
-
-    if (img) fitImage(img, x + w * 0.18, y + h * 0.12, w * 0.64, h * 0.44);
+    if (img) fitImage(img, x + w * 0.17, y + h * 0.1, w * 0.66, h * 0.44);
     ctx.fillStyle = COLORS.white;
-    ctx.font = `900 ${Math.min(w * 0.18, h * 0.16)}px ${IMPACT_FONT}`;
     ctx.textAlign = 'center';
-    drawFittedCentered(upper(name), x + w / 2, y + h * 0.65, w * 0.82, Math.min(w * 0.18, h * 0.16), IMPACT_FONT);
+    drawFittedCentered(upper(name), x + w / 2, y + h * 0.68, w * 0.82, Math.min(w * 0.18, h * 0.16), IMPACT_FONT);
     ctx.textAlign = 'left';
   }
 
@@ -643,30 +706,31 @@
     ctx.fillText(text, cx, y);
   }
 
-  function drawFeatureZone(w, h, data, scale) {
-    if (data.template === 'upcoming' || data.template === 'result') {
-      drawMatchZone(w, h, data, scale);
-      return;
-    }
-
+  function drawPartnerZone(w, h, data, scale) {
     const pad = w * 0.055;
     const y = h * 0.45;
-    const label = data.template === 'tournament'
-      ? (data.subtitle || data.category || 'Categories RCC')
-      : data.template === 'partner'
-        ? (data.opponent || data.title || 'Partenaire RCC')
-        : (data.subtitle || data.category || 'RC Cubzaguais');
-
-    ctx.save();
-    ctx.globalAlpha = 0.95;
-    fillRounded(pad, y, w - pad * 2, h * 0.14, 14 * scale, 'rgba(3,3,3,.48)', 'rgba(255,255,255,.09)', 1 * scale);
+    fillRounded(pad, y, w - pad * 2, h * 0.18, 16 * scale, 'rgba(3,3,3,.62)', 'rgba(211,26,82,.42)', 1.5 * scale);
+    if (state.opponentLogo) fitImage(state.opponentLogo, pad + 24 * scale, y + 22 * scale, h * 0.12, h * 0.12);
+    const x = pad + (state.opponentLogo ? h * 0.15 : 0) + 34 * scale;
     ctx.fillStyle = COLORS.redBright;
     ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
-    ctx.fillText(upper(data.template === 'partner' ? 'MERCI' : 'RCC'), pad + 28 * scale, y + 22 * scale);
-    ctx.fillStyle = COLORS.white;
-    drawFittedLines(label, pad + 28 * scale, y + 54 * scale, w - pad * 2 - 56 * scale, Math.min(w * 0.06, h * 0.045), Math.min(w * 0.058, h * 0.042), 2, COLORS.white, IMPACT_FONT);
-    if (data.template === 'partner' && state.opponentLogo) fitImage(state.opponentLogo, w - pad - h * 0.11, y + h * 0.02, h * 0.1, h * 0.1);
-    ctx.restore();
+    ctx.fillText(upper(data.template === 'shop' ? data.category || 'BOUTIQUE' : 'MERCI'), x, y + 26 * scale);
+    drawFittedLines(data.subtitle || data.title || 'Partenaire RCC', x, y + 60 * scale, w - x - pad, Math.min(w * 0.062, h * 0.045), Math.min(w * 0.058, h * 0.042), 2, COLORS.white, IMPACT_FONT);
+  }
+
+  function drawWeekendZone(w, h, scale) {
+    const pad = w * 0.055;
+    const y = h * 0.43;
+    const items = state.data.events.slice(0, 4);
+    fillRounded(pad, y, w - pad * 2, h * 0.28, 16 * scale, 'rgba(3,3,3,.66)', 'rgba(211,26,82,.42)', 1.5 * scale);
+    ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
+    items.forEach((event, index) => {
+      const rowY = y + 30 * scale + index * 58 * scale;
+      ctx.fillStyle = COLORS.redBright;
+      ctx.fillText(formatDate(event.date).slice(0, 16).toUpperCase(), pad + 26 * scale, rowY);
+      ctx.fillStyle = COLORS.white;
+      drawSingleLine(upper(event.title || event.team || 'RCC'), pad + 270 * scale, rowY, w - pad * 2 - 300 * scale, 24 * scale, BODY_FONT);
+    });
   }
 
   function drawBottomPanel(w, h, data, scale) {
@@ -674,16 +738,12 @@
     const panelH = h * 0.18;
     const y = h - panelH - h * 0.075;
     fillRounded(pad, y, w - pad * 2, panelH, 16 * scale, 'rgba(3,3,3,.78)', 'rgba(177,24,69,.42)', 1.5 * scale);
-
-    const heading = data.template === 'news' || data.template === 'club' ? 'PRESENTATION' : 'INFORMATIONS';
     ctx.fillStyle = COLORS.redBright;
     ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
-    ctx.fillText(heading, pad + 26 * scale, y + 22 * scale);
-
-    const summary = clean(data.summary || data.subtitle || data.title || 'Retrouvez les informations du RC Cubzaguais.');
+    ctx.fillText(data.template === 'newsletter' ? 'A LA UNE' : 'INFORMATIONS', pad + 26 * scale, y + 22 * scale);
     ctx.fillStyle = COLORS.white;
     ctx.font = `800 ${Math.min(w * 0.036, h * 0.028)}px ${BODY_FONT}`;
-    wrapParagraph(summary, pad + 26 * scale, y + 62 * scale, w - pad * 2 - 52 * scale, Math.min(w * 0.036, h * 0.028), Math.min(w * 0.043, h * 0.033), 3);
+    wrapParagraph(data.summary || data.subtitle || data.title || 'Retrouvez les informations du RC Cubzaguais.', pad + 26 * scale, y + 62 * scale, w - pad * 2 - 52 * scale, Math.min(w * 0.036, h * 0.028), Math.min(w * 0.043, h * 0.033), 3);
   }
 
   function wrapParagraph(text, x, y, maxWidth, fontSize, lineHeight, maxLines) {
@@ -704,18 +764,48 @@
     if (line && lines < maxLines) ctx.fillText(line, x, y + lines * lineHeight);
   }
 
-  function drawFooter(w, h, scale) {
+  function drawFooter(w, h, data, scale) {
     const pad = w * 0.055;
-    const y = h - pad * 0.78;
+    const y = h - pad * 0.76;
     ctx.fillStyle = 'rgba(255,248,239,.82)';
-    ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
+    ctx.font = `900 ${23 * scale}px ${BODY_FONT}`;
     ctx.textBaseline = 'bottom';
     ctx.fillText('RCCUBZAGUAIS.FR', pad, y);
     ctx.textAlign = 'right';
     ctx.fillText('FACEBOOK  INSTAGRAM', w - pad, y);
     ctx.textAlign = 'left';
     ctx.fillStyle = COLORS.redBright;
-    ctx.fillRect(pad, h - pad * 0.45, w - pad * 2, Math.max(4, 5 * scale));
+    ctx.fillRect(pad, h - pad * 0.43, w - pad * 2, Math.max(4, 5 * scale));
+    if (data.showQr === 'yes') drawQrPlaceholder(w - pad - 86 * scale, h - pad * 1.85, 72 * scale, scale);
+  }
+
+  function drawQrPlaceholder(x, y, size, scale) {
+    fillRounded(x, y, size, size, 6 * scale, 'rgba(255,255,255,.92)', null);
+    ctx.fillStyle = COLORS.black;
+    const cell = size / 7;
+    for (let row = 0; row < 7; row += 1) {
+      for (let col = 0; col < 7; col += 1) {
+        if ((row + col) % 2 === 0 || row < 2 && col < 2 || row > 4 && col > 4) {
+          ctx.fillRect(x + col * cell + cell * 0.18, y + row * cell + cell * 0.18, cell * 0.64, cell * 0.64);
+        }
+      }
+    }
+  }
+
+  function drawGrid(w, h) {
+    if (!state.showGrid) return;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,.22)';
+    ctx.lineWidth = 1;
+    [1 / 3, 2 / 3].forEach((ratio) => {
+      ctx.beginPath();
+      ctx.moveTo(w * ratio, 0);
+      ctx.lineTo(w * ratio, h);
+      ctx.moveTo(0, h * ratio);
+      ctx.lineTo(w, h * ratio);
+      ctx.stroke();
+    });
+    ctx.restore();
   }
 
   function renderPoster(data, w, h, scale) {
@@ -725,20 +815,32 @@
     drawBadges(w, h, data, scale);
     drawFeatureZone(w, h, data, scale);
     drawBottomPanel(w, h, data, scale);
-    drawFooter(w, h, scale);
+    drawFooter(w, h, data, scale);
+    drawGrid(w, h);
   }
 
   function render() {
-    if (!canvas || !form) return;
+    if (!canvas || !ctx || !form) return;
     const data = readForm();
     const format = resizeCanvas(data.format);
-    const w = format.width;
-    const h = format.height;
-    const scale = Math.min(w / 1080, h / 1080);
-    renderPoster(data, w, h, scale);
+    const scale = Math.min(format.width / 1080, format.height / 1080);
+    renderPoster(data, format.width, format.height, scale);
+    updateCaption(data);
   }
 
-  async function downloadPng() {
+  function updateCaption(data = readForm()) {
+    if (!captionOutput) return;
+    const parts = [
+      data.title,
+      data.subtitle,
+      [data.date, data.time, data.location].filter(Boolean).join(' - '),
+      data.summary,
+      '#RCC #Rugby #SaintAndreDeCubzac'
+    ].filter(Boolean);
+    captionOutput.value = parts.join('\n\n');
+  }
+
+  async function prepareExport() {
     if (document.fonts && !state.fontsReady) {
       setStatus('Preparation des polices avant export...');
       await loadFonts();
@@ -746,25 +848,133 @@
       await document.fonts.ready;
     }
     render();
+  }
+
+  async function downloadPng() {
+    await prepareExport();
     const data = readForm();
-    const name = `affiche-rcc-${data.template || 'publication'}-${data.format || 'format'}.png`;
     const link = document.createElement('a');
     link.href = canvas.toDataURL('image/png');
-    link.download = name;
+    link.download = `studio-rcc-${data.template || 'publication'}-${data.format || 'format'}.png`;
     link.click();
-    setStatus('PNG telecharge. Le visuel est pret a publier.');
+    setStatus('PNG HD telecharge. Le visuel est pret a publier.');
+  }
+
+  function escapePdfText(value) {
+    return String(value).replace(/[\\()]/g, '\\$&');
+  }
+
+  async function downloadPdf() {
+    await prepareExport();
+    const data = readForm();
+    const jpeg = canvas.toDataURL('image/jpeg', 0.94);
+    const binary = atob(jpeg.split(',')[1]);
+    const imgBytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) imgBytes[i] = binary.charCodeAt(i);
+    const w = canvas.width;
+    const h = canvas.height;
+    const textEncoder = new TextEncoder();
+    const parts = [];
+    let length = 0;
+    const offsets = [0];
+    const pushText = (text) => {
+      const bytes = textEncoder.encode(text);
+      parts.push(bytes);
+      length += bytes.byteLength;
+    };
+    const pushBytes = (bytes) => {
+      parts.push(bytes);
+      length += bytes.byteLength;
+    };
+    const startObject = (id) => {
+      offsets[id] = length;
+      pushText(`${id} 0 obj\n`);
+    };
+    pushText('%PDF-1.4\n');
+    startObject(1);
+    pushText('<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+    startObject(2);
+    pushText('<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n');
+    startObject(3);
+    pushText(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>\nendobj\n`);
+    startObject(4);
+    pushText(`<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgBytes.byteLength} >>\nstream\n`);
+    pushBytes(imgBytes);
+    pushText('\nendstream\nendobj\n');
+    const content = `q ${w} 0 0 ${h} 0 0 cm /Im0 Do Q`;
+    startObject(5);
+    pushText(`<< /Length ${content.length} >>\nstream\n${content}\nendstream\nendobj\n`);
+    const xref = length;
+    pushText('xref\n0 6\n0000000000 65535 f \n');
+    for (let i = 1; i <= 5; i += 1) {
+      pushText(`${String(offsets[i]).padStart(10, '0')} 00000 n \n`);
+    }
+    pushText(`trailer\n<< /Size 6 /Root 1 0 R /Title (${escapePdfText(data.title || 'Studio RCC')}) >>\nstartxref\n${xref}\n%%EOF`);
+    const blob = new Blob(parts, { type: 'application/pdf' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `studio-rcc-${data.template || 'publication'}-${data.format || 'format'}.pdf`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    setStatus('PDF telecharge.');
+  }
+
+  async function copyCaption() {
+    const text = captionOutput?.value || '';
+    try {
+      await navigator.clipboard.writeText(text);
+      setStatus('Texte de publication copie.');
+    } catch (error) {
+      captionOutput?.select();
+      setStatus('Texte pret a copier.');
+    }
   }
 
   form?.addEventListener('input', render);
   form?.addEventListener('change', render);
   document.querySelector('[data-poster-image]')?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'image'));
   document.querySelector('[data-opponent-logo]')?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'opponentLogo'));
-  sourceNews?.addEventListener('change', (event) => applyNews(event.target.value));
-  sourceEvent?.addEventListener('change', (event) => applyEvent(event.target.value));
   downloadButton?.addEventListener('click', downloadPng);
+  downloadPdfButton?.addEventListener('click', downloadPdf);
+  copyCaptionButton?.addEventListener('click', copyCaption);
+  sourceSelect?.addEventListener('change', (event) => applySource(event.target.value));
+  sourceButtons?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-source-kind]');
+    if (!button) return;
+    sourceButtons.querySelectorAll('button').forEach((item) => item.classList.remove('is-active'));
+    button.classList.add('is-active');
+    state.activeSource = button.dataset.sourceKind;
+    hydrateSourceSelect();
+  });
+  templateButtons?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-template-preset]');
+    if (!button) return;
+    setTemplate(button.dataset.templatePreset);
+    render();
+  });
+  zoomInButton?.addEventListener('click', () => {
+    const field = form.elements.photoZoom;
+    field.value = String(clamp(Number(field.value || 112) + 8, 100, 170));
+    render();
+  });
+  zoomOutButton?.addEventListener('click', () => {
+    const field = form.elements.photoZoom;
+    field.value = String(clamp(Number(field.value || 112) - 8, 100, 170));
+    render();
+  });
+  toggleGridButton?.addEventListener('click', () => {
+    state.showGrid = !state.showGrid;
+    toggleGridButton.classList.toggle('is-active', state.showGrid);
+    render();
+  });
+  resetPhotoButton?.addEventListener('click', () => {
+    state.imageOffsetX = 0;
+    state.imageOffsetY = 0;
+    setField('photoZoom', 112);
+    render();
+  });
 
-  setSelectLoading(sourceNews, 'des actualites');
-  setSelectLoading(sourceEvent, 'du calendrier');
+  setSourceSelectLoading('Chargement du CMS...');
   loadFonts();
   loadSources();
   render();
