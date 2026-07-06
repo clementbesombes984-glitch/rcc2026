@@ -1,0 +1,14 @@
+{
+  "matches": [
+    {
+      "title": "Reprise Entraînement senior",
+      "type_evenement": "entrainement",
+      "team": "Seniors",
+      "date": "2026-08-04",
+      "time": "19h30",
+      "location": "Plaine des sports Laurent Ricci",
+      "home": false,
+      "notification": false
+    }
+  ]
+}
