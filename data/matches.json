@@ -9,6 +9,19 @@
       "location": "Plaine des sports Laurent Ricci",
       "home": false,
       "notification": false
+    },
+    {
+      "title": "Reprise entraînement EDR",
+      "type_evenement": "entrainement",
+      "team": "Ecole de rugby",
+      "teams": [
+        "Pole jeunes"
+      ],
+      "date": "2026-09-05",
+      "time": "10h00",
+      "location": "Plaine des sports ",
+      "home": false,
+      "notification": false
     }
   ]
 }
