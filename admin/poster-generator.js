@@ -47,19 +47,28 @@
     news: 'magazine',
     upcoming: 'match',
     result: 'match',
-    tournament: 'announcement',
-    training: 'announcement',
+    tournament: 'tournament',
+    training: 'recruitment',
     club: 'club',
-    recruitment: 'announcement',
+    recruitment: 'recruitment',
     partner: 'partner',
     shop: 'partner',
     birthday: 'club',
     thanks: 'club',
     congrats: 'match',
-    weekend: 'announcement',
+    weekend: 'tournament',
     team: 'club',
     educator: 'club',
     newsletter: 'magazine'
+  };
+
+  const STYLE_CLASSES = {
+    match: 'studio-style-top14',
+    magazine: 'studio-style-magazine',
+    club: 'studio-style-vie-club',
+    partner: 'studio-style-partenaire',
+    recruitment: 'studio-style-recrutement',
+    tournament: 'studio-style-tournoi'
   };
 
   const canvas = document.getElementById('posterCanvas');
@@ -107,6 +116,21 @@
   const upper = (value) => clean(value).toUpperCase();
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const asList = (value) => Array.isArray(value) ? value.filter(Boolean) : (value ? [value] : []);
+
+  function getStyleKey(style, template) {
+    const key = clean(style).toLowerCase();
+    if (key === 'top14' || key === 'top-14') return 'match';
+    if (key === 'announcement') return template === 'tournament' || template === 'weekend' ? 'tournament' : 'recruitment';
+    return STYLE_CLASSES[key] ? key : (STYLE_DEFAULTS[template] || 'match');
+  }
+
+  function applyPreviewStyle(style) {
+    const className = STYLE_CLASSES[style] || STYLE_CLASSES.match;
+    document.querySelectorAll('.studio-preview-panel,.studio-canvas-wrap').forEach((node) => {
+      Object.values(STYLE_CLASSES).forEach((item) => node.classList.remove(item));
+      node.classList.add(className);
+    });
+  }
 
   function readForm() {
     return Object.fromEntries(new FormData(form).entries());
@@ -452,11 +476,20 @@
     ctx.closePath();
   }
 
-  function drawBackground(w, h, data) {
+  function drawBackground(w, h, data, style) {
     const mode = data.colorMode || 'red';
     const main = mode === 'blue' ? COLORS.navyBright : COLORS.red;
     const secondary = mode === 'dark' ? '#111' : COLORS.navy;
-    const overlay = clamp(Number(data.overlay || 65) / 100, 0.45, 0.82);
+    const styleOverlay = {
+      match: 0.72,
+      magazine: 0.54,
+      club: 0.48,
+      partner: 0.62,
+      recruitment: 0.68,
+      tournament: 0.63
+    };
+    const requestedOverlay = clamp(Number(data.overlay || 65) / 100, 0.45, 0.82);
+    const overlay = clamp((requestedOverlay + (styleOverlay[style] || requestedOverlay)) / 2, 0.42, 0.84);
     const zoom = clamp(Number(data.photoZoom || 112) / 100, 1, 1.7);
 
     const base = ctx.createLinearGradient(0, 0, w, h);
@@ -470,13 +503,13 @@
       coverImage(state.image, 0, 0, w, h, zoom, state.imageOffsetX, state.imageOffsetY);
       ctx.fillStyle = `rgba(0,0,0,${overlay})`;
       ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = 'rgba(177,24,69,.14)';
+      ctx.fillStyle = style === 'club' ? 'rgba(255,210,160,.08)' : style === 'magazine' ? 'rgba(6,27,56,.12)' : 'rgba(177,24,69,.14)';
       ctx.fillRect(0, 0, w, h);
     } else {
       drawRccGraphicBackground(w, h, main, secondary);
     }
 
-    drawGraphicStripes(w, h, main, secondary, data.style);
+    drawGraphicStripes(w, h, main, secondary, style);
     drawNoise(w, h);
     drawVignette(w, h);
   }
@@ -496,16 +529,32 @@
   function drawGraphicStripes(w, h, main, secondary, style) {
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
-    ctx.globalAlpha = style === 'partner' ? 0.11 : 0.2;
+    ctx.globalAlpha = style === 'partner' ? 0.08 : style === 'magazine' || style === 'club' ? 0.1 : 0.24;
     ctx.fillStyle = main;
-    polygon([[w * 0.64, 0], [w, 0], [w, h * 0.1], [w * 0.54, h * 0.28]]);
+    polygon([[w * 0.64, 0], [w, 0], [w, h * (style === 'match' ? 0.2 : 0.1)], [w * 0.54, h * (style === 'match' ? 0.34 : 0.28)]]);
     ctx.fill();
-    ctx.globalAlpha = 0.22;
+    ctx.globalAlpha = style === 'partner' ? 0.09 : style === 'club' ? 0.08 : 0.22;
     ctx.fillStyle = secondary;
     polygon([[w * 0.72, h * 0.25], [w, h * 0.16], [w, h * 0.48], [w * 0.6, h * 0.58]]);
     ctx.fill();
-    ctx.globalAlpha = 0.18;
-    for (let i = 0; i < 9; i += 1) {
+    if (style === 'magazine' || style === 'partner') {
+      ctx.globalAlpha = 0.2;
+      ctx.fillStyle = style === 'partner' ? COLORS.white : main;
+      ctx.fillRect(w * 0.055, h * 0.13, w * 0.012, h * 0.58);
+      ctx.restore();
+      return;
+    }
+    if (style === 'club') {
+      ctx.globalAlpha = 0.1;
+      ctx.fillStyle = main;
+      ctx.beginPath();
+      ctx.arc(w * 0.78, h * 0.2, Math.min(w, h) * 0.22, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      return;
+    }
+    ctx.globalAlpha = style === 'tournament' ? 0.22 : 0.18;
+    for (let i = 0; i < (style === 'recruitment' ? 13 : 9); i += 1) {
       const y = h * (0.08 + i * 0.038);
       ctx.fillStyle = i % 2 ? secondary : main;
       polygon([[w * (0.04 + i * 0.02), y], [w * (0.42 + i * 0.06), y - h * 0.012], [w * (0.38 + i * 0.06), y + h * 0.01], [w * (0.03 + i * 0.02), y + h * 0.02]]);
@@ -808,14 +857,139 @@
     ctx.restore();
   }
 
-  function renderPoster(data, w, h, scale) {
-    drawBackground(w, h, data);
+  function drawTop14Poster(w, h, data, scale) {
     drawTop(w, h, data, scale);
     drawMainTitle(w, h, data, scale);
     drawBadges(w, h, data, scale);
     drawFeatureZone(w, h, data, scale);
     drawBottomPanel(w, h, data, scale);
     drawFooter(w, h, data, scale);
+  }
+
+  function drawMagazinePoster(w, h, data, scale) {
+    const pad = w * 0.06;
+    drawTop(w, h, data, scale);
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,248,239,.1)';
+    ctx.fillRect(pad, h * 0.19, w - pad * 2, 2 * scale);
+    ctx.fillStyle = COLORS.redBright;
+    ctx.fillRect(pad, h * 0.23, 9 * scale, h * 0.28);
+    drawFittedLines(data.title || TEMPLATE_TITLES[data.template], pad + 28 * scale, h * 0.23, w - pad * 2 - 28 * scale, Math.min(w * 0.12, h * 0.11), Math.min(w * 0.105, h * 0.092), 3, COLORS.white, TITLE_FONT);
+    ctx.fillStyle = COLORS.redBright;
+    ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
+    ctx.fillText(upper(data.category || 'JOURNAL RCC'), pad + 28 * scale, h * 0.19);
+    ctx.restore();
+    drawEditorialPanel(w, h, data, scale, 'A RETENIR');
+    drawFooter(w, h, data, scale);
+  }
+
+  function drawClubPoster(w, h, data, scale) {
+    const pad = w * 0.06;
+    drawTop(w, h, data, scale);
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,248,239,.08)';
+    ctx.beginPath();
+    ctx.arc(w * 0.82, h * 0.24, Math.min(w, h) * 0.24, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = COLORS.redBright;
+    ctx.font = `900 ${28 * scale}px ${BODY_FONT}`;
+    ctx.fillText(upper(data.category || 'VIE DU CLUB'), pad, h * 0.23);
+    drawFittedLines(data.title || 'Ensemble au RCC', pad, h * 0.28, w - pad * 2, Math.min(w * 0.145, h * 0.118), Math.min(w * 0.12, h * 0.096), 3, COLORS.white, TITLE_FONT);
+    fillRounded(pad, h * 0.63, w - pad * 2, h * 0.21, 22 * scale, 'rgba(10,10,10,.68)', 'rgba(255,248,239,.16)', 1 * scale);
+    ctx.fillStyle = COLORS.muted;
+    ctx.font = `800 ${Math.min(w * 0.04, h * 0.032)}px ${BODY_FONT}`;
+    wrapParagraph(data.summary || data.subtitle || 'Un moment de partage aux couleurs du RC Cubzaguais.', pad + 28 * scale, h * 0.67, w - pad * 2 - 56 * scale, Math.min(w * 0.04, h * 0.032), Math.min(w * 0.047, h * 0.038), 4);
+    ctx.restore();
+    drawFooter(w, h, data, scale);
+  }
+
+  function drawRecruitmentPoster(w, h, data, scale) {
+    const pad = w * 0.055;
+    drawTop(w, h, data, scale);
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = 'rgba(211,26,82,.28)';
+    polygon([[0, h * 0.35], [w, h * 0.18], [w, h * 0.38], [0, h * 0.56]]);
+    ctx.fill();
+    ctx.restore();
+    const title = data.title || 'REJOINS LE RCC';
+    drawFittedLines(title, pad, h * 0.2, w - pad * 2, Math.min(w * 0.18, h * 0.14), Math.min(w * 0.145, h * 0.11), 3, COLORS.white, TITLE_FONT);
+    ctx.fillStyle = COLORS.redBright;
+    ctx.font = `900 ${Math.min(w * 0.06, h * 0.046)}px ${IMPACT_FONT}`;
+    ctx.fillText(upper(data.subtitle || data.category || 'JOUEURS - BENEVOLES - EDUCATEURS'), pad, h * 0.51);
+    fillRounded(pad, h * 0.62, w - pad * 2, h * 0.18, 18 * scale, 'rgba(177,24,69,.78)', 'rgba(255,248,239,.22)', 1.2 * scale);
+    ctx.fillStyle = COLORS.white;
+    ctx.font = `900 ${Math.min(w * 0.042, h * 0.033)}px ${BODY_FONT}`;
+    wrapParagraph(data.summary || 'Contacte le club et viens porter les couleurs du RCC.', pad + 26 * scale, h * 0.66, w - pad * 2 - 52 * scale, Math.min(w * 0.042, h * 0.033), Math.min(w * 0.048, h * 0.038), 3);
+    drawFooter(w, h, data, scale);
+  }
+
+  function drawPartnerPoster(w, h, data, scale) {
+    const pad = w * 0.07;
+    drawTop(w, h, data, scale);
+    fillRounded(pad, h * 0.22, w - pad * 2, h * 0.48, 26 * scale, 'rgba(3,3,3,.72)', 'rgba(255,248,239,.18)', 1.2 * scale);
+    ctx.fillStyle = COLORS.redBright;
+    ctx.font = `900 ${28 * scale}px ${BODY_FONT}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(upper(data.category || 'PARTENAIRE RCC'), w / 2, h * 0.27);
+    if (state.opponentLogo) {
+      fitImage(state.opponentLogo, w * 0.35, h * 0.32, w * 0.3, h * 0.18);
+    } else {
+      fitImage(logo, w * 0.39, h * 0.32, w * 0.22, h * 0.18);
+    }
+    drawFittedCentered(upper(data.title || data.opponent || 'MERCI'), w / 2, h * 0.52, w * 0.72, Math.min(w * 0.1, h * 0.08), TITLE_FONT);
+    ctx.textAlign = 'left';
+    drawEditorialPanel(w, h, data, scale, 'PRESENTATION');
+    drawFooter(w, h, data, scale);
+  }
+
+  function drawTournamentPoster(w, h, data, scale) {
+    const pad = w * 0.055;
+    drawTop(w, h, data, scale);
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = 'rgba(13,52,103,.26)';
+    polygon([[0, h * 0.18], [w * 0.42, h * 0.09], [w, h * 0.28], [w, h * 0.43], [0, h * 0.35]]);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(211,26,82,.24)';
+    polygon([[0, h * 0.5], [w, h * 0.35], [w, h * 0.51], [0, h * 0.66]]);
+    ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = COLORS.redBright;
+    ctx.font = `900 ${30 * scale}px ${BODY_FONT}`;
+    ctx.fillText(upper(data.category || 'RENDEZ-VOUS SPORTIF'), pad, h * 0.22);
+    drawFittedLines(data.title || 'Tournoi RCC', pad, h * 0.28, w - pad * 2, Math.min(w * 0.15, h * 0.12), Math.min(w * 0.125, h * 0.1), 3, COLORS.white, TITLE_FONT);
+    drawBadges(w, h, data, scale);
+    fillRounded(pad, h * 0.61, w - pad * 2, h * 0.18, 18 * scale, 'rgba(3,3,3,.72)', 'rgba(211,26,82,.5)', 1.3 * scale);
+    ctx.fillStyle = COLORS.white;
+    ctx.font = `900 ${Math.min(w * 0.045, h * 0.035)}px ${BODY_FONT}`;
+    wrapParagraph(data.summary || data.subtitle || 'Tournoi et rendez-vous du RC Cubzaguais.', pad + 26 * scale, h * 0.65, w - pad * 2 - 52 * scale, Math.min(w * 0.045, h * 0.035), Math.min(w * 0.052, h * 0.04), 3);
+    drawFooter(w, h, data, scale);
+  }
+
+  function drawEditorialPanel(w, h, data, scale, label) {
+    const pad = w * 0.06;
+    const panelH = h * 0.18;
+    const y = h - panelH - h * 0.09;
+    fillRounded(pad, y, w - pad * 2, panelH, 18 * scale, 'rgba(3,3,3,.76)', 'rgba(177,24,69,.34)', 1.1 * scale);
+    ctx.fillStyle = COLORS.redBright;
+    ctx.font = `900 ${22 * scale}px ${BODY_FONT}`;
+    ctx.fillText(upper(label), pad + 24 * scale, y + 20 * scale);
+    ctx.fillStyle = COLORS.white;
+    ctx.font = `800 ${Math.min(w * 0.036, h * 0.028)}px ${BODY_FONT}`;
+    wrapParagraph(data.summary || data.subtitle || data.title || 'Retrouvez les informations du RCC.', pad + 24 * scale, y + 58 * scale, w - pad * 2 - 48 * scale, Math.min(w * 0.036, h * 0.028), Math.min(w * 0.043, h * 0.033), 3);
+  }
+
+  function renderPoster(data, w, h, scale) {
+    const style = getStyleKey(data.style, data.template);
+    applyPreviewStyle(style);
+    drawBackground(w, h, data, style);
+    if (style === 'magazine') drawMagazinePoster(w, h, data, scale);
+    else if (style === 'club') drawClubPoster(w, h, data, scale);
+    else if (style === 'partner') drawPartnerPoster(w, h, data, scale);
+    else if (style === 'recruitment') drawRecruitmentPoster(w, h, data, scale);
+    else if (style === 'tournament') drawTournamentPoster(w, h, data, scale);
+    else drawTop14Poster(w, h, data, scale);
     drawGrid(w, h);
   }
 

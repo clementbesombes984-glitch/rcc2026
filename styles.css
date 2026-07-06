@@ -1498,3 +1498,50 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
     padding:10px;
   }
 }
+
+.studio-preview-panel,
+.studio-canvas-wrap{
+  transition:border-color .25s ease,box-shadow .25s ease,background .25s ease;
+}
+.studio-preview-panel.studio-style-top14{
+  border-color:rgba(211,26,82,.42);
+  box-shadow:0 26px 70px rgba(177,24,69,.18),0 22px 58px rgba(0,0,0,.32);
+}
+.studio-canvas-wrap.studio-style-top14{
+  background:radial-gradient(circle at 75% 10%,rgba(211,26,82,.24),transparent 30%),linear-gradient(135deg,rgba(177,24,69,.18),transparent 34%),#030303;
+}
+.studio-preview-panel.studio-style-magazine{
+  border-color:rgba(255,248,239,.18);
+  box-shadow:0 24px 64px rgba(0,0,0,.38);
+}
+.studio-canvas-wrap.studio-style-magazine{
+  background:linear-gradient(90deg,rgba(177,24,69,.14) 0 4px,transparent 4px),radial-gradient(circle at 50% 18%,rgba(255,248,239,.08),transparent 34%),#050505;
+}
+.studio-preview-panel.studio-style-vie-club{
+  border-color:rgba(255,248,239,.16);
+  box-shadow:0 24px 60px rgba(177,24,69,.1),0 18px 48px rgba(0,0,0,.28);
+}
+.studio-canvas-wrap.studio-style-vie-club{
+  background:radial-gradient(circle at 70% 18%,rgba(255,210,160,.12),transparent 30%),linear-gradient(160deg,rgba(177,24,69,.12),rgba(6,27,56,.08)),#050505;
+}
+.studio-preview-panel.studio-style-recrutement{
+  border-color:rgba(211,26,82,.58);
+  box-shadow:0 26px 82px rgba(211,26,82,.22),0 24px 60px rgba(0,0,0,.35);
+}
+.studio-canvas-wrap.studio-style-recrutement{
+  background:linear-gradient(135deg,rgba(211,26,82,.26),transparent 28%),linear-gradient(315deg,rgba(6,27,56,.22),transparent 34%),#030303;
+}
+.studio-preview-panel.studio-style-partenaire{
+  border-color:rgba(255,248,239,.22);
+  box-shadow:0 22px 62px rgba(0,0,0,.3);
+}
+.studio-canvas-wrap.studio-style-partenaire{
+  background:radial-gradient(circle at 50% 24%,rgba(255,248,239,.1),transparent 32%),linear-gradient(180deg,rgba(177,24,69,.08),transparent),#060606;
+}
+.studio-preview-panel.studio-style-tournoi{
+  border-color:rgba(13,52,103,.52);
+  box-shadow:0 26px 70px rgba(6,27,56,.26),0 20px 58px rgba(177,24,69,.1);
+}
+.studio-canvas-wrap.studio-style-tournoi{
+  background:linear-gradient(155deg,rgba(13,52,103,.25),transparent 38%),linear-gradient(20deg,rgba(177,24,69,.22),transparent 35%),#030303;
+}
