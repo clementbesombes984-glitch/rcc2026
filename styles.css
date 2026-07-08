@@ -1606,3 +1606,83 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
     flex:1 1 100%;
   }
 }
+
+/* Mobile navigation readability */
+.mobile-home-link{
+  display:none!important;
+}
+@media(max-width:1120px){
+  body .site-nav.is-open{
+    align-items:stretch!important;
+    justify-items:center!important;
+    gap:8px!important;
+    padding:14px 16px 24px!important;
+  }
+  body .site-nav.is-open .mobile-home-link,
+  body .site-nav.is-open .nav-icon-link,
+  body .site-nav.is-open .shop-link,
+  body .site-nav.is-open .notification-link,
+  body .site-nav.is-open .settings-link,
+  body .site-nav.is-open .nav-cta{
+    display:flex!important;
+    width:min(88vw,360px)!important;
+    max-width:360px!important;
+    height:auto!important;
+    min-height:50px!important;
+    flex:0 0 auto!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border-radius:12px!important;
+    padding:0 18px!important;
+    color:#fff!important;
+    font-family:"Arial Narrow",Impact,Haettenschweiler,sans-serif!important;
+    font-size:15px!important;
+    font-weight:900!important;
+    letter-spacing:1.25px!important;
+    line-height:1.15!important;
+    text-align:center!important;
+  }
+  body .site-nav.is-open .nav-icon-link svg,
+  body .site-nav.is-open .shop-link svg{
+    display:none!important;
+  }
+  body .site-nav.is-open .nav-icon-link,
+  body .site-nav.is-open .shop-link,
+  body .site-nav.is-open .notification-link,
+  body .site-nav.is-open .settings-link{
+    font-size:0!important;
+  }
+  body .site-nav.is-open .nav-icon-link:before,
+  body .site-nav.is-open .shop-link:before,
+  body .site-nav.is-open .notification-link:before,
+  body .site-nav.is-open .settings-link:before{
+    content:attr(data-mobile-label);
+    font-size:15px!important;
+  }
+  body .site-nav.is-open .nav-cta{
+    margin:0!important;
+    font-size:0!important;
+  }
+  body .site-nav.is-open .nav-cta:before{
+    content:attr(data-mobile-label);
+    font-size:15px!important;
+  }
+}
+
+.history-project-section{
+  margin-top:clamp(54px,7vw,94px);
+}
+.history-project-lead{
+  margin-bottom:28px;
+}
+.history-project-lead h3{
+  margin:0 0 14px;
+  font-family:"Arial Narrow",Impact,Haettenschweiler,sans-serif;
+  font-size:clamp(30px,4vw,54px);
+  font-weight:900;
+  line-height:1;
+  text-transform:uppercase;
+}
+.history-project-section .project-grid{
+  margin-top:24px;
+}

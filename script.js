@@ -1,6 +1,38 @@
 document.documentElement.classList.add('js');
 const toggle = document.querySelector('[data-menu-toggle]');
 const nav = document.querySelector('[data-nav]');
+const mobileNavLabels = [
+  ['./matchs.html', 'Calendrier'],
+  ['./senior.html', 'Seniors'],
+  ['./ecole.html', 'École de rugby'],
+  ['./jeunes.html', 'Pôle jeunes'],
+  ['./cadettes.html', 'Cadettes'],
+  ['./actualites.html', 'Actualités'],
+  ['./galerie.html', 'Galerie'],
+  ['./histoire.html', 'Notre Histoire'],
+  ['./partenaires.html', 'Partenaires'],
+  ['./boutique.html', 'Boutique'],
+  ['./notifications.html', 'Notifications'],
+  ['/cms-login', 'Administration']
+];
+
+if (nav) {
+  if (!nav.querySelector('.mobile-home-link')) {
+    const home = document.createElement('a');
+    home.className = 'mobile-home-link';
+    home.href = './index.html#accueil';
+    home.textContent = 'Accueil';
+    home.dataset.mobileLabel = 'Accueil';
+    nav.prepend(home);
+  }
+
+  nav.querySelectorAll('a').forEach((link) => {
+    const href = link.getAttribute('href') || '';
+    const match = mobileNavLabels.find(([target]) => href === target || href.endsWith(target.replace('./', '')));
+    if (match) link.dataset.mobileLabel = match[1];
+    if (link.classList.contains('nav-cta')) link.dataset.mobileLabel = 'Contact';
+  });
+}
 if (toggle && nav) {
   toggle.addEventListener('click', () => {
     const isOpen = nav.classList.toggle('is-open');
