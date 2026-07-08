@@ -1,23 +1,28 @@
-document.documentElement.classList.add('js');
+﻿document.documentElement.classList.add('js');
 const toggle = document.querySelector('[data-menu-toggle]');
 const nav = document.querySelector('[data-nav]');
 const mobileNavLabels = [
+  ['./index.html#accueil', 'Accueil'],
+  ['./club.html', 'Le Club'],
+  ['./equipes.html', 'Les Équipes'],
+  ['./calendrier.html', 'Calendrier'],
   ['./matchs.html', 'Calendrier'],
-  ['./senior.html', 'Seniors'],
-  ['./ecole.html', 'École de rugby'],
-  ['./jeunes.html', 'Pôle jeunes'],
-  ['./cadettes.html', 'Cadettes'],
+  ['./senior.html', 'Les Équipes'],
+  ['./ecole.html', 'Les Équipes'],
+  ['./jeunes.html', 'Les Équipes'],
+  ['./cadettes.html', 'Les Équipes'],
   ['./actualites.html', 'Actualités'],
   ['./galerie.html', 'Galerie'],
-  ['./histoire.html', 'Notre Histoire'],
+  ['./histoire.html', 'Le Club'],
   ['./partenaires.html', 'Partenaires'],
   ['./boutique.html', 'Boutique'],
+  ['./nous-rejoindre.html', 'Contact'],
   ['./notifications.html', 'Notifications'],
   ['/cms-login', 'Administration']
 ];
 
 if (nav) {
-  if (!nav.querySelector('.mobile-home-link')) {
+  if (!nav.querySelector('.mobile-home-link') && !nav.querySelector('a[href="./index.html#accueil"]')) {
     const home = document.createElement('a');
     home.className = 'mobile-home-link';
     home.href = './index.html#accueil';
@@ -31,6 +36,33 @@ if (nav) {
     const match = mobileNavLabels.find(([target]) => href === target || href.endsWith(target.replace('./', '')));
     if (match) link.dataset.mobileLabel = match[1];
     if (link.classList.contains('nav-cta')) link.dataset.mobileLabel = 'Contact';
+  });
+  const currentPage = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  const activeGroups = {
+    'index.html': 'index.html',
+    'club.html': 'club.html',
+    'histoire.html': 'club.html',
+    'rcc-demain.html': 'club.html',
+    'equipes.html': 'equipes.html',
+    'senior.html': 'equipes.html',
+    'ecole.html': 'equipes.html',
+    'jeunes.html': 'equipes.html',
+    'cadettes.html': 'equipes.html',
+    'feminines.html': 'equipes.html',
+    'calendrier.html': 'calendrier.html',
+    'matchs.html': 'calendrier.html',
+    'actualites.html': 'actualites.html',
+    'galerie.html': 'galerie.html',
+    'partenaires.html': 'partenaires.html',
+    'boutique.html': 'boutique.html',
+    'notifications.html': 'notifications.html',
+    'nous-rejoindre.html': 'nous-rejoindre.html',
+    'contact.html': 'nous-rejoindre.html'
+  };
+  const activeTarget = activeGroups[currentPage] || currentPage;
+  nav.querySelectorAll('a').forEach((link) => {
+    const href = (link.getAttribute('href') || '').split('#')[0].replace('./', '').toLowerCase();
+    link.classList.toggle('is-active', href === activeTarget || (!href && activeTarget === 'index.html'));
   });
 }
 if (toggle && nav) {
@@ -58,7 +90,7 @@ function buildMailto(form) {
   const phone = data.get('phone') || '';
   const message = data.get('message') || '';
   const target = document.querySelector('[data-cms="email"]')?.textContent?.trim() || 'lerccdemain@gmail.com';
-  const body = mailBody(['Nom : ' + name, 'Email : ' + email, phone ? 'Téléphone : ' + phone : '', '', String(message)].filter(Boolean));
+  const body = mailBody(['Nom : ' + name, 'Email : ' + email, phone ? 'TÃ©lÃ©phone : ' + phone : '', '', String(message)].filter(Boolean));
   return 'mailto:' + encodeURIComponent(target) + '?subject=' + encodeURIComponent(String(subject)) + '&body=' + encodeURIComponent(body);
 }
 

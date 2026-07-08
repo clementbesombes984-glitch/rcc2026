@@ -1,10 +1,12 @@
-const CACHE_VERSION = 'rcc-pwa-v24';
+﻿const CACHE_VERSION = 'rcc-pwa-v25';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/club.html',
+  '/equipes.html',
   '/calendrier.html',
   '/matchs.html',
   '/boutique.html',

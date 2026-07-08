@@ -1,0 +1,104 @@
+﻿<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Les Ã‰quipes - RC Cubzaguais</title>
+    <meta name="description" content="DÃ©couvrez les Ã©quipes du RC Cubzaguais : Ã©cole de rugby, cadettes et seniors." />
+    <link rel="stylesheet" href="./styles.css" />
+    <meta name="theme-color" content="#b11845" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="RCC" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./assets/pwa-icon-192.png" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand brand-logo-only" href="./index.html#accueil" aria-label="RC Cubzaguais accueil"><img src="./assets/logo-rcc.png" alt="RC Cubzaguais" /></a>
+      <button class="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-menu-toggle><span></span><span></span></button>
+      <nav class="site-nav v1-nav" aria-label="Navigation principale" data-nav>
+        <a class="nav-text-link" href="./index.html#accueil">Accueil</a>
+        <a class="nav-text-link" href="./club.html">Le Club</a>
+        <a class="nav-text-link" href="./equipes.html">Les Ã‰quipes</a>
+        <a class="nav-text-link" href="./actualites.html">ActualitÃ©s</a>
+        <a class="nav-text-link" href="./calendrier.html">Calendrier</a>
+        <a class="nav-text-link" href="./galerie.html">Galerie</a>
+        <a class="nav-text-link" href="./partenaires.html">Partenaires</a>
+        <a class="nav-text-link" href="./boutique.html">Boutique</a>
+        <a class="nav-cta" href="./nous-rejoindre.html">Contact</a>
+        <a class="notification-link" href="./notifications.html" aria-label="Notifications" title="Notifications">&#128276;</a>
+        <a class="admin-link settings-link" href="/cms-login" aria-label="AccÃ¨s administration" title="Administration">&#9881;</a>
+      </nav>
+    </header>
+
+    <main class="teams-hub-page">
+      <section class="history-hero teams-hub-hero">
+        <div class="hero-art" aria-hidden="true">
+          <div class="stadium-light light-one"></div>
+          <div class="stadium-light light-two"></div>
+          <div class="rugby-scene academy-scene"><span class="player player-one"></span><span class="rugby-ball"></span><span class="field-line field-one"></span></div>
+        </div>
+        <div class="page-shell history-hero-content">
+          <p class="eyebrow"><span></span> Terrain & formation</p>
+          <h1><span>Les</span><strong>Ã‰quipes</strong></h1>
+          <p class="hero-copy inner-hero-copy">Un accÃ¨s simple aux catÃ©gories du club, de l'Ã©cole de rugby au groupe senior.</p>
+        </div>
+      </section>
+
+      <section class="teams-hub page-shell" aria-label="PrÃ©sentation des Ã©quipes">
+        <article class="team-hub-card team-hub-academy" data-reveal>
+          <div class="team-hub-visual" aria-hidden="true">
+            <img src="./assets/logo-rcc.png" alt="" />
+          </div>
+          <div class="team-hub-content">
+            <span>U6 Ã  U14</span>
+            <h2>Ã‰cole de rugby</h2>
+            <p>La porte d'entrÃ©e du RCC : apprendre, progresser, jouer et grandir dans un cadre bienveillant.</p>
+            <dl>
+              <div><dt>Horaires</dt><dd>U6 samedi 10h Â· U8 Ã  U14 mercredi 18h et samedi 10h</dd></div>
+              <div><dt>Staff</dt><dd>Ã‰ducateurs et responsables par catÃ©gorie</dd></div>
+            </dl>
+            <a class="button primary" href="./ecole.html">DÃ©couvrir</a>
+          </div>
+        </article>
+
+        <article class="team-hub-card team-hub-cadettes" data-reveal>
+          <div class="team-hub-visual" aria-hidden="true">
+            <img src="./assets/logo-rcc.png" alt="" />
+          </div>
+          <div class="team-hub-content">
+            <span>Cadettes</span>
+            <h2>Cadettes</h2>
+            <p>Une catÃ©gorie dÃ©diÃ©e aux joueuses, avec un accompagnement pensÃ© pour progresser et prendre confiance.</p>
+            <dl>
+              <div><dt>Horaires</dt><dd>Informations mises Ã  jour par le club</dd></div>
+              <div><dt>Staff</dt><dd>Encadrement dÃ©diÃ© aux cadettes</dd></div>
+            </dl>
+            <a class="button primary" href="./cadettes.html">DÃ©couvrir</a>
+          </div>
+        </article>
+
+        <article class="team-hub-card team-hub-senior" data-reveal>
+          <div class="team-hub-visual" aria-hidden="true">
+            <img src="./assets/logo-rcc.png" alt="" />
+          </div>
+          <div class="team-hub-content">
+            <span>Groupe senior</span>
+            <h2>Seniors</h2>
+            <p>Le groupe fanion du RCC, engagÃ© pour reprÃ©senter le club, ses couleurs et son territoire.</p>
+            <dl>
+              <div><dt>Horaires</dt><dd>Mardi et vendredi Ã  19h30</dd></div>
+              <div><dt>Staff</dt><dd>Staff sportif et encadrement senior</dd></div>
+            </dl>
+            <a class="button primary" href="./senior.html">DÃ©couvrir</a>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer rcc-footer" data-footer></footer>
+    <script src="./script.js"></script>
+    <script src="./data-loader.js"></script>
+    <script src="./notifications.js"></script>
+  </body>
+</html>

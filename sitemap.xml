@@ -1,98 +1,80 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://rccubzaguais.fr/</loc>
-    <lastmod>2026-07-07</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
   </url>
   <url>
+    <loc>https://rccubzaguais.fr/club.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://rccubzaguais.fr/equipes.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
     <loc>https://rccubzaguais.fr/actualites.html</loc>
-    <lastmod>2026-07-07</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
     <loc>https://rccubzaguais.fr/calendrier.html</loc>
-    <lastmod>2026-07-07</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://rccubzaguais.fr/matchs.html</loc>
-    <lastmod>2026-07-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://rccubzaguais.fr/nous-rejoindre.html</loc>
-    <lastmod>2026-07-07</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://rccubzaguais.fr/ecole.html</loc>
-    <lastmod>2026-07-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://rccubzaguais.fr/jeunes.html</loc>
-    <lastmod>2026-07-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://rccubzaguais.fr/senior.html</loc>
-    <lastmod>2026-07-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://rccubzaguais.fr/feminines.html</loc>
-    <lastmod>2026-07-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://rccubzaguais.fr/cadettes.html</loc>
-    <lastmod>2026-07-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://rccubzaguais.fr/histoire.html</loc>
     <lastmod>2026-07-08</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://rccubzaguais.fr/partenaires.html</loc>
-    <lastmod>2026-07-07</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://rccubzaguais.fr/galerie.html</loc>
-    <lastmod>2026-07-07</lastmod>
-    <changefreq>weekly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
-    <loc>https://rccubzaguais.fr/boutique.html</loc>
-    <lastmod>2026-07-07</lastmod>
+    <loc>https://rccubzaguais.fr/senior.html</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.65</priority>
+    <priority>0.70</priority>
   </url>
   <url>
-    <loc>https://rccubzaguais.fr/contact.html</loc>
-    <lastmod>2026-07-07</lastmod>
+    <loc>https://rccubzaguais.fr/cadettes.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://rccubzaguais.fr/partenaires.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://rccubzaguais.fr/galerie.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://rccubzaguais.fr/boutique.html</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
     <loc>https://rccubzaguais.fr/notifications.html</loc>
-    <lastmod>2026-07-07</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.50</priority>
   </url>
