@@ -678,7 +678,7 @@
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(255,248,239,.78)';
     ctx.font = `800 ${22 * scale}px ${BODY_FONT}`;
-    ctx.fillText(upper(state.data.settings.season || `SAISON ${CURRENT_SEASON}`), w - pad, pad);
+    ctx.fillText(upper(`SAISON ${CURRENT_SEASON}`), w - pad, pad);
     ctx.textAlign = 'left';
   }
 
