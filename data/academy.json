@@ -25,12 +25,16 @@
       "training": "Mercredi 18h · Samedi 10h",
       "staff": [
         {
-          "firstName": "Julien",
-          "lastName": "Perrin"
+          "firstName": "Clément",
+          "lastName": "Besombes",
+          "role": "Éducateur",
+          "photo": "/assets/uploads/img20260708204618-1.jpg"
         },
         {
-          "firstName": "Manon",
-          "lastName": "Aubry"
+          "firstName": "Mathieu",
+          "lastName": "Vallejo",
+          "role": "Éducateur",
+          "photo": "/assets/uploads/img20260708204804.jpg"
         }
       ]
     },
