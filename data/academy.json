@@ -4,24 +4,16 @@
       "age": "U6",
       "label": "Premiers pas",
       "summary": "Découverte du ballon, motricité, jeux collectifs et plaisir de venir au stade.",
-      "count": "",
       "training": "Samedi 10h",
-      "teamPhoto": "",
       "staff": [
         {
-          "firstName": "Camille",
-          "lastName": "Arnaud",
-          "photo": ""
+          "firstName": "Jonathan",
+          "lastName": "Hugon",
+          "role": "Éducateur"
         },
         {
-          "firstName": "Pierre",
-          "lastName": "Lavigne",
-          "photo": ""
-        },
-        {
-          "firstName": "Sarah",
-          "lastName": "Morel",
-          "photo": ""
+          "firstName": "Aymeric ",
+          "lastName": "Rigaut"
         }
       ]
     },
@@ -29,19 +21,15 @@
       "age": "U8",
       "label": "Apprendre ensemble",
       "summary": "Courses, passes, repères sur le terrain et premiers réflexes de soutien.",
-      "count": "",
       "training": "Mercredi 18h · Samedi 10h",
-      "teamPhoto": "",
       "staff": [
         {
           "firstName": "Julien",
-          "lastName": "Perrin",
-          "photo": ""
+          "lastName": "Perrin"
         },
         {
           "firstName": "Manon",
-          "lastName": "Aubry",
-          "photo": ""
+          "lastName": "Aubry"
         }
       ]
     },
@@ -49,24 +37,19 @@
       "age": "U10",
       "label": "Construire le jeu",
       "summary": "Technique individuelle, placement, contact maîtrisé et esprit d’équipe.",
-      "count": "",
       "training": "Mercredi 18h · Samedi 10h",
-      "teamPhoto": "",
       "staff": [
         {
           "firstName": "Nicolas",
-          "lastName": "Barreau",
-          "photo": ""
+          "lastName": "Barreau"
         },
         {
           "firstName": "Élodie",
-          "lastName": "Martin",
-          "photo": ""
+          "lastName": "Martin"
         },
         {
           "firstName": "Romain",
-          "lastName": "Tessier",
-          "photo": ""
+          "lastName": "Tessier"
         }
       ]
     },
@@ -74,24 +57,19 @@
       "age": "U12",
       "label": "Grandir en collectif",
       "summary": "Lecture du jeu, organisation défensive, conservation et prise d’initiative.",
-      "count": "",
       "training": "Mercredi 18h · Samedi 10h",
-      "teamPhoto": "",
       "staff": [
         {
           "firstName": "Mathieu",
-          "lastName": "Girard",
-          "photo": ""
+          "lastName": "Girard"
         },
         {
           "firstName": "Claire",
-          "lastName": "Dupont",
-          "photo": ""
+          "lastName": "Dupont"
         },
         {
           "firstName": "Alexandre",
-          "lastName": "Roy",
-          "photo": ""
+          "lastName": "Roy"
         }
       ]
     },
@@ -99,24 +77,19 @@
       "age": "U14",
       "label": "Entrer dans le grand terrain",
       "summary": "Travail technique, premières organisations collectives complètes, attitude défensive et confiance dans le contact.",
-      "count": "",
       "training": "Mardi 18h30 · Vendredi 18h30",
-      "teamPhoto": "",
       "staff": [
         {
           "firstName": "Sébastien",
-          "lastName": "Caron",
-          "photo": ""
+          "lastName": "Caron"
         },
         {
           "firstName": "Laura",
-          "lastName": "Besson",
-          "photo": ""
+          "lastName": "Besson"
         },
         {
           "firstName": "Yanis",
-          "lastName": "Dumas",
-          "photo": ""
+          "lastName": "Dumas"
         }
       ]
     }
