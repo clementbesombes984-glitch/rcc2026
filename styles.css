@@ -1747,3 +1747,664 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
   .team-hub-content h2{font-size:clamp(34px,11vw,48px)}
   .team-hub-content p{font-size:16px}
 }
+
+/* Micro-sprint compact cards: densite accrue sans changer l'identite visuelle */
+:root{
+  --compact-section-y:clamp(58px,5.4vw,84px);
+  --compact-card-pad:clamp(18px,2vw,24px);
+  --compact-card-gap:clamp(12px,1.5vw,18px);
+}
+
+.section,
+.cards-section,
+.news,
+.gallery-page,
+.partners-page,
+.project-page,
+.join-contact-page,
+.shop-page,
+.matches-page,
+.calendar-page,
+.roster-page,
+.academy-page,
+.notifications-page,
+.history-redesign .history-page,
+.teams-hub{
+  padding-top:var(--compact-section-y)!important;
+  padding-bottom:var(--compact-section-y)!important;
+}
+
+.section-head{
+  margin-bottom:clamp(26px,3.2vw,42px)!important;
+  gap:14px!important;
+}
+
+.section-kicker,
+.eyebrow{
+  margin-bottom:clamp(12px,1.6vw,20px)!important;
+}
+
+.card,
+.news-grid article,
+.countdown-card,
+.last-result-card,
+.feature-list article,
+.contact-panel,
+.contact-form,
+.contact-details article,
+.map-panel,
+.project-lead,
+.project-card,
+.project-callout,
+.partner-card,
+.gallery-album,
+.journal-card,
+.notification-status-card,
+.notification-group,
+.notification-note,
+.shop-intro,
+.shop-card,
+.team-hub-card,
+.club-identity-grid article,
+.history-timeline-modern article,
+.history-values-grid article,
+.history-next-chapter,
+.staff-card,
+.player-card{
+  min-height:0!important;
+}
+
+.card,
+.news-grid article,
+.countdown-card,
+.last-result-card,
+.feature-list article,
+.contact-panel,
+.contact-form,
+.contact-details article,
+.project-lead,
+.project-card,
+.project-callout,
+.partner-card,
+.journal-card-body,
+.notification-status-card,
+.notification-group,
+.notification-note,
+.shop-intro,
+.shop-content,
+.team-hub-content,
+.club-identity-grid article,
+.history-card-content,
+.history-values-grid article,
+.history-next-chapter,
+.player-info{
+  padding:var(--compact-card-pad)!important;
+}
+
+.cards,
+.news-grid,
+.match-preview-grid,
+.project-grid,
+.partner-cards,
+.gallery-grid,
+.gallery-albums,
+.journal-grid,
+.notification-groups,
+.shop-grid,
+.staff-grid,
+.player-grid,
+.teams-hub,
+.club-identity-grid,
+.history-values-grid,
+.history-timeline-modern,
+.calendar-events{
+  gap:var(--compact-card-gap)!important;
+}
+
+.cards{
+  margin-top:clamp(28px,3.5vw,42px)!important;
+}
+
+.split-grid,
+.join-grid,
+.academy-category,
+.contact-grid{
+  gap:clamp(28px,4vw,48px)!important;
+}
+
+.split-grid,
+.join-grid{
+  padding-block:var(--compact-section-y)!important;
+}
+
+.match,
+.calendar-event{
+  min-height:0!important;
+  padding:clamp(16px,1.8vw,22px)!important;
+  gap:clamp(12px,1.6vw,20px)!important;
+}
+
+.countdown-card h3,
+.last-result-card h3,
+.card h3,
+.news h3,
+.journal-card h3,
+.shop-content h2,
+.partner-card h3,
+.project-card h3,
+.team-hub-content h2,
+.club-identity-grid h2,
+.history-card-content h3,
+.notification-group h3,
+.player-info h3{
+  margin-bottom:clamp(8px,1vw,12px)!important;
+}
+
+.card p,
+.news p,
+.journal-card p,
+.shop-content p,
+.partner-card p,
+.project-card p,
+.team-hub-content p,
+.club-identity-grid p,
+.history-card-content p,
+.history-values-grid p,
+.history-next-chapter p:not(.section-kicker),
+.contact-details p,
+.notification-status-card p,
+.notification-note p,
+.split-section p,
+.join p,
+.academy-content p{
+  line-height:1.48!important;
+}
+
+.button{
+  min-height:clamp(44px,4vw,52px)!important;
+  padding-inline:clamp(18px,2.4vw,28px)!important;
+}
+
+.academy-meta{
+  margin:clamp(18px,2.2vw,24px) 0 clamp(20px,2.4vw,28px)!important;
+  gap:10px!important;
+}
+
+.academy-meta span,
+.badge{
+  padding:9px 12px!important;
+}
+
+.team-photo{
+  min-height:clamp(300px,30vw,380px)!important;
+}
+
+.team-photo strong{
+  font-size:clamp(56px,6vw,74px)!important;
+}
+
+.player-card{
+  display:grid;
+  grid-template-rows:auto 1fr;
+}
+
+.player-photo{
+  height:clamp(220px,20vw,250px)!important;
+}
+
+.staff-card{
+  padding:12px!important;
+  gap:12px!important;
+}
+
+.shop-card{
+  grid-template-rows:clamp(170px,18vw,210px) 1fr!important;
+}
+
+.journal-card{
+  grid-template-rows:minmax(240px,36vh) auto!important;
+}
+
+.journal-grid .journal-card{
+  grid-template-rows:clamp(160px,17vw,190px) auto!important;
+}
+
+.journal-card-secondary{
+  min-height:0!important;
+  grid-template-columns:clamp(116px,12vw,136px) minmax(0,1fr)!important;
+}
+
+.journal-card-secondary .journal-image{
+  min-height:140px!important;
+}
+
+.history-project-section{
+  margin-top:clamp(38px,5vw,68px)!important;
+}
+
+.history-project-lead{
+  margin-bottom:20px!important;
+}
+
+.team-hub-card{
+  min-height:clamp(260px,24vw,310px)!important;
+}
+
+.team-hub-visual img{
+  width:min(160px,54%)!important;
+}
+
+.team-hub-content{
+  gap:14px!important;
+}
+
+.team-hub-content dl div{
+  padding:12px!important;
+}
+
+.club-identity-grid{
+  margin:clamp(24px,3.5vw,42px) 0!important;
+}
+
+.history-milestones article{
+  padding:clamp(12px,1.6vw,18px)!important;
+}
+
+.history-date{
+  min-height:40px!important;
+  padding:0 12px!important;
+}
+
+@media(max-width:1024px){
+  :root{
+    --compact-section-y:clamp(46px,6vw,66px);
+    --compact-card-pad:18px;
+    --compact-card-gap:14px;
+  }
+
+  .academy-category,
+  .academy-category:nth-child(even){
+    padding-bottom:clamp(42px,6vw,62px)!important;
+  }
+
+  .team-photo{
+    min-height:280px!important;
+  }
+
+  .journal-feature{
+    gap:14px!important;
+  }
+}
+
+@media(max-width:760px){
+  :root{
+    --compact-section-y:38px;
+    --compact-card-pad:16px;
+    --compact-card-gap:12px;
+  }
+
+  .page-shell{
+    width:min(calc(100% - 24px),var(--max))!important;
+  }
+
+  .section-head{
+    margin-bottom:22px!important;
+  }
+
+  .section-kicker,
+  .eyebrow{
+    margin-bottom:10px!important;
+  }
+
+  .card,
+  .news-grid article,
+  .countdown-card,
+  .last-result-card,
+  .contact-panel,
+  .contact-form,
+  .project-card,
+  .partner-card,
+  .journal-card-body,
+  .notification-status-card,
+  .notification-group,
+  .shop-intro,
+  .shop-content,
+  .team-hub-content,
+  .club-identity-grid article,
+  .history-values-grid article,
+  .history-next-chapter,
+  .player-info{
+    padding:16px!important;
+  }
+
+  .match,
+  .calendar-event{
+    padding:14px!important;
+    gap:10px!important;
+  }
+
+  .button{
+    min-height:44px!important;
+  }
+
+  .team-photo{
+    min-height:220px!important;
+  }
+
+  .player-photo{
+    height:210px!important;
+  }
+
+  .staff-avatar{
+    width:52px!important;
+    height:52px!important;
+  }
+
+  .staff-card{
+    grid-template-columns:52px 1fr!important;
+  }
+
+  .shop-card{
+    grid-template-rows:160px 1fr!important;
+  }
+
+  .journal-card,
+  .journal-grid .journal-card{
+    grid-template-rows:auto!important;
+  }
+
+  .journal-image{
+    min-height:180px!important;
+  }
+
+  .journal-card-secondary .journal-image{
+    min-height:150px!important;
+  }
+
+  .team-hub-card{
+    min-height:0!important;
+  }
+
+  .team-hub-visual{
+    min-height:140px!important;
+  }
+
+  .team-hub-visual img{
+    width:118px!important;
+  }
+
+  .team-hub-content p,
+  .club-identity-grid p,
+  .history-card-content p,
+  .journal-card p,
+  .shop-content p{
+    font-size:15px!important;
+  }
+}
+
+@media(max-width:430px){
+  :root{
+    --compact-section-y:34px;
+    --compact-card-pad:14px;
+    --compact-card-gap:10px;
+  }
+
+  .card,
+  .news-grid article,
+  .countdown-card,
+  .last-result-card,
+  .contact-panel,
+  .contact-form,
+  .project-card,
+  .partner-card,
+  .journal-card-body,
+  .notification-status-card,
+  .notification-group,
+  .shop-intro,
+  .shop-content,
+  .team-hub-content,
+  .club-identity-grid article,
+  .history-values-grid article,
+  .history-next-chapter,
+  .player-info{
+    padding:14px!important;
+  }
+
+  .team-photo{
+    min-height:200px!important;
+  }
+
+  .shop-card{
+    grid-template-rows:145px 1fr!important;
+  }
+
+  .journal-image{
+    min-height:160px!important;
+  }
+
+  .history-milestones{
+    gap:8px!important;
+  }
+}
+
+@media(max-width:430px){
+  .history-card-content h3{
+    font-size:clamp(24px,7.8vw,32px)!important;
+    line-height:1.02!important;
+    margin-bottom:8px!important;
+  }
+
+  .history-card-content span{
+    font-size:11px!important;
+    letter-spacing:1px!important;
+  }
+
+  .history-card-content p,
+  .history-next-chapter p:not(.section-kicker){
+    font-size:13.25px!important;
+    line-height:1.34!important;
+  }
+
+  .history-date{
+    min-height:34px!important;
+    font-size:22px!important;
+  }
+
+  .journal-card-secondary{
+    grid-template-columns:1fr!important;
+    grid-template-rows:auto!important;
+  }
+
+  .journal-card-secondary .journal-image{
+    min-height:118px!important;
+  }
+
+  .journal-card-secondary .journal-card-body{
+    padding:14px!important;
+  }
+
+  .journal-card-secondary h3{
+    font-size:clamp(24px,7.8vw,32px)!important;
+  }
+}
+
+/* Ajustements anti-debordement et cartes mobiles tres compactes */
+html,
+body{
+  max-width:100%;
+  overflow-x:hidden;
+}
+
+.partner-card,
+.contact-panel,
+.contact-form,
+.academy-content,
+.roster-title,
+.player-card,
+.team-hub-card,
+.journal-card,
+.shop-card{
+  min-width:0;
+}
+
+.partner-card *,
+.contact-panel *,
+.contact-form *,
+.academy-content *,
+.team-hub-card *,
+.journal-card *,
+.shop-card *{
+  min-width:0;
+}
+
+@media(max-width:760px){
+  .team-hub-card{
+    grid-template-columns:88px minmax(0,1fr)!important;
+    min-height:0!important;
+  }
+
+  .team-hub-visual{
+    min-height:100%!important;
+    padding:8px!important;
+  }
+
+  .team-hub-visual img{
+    width:68px!important;
+  }
+
+  .team-hub-content{
+    gap:10px!important;
+    padding:14px!important;
+  }
+
+  .team-hub-content h2{
+    font-size:clamp(28px,9vw,38px)!important;
+  }
+
+  .team-hub-content p{
+    font-size:14.5px!important;
+    line-height:1.42!important;
+  }
+
+  .team-hub-content dl{
+    gap:8px!important;
+  }
+
+  .team-hub-content dl div{
+    padding:10px!important;
+  }
+
+  .team-hub-content .button{
+    min-height:40px!important;
+    width:100%!important;
+  }
+
+  .partner-card{
+    grid-template-columns:68px minmax(0,1fr)!important;
+    gap:12px!important;
+  }
+
+  .partner-logo{
+    width:68px!important;
+  }
+
+  .partner-card h3,
+  .partner-card span,
+  .partner-card p{
+    overflow-wrap:anywhere;
+  }
+
+  .history-card-content p,
+  .history-next-chapter p:not(.section-kicker){
+    font-size:14.5px!important;
+    line-height:1.42!important;
+  }
+
+  .history-timeline-modern article{
+    padding:14px!important;
+    gap:10px!important;
+  }
+}
+
+@media(max-width:390px){
+  .team-hub-card{
+    grid-template-columns:76px minmax(0,1fr)!important;
+  }
+
+  .team-hub-visual img{
+    width:58px!important;
+  }
+
+  .team-hub-content{
+    padding:12px!important;
+  }
+
+  .team-hub-content h2{
+    font-size:clamp(25px,8.4vw,34px)!important;
+  }
+
+  .team-hub-content span,
+  .team-hub-content dt{
+    letter-spacing:.8px!important;
+  }
+}
+
+/* Derniere priorite mobile: chronologie et journal vraiment compacts */
+@media(max-width:760px){
+  .journal-card-secondary{
+    display:block!important;
+    min-height:0!important;
+  }
+
+  .journal-card-secondary .journal-image{
+    min-height:128px!important;
+  }
+
+  .journal-card-secondary .journal-card-body{
+    min-height:0!important;
+    padding:14px!important;
+  }
+}
+
+@media(max-width:430px){
+  .history-card-content h3{
+    font-size:clamp(24px,7.8vw,31px)!important;
+    line-height:1.02!important;
+    margin-bottom:7px!important;
+  }
+
+  .history-card-content span{
+    font-size:11px!important;
+    letter-spacing:.9px!important;
+  }
+
+  .history-card-content p,
+  .history-next-chapter p:not(.section-kicker){
+    font-size:13.1px!important;
+    line-height:1.32!important;
+  }
+
+  .history-timeline-modern article{
+    padding:12px!important;
+    gap:8px!important;
+  }
+
+  .history-date{
+    min-height:32px!important;
+    font-size:21px!important;
+    padding-inline:10px!important;
+  }
+
+  .journal-card-secondary h3{
+    font-size:clamp(24px,7.6vw,31px)!important;
+  }
+
+  body .history-redesign .history-timeline-modern .history-card-content p{
+    font-size:13px!important;
+    line-height:1.32!important;
+  }
+
+  body .history-redesign .history-timeline-modern article{
+    padding:12px!important;
+  }
+}
