@@ -2236,6 +2236,10 @@ body{
   overflow-x:hidden;
 }
 
+.news-grid article{
+  overflow:hidden;
+}
+
 .partner-card,
 .contact-panel,
 .contact-form,

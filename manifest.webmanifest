@@ -39,21 +39,36 @@
       "short_name": "Calendrier",
       "description": "Voir les matchs, tournois et rendez-vous du RCC.",
       "url": "/calendrier.html",
-      "icons": [{ "src": "/assets/pwa-icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/assets/pwa-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
-      "name": "Actualites",
+      "name": "Actualités",
       "short_name": "Actus",
-      "description": "Lire les dernieres nouvelles du club.",
+      "description": "Lire les dernières nouvelles du club.",
       "url": "/actualites.html",
-      "icons": [{ "src": "/assets/pwa-icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/assets/pwa-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Nous rejoindre",
       "short_name": "Contact",
       "description": "Contacter le RC Cubzaguais.",
       "url": "/nous-rejoindre.html",
-      "icons": [{ "src": "/assets/pwa-icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/assets/pwa-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

@@ -591,7 +591,7 @@
     const data = await fetchData('settings');
     footer.innerHTML = `
       <div class="page-shell footer-pro">
-        <div class="footer-brand"><img src="./assets/logo-rcc.png" alt="RC Cubzaguais" /><div><strong>${escapeHtml(data.clubName || 'Racing Club Cubzaguais')}</strong><span>Respect · Solidarité · Engagement</span></div></div>
+        <div class="footer-brand"><img src="./assets/logo-rcc.png" alt="RC Cubzaguais" loading="lazy" decoding="async" /><div><strong>${escapeHtml(data.clubName || 'Racing Club Cubzaguais')}</strong><span>Respect · Solidarité · Engagement</span></div></div>
         <div class="footer-columns">
           <section><h3>Club</h3><p>${icon('address')} ${escapeHtml(data.address || data.stadium || '')}</p><p>${icon('place')} ${escapeHtml(data.stadium || '')}</p></section>
           <section><h3>Contact</h3><p>${icon('contact')} <a href="mailto:${escapeHtml(data.email || 'lerccdemain@gmail.com')}">${escapeHtml(data.email || 'lerccdemain@gmail.com')}</a></p><p>${icon('time')} ${escapeHtml(data.phone || 'Téléphone à renseigner')}</p></section>
