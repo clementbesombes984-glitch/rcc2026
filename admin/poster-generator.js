@@ -145,6 +145,12 @@
     if (field && value !== undefined && value !== null) field.value = value;
   }
 
+  function syncTemplateButtons(template) {
+    templateButtons?.querySelectorAll('[data-template-preset]').forEach((button) => {
+      button.classList.toggle('is-active', button.dataset.templatePreset === template);
+    });
+  }
+
   function formatDate(value) {
     if (!value) return '';
     const date = new Date(`${value}T12:00:00`);
@@ -298,8 +304,10 @@
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       state[key] = img;
-      state.imageOffsetX = 0;
-      state.imageOffsetY = 0;
+      if (key === 'image') {
+        setField('photoOffsetX', 0);
+        setField('photoOffsetY', 0);
+      }
       render();
     };
     img.onerror = () => setStatus('Image non chargee dans le Studio. Le visuel reste utilisable avec le fond RCC.');
@@ -368,7 +376,7 @@
   }
 
   function applyShop(item) {
-    setTemplate('shop');
+    setTemplate('partner');
     setField('title', item.name || 'Boutique RCC');
     setField('subtitle', item.category || 'Boutique officielle');
     setField('category', item.price || 'Boutique');
@@ -388,7 +396,7 @@
   }
 
   function applyTeam(item) {
-    setTemplate(item.source === 'Staff' ? 'educator' : 'team');
+    setTemplate('club');
     setField('title', item.age || 'Equipe RCC');
     setField('subtitle', item.label || item.role || item.source || '');
     setField('category', item.source || 'Equipe RCC');
@@ -402,6 +410,7 @@
   function setTemplate(template) {
     setField('template', template);
     setField('style', STYLE_DEFAULTS[template] || 'match');
+    syncTemplateButtons(template);
   }
 
   function loadImageFromFile(file, key) {
@@ -411,6 +420,10 @@
       const img = new Image();
       img.onload = () => {
         state[key] = img;
+        if (key === 'image') {
+          setField('photoOffsetX', 0);
+          setField('photoOffsetY', 0);
+        }
         render();
       };
       img.src = reader.result;
@@ -500,7 +513,7 @@
     ctx.fillRect(0, 0, w, h);
 
     if (state.image) {
-      coverImage(state.image, 0, 0, w, h, zoom, state.imageOffsetX, state.imageOffsetY);
+      coverImage(state.image, 0, 0, w, h, zoom, Number(data.photoOffsetX || 0) / 100, Number(data.photoOffsetY || 0) / 100);
       ctx.fillStyle = `rgba(0,0,0,${overlay})`;
       ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = style === 'club' ? 'rgba(255,210,160,.08)' : style === 'magazine' ? 'rgba(6,27,56,.12)' : 'rgba(177,24,69,.14)';
@@ -510,6 +523,7 @@
     }
 
     drawGraphicStripes(w, h, main, secondary, style);
+    drawStyleTexture(w, h, main, secondary, style);
     drawNoise(w, h);
     drawVignette(w, h);
   }
@@ -559,6 +573,62 @@
       ctx.fillStyle = i % 2 ? secondary : main;
       polygon([[w * (0.04 + i * 0.02), y], [w * (0.42 + i * 0.06), y - h * 0.012], [w * (0.38 + i * 0.06), y + h * 0.01], [w * (0.03 + i * 0.02), y + h * 0.02]]);
       ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawStyleTexture(w, h, main, secondary, style) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    if (style === 'match') {
+      ctx.globalAlpha = 0.28;
+      ctx.strokeStyle = main;
+      ctx.lineWidth = Math.max(4, w * 0.006);
+      for (let i = 0; i < 5; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(w * (0.08 + i * 0.11), h * 0.1);
+        ctx.lineTo(w * (0.34 + i * 0.13), h * 0.88);
+        ctx.stroke();
+      }
+    } else if (style === 'magazine') {
+      ctx.globalAlpha = 0.16;
+      ctx.fillStyle = COLORS.white;
+      ctx.fillRect(w * 0.07, h * 0.17, w * 0.86, Math.max(2, h * 0.003));
+      ctx.fillRect(w * 0.07, h * 0.84, w * 0.86, Math.max(2, h * 0.003));
+      ctx.fillStyle = main;
+      ctx.fillRect(w * 0.07, h * 0.2, Math.max(7, w * 0.012), h * 0.48);
+    } else if (style === 'club') {
+      ctx.globalAlpha = 0.14;
+      const glow = ctx.createRadialGradient(w * 0.35, h * 0.28, 0, w * 0.35, h * 0.28, Math.max(w, h) * 0.55);
+      glow.addColorStop(0, 'rgba(255,248,239,.35)');
+      glow.addColorStop(0.35, `${main}44`);
+      glow.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, w, h);
+    } else if (style === 'partner') {
+      ctx.globalAlpha = 0.12;
+      ctx.strokeStyle = COLORS.white;
+      ctx.lineWidth = Math.max(1, w * 0.002);
+      for (let i = 0; i < 4; i += 1) {
+        ctx.strokeRect(w * (0.1 + i * 0.018), h * (0.15 + i * 0.018), w * (0.8 - i * 0.036), h * (0.68 - i * 0.036));
+      }
+    } else if (style === 'recruitment') {
+      ctx.globalAlpha = 0.3;
+      ctx.fillStyle = main;
+      polygon([[0, h * 0.72], [w, h * 0.54], [w, h * 0.68], [0, h * 0.88]]);
+      ctx.fill();
+      ctx.fillStyle = secondary;
+      polygon([[0, h * 0.12], [w * 0.7, 0], [w, h * 0.06], [0, h * 0.28]]);
+      ctx.fill();
+    } else if (style === 'tournament') {
+      ctx.globalAlpha = 0.24;
+      ctx.strokeStyle = main;
+      ctx.lineWidth = Math.max(2, w * 0.004);
+      for (let i = 0; i < 9; i += 1) {
+        ctx.beginPath();
+        ctx.arc(w * 0.74, h * 0.26, Math.min(w, h) * (0.08 + i * 0.035), 0.2, Math.PI * 1.25);
+        ctx.stroke();
+      }
     }
     ctx.restore();
   }
@@ -660,6 +730,7 @@
 
   function drawBadges(w, h, data, scale) {
     if (data.showBadges !== 'yes') return;
+    const style = getStyleKey(data.style, data.template);
     const badges = [
       ['DATE', data.date],
       ['HEURE', data.time],
@@ -671,7 +742,15 @@
     const gap = 14 * scale;
     const columns = Math.min(badges.length, w < h ? 2 : 4);
     const badgeWidth = (w - pad * 2 - gap * (columns - 1)) / columns;
-    const y = h * 0.35;
+    const yByStyle = {
+      match: 0.35,
+      magazine: 0.58,
+      club: 0.52,
+      partner: 0.72,
+      recruitment: 0.42,
+      tournament: 0.46
+    };
+    const y = h * (yByStyle[style] || 0.35);
     badges.forEach(([label, value], index) => {
       const row = Math.floor(index / columns);
       const col = index % columns;
@@ -879,6 +958,7 @@
     ctx.font = `900 ${24 * scale}px ${BODY_FONT}`;
     ctx.fillText(upper(data.category || 'JOURNAL RCC'), pad + 28 * scale, h * 0.19);
     ctx.restore();
+    drawBadges(w, h, data, scale);
     drawEditorialPanel(w, h, data, scale, 'A RETENIR');
     drawFooter(w, h, data, scale);
   }
@@ -900,6 +980,7 @@
     ctx.font = `800 ${Math.min(w * 0.04, h * 0.032)}px ${BODY_FONT}`;
     wrapParagraph(data.summary || data.subtitle || 'Un moment de partage aux couleurs du RC Cubzaguais.', pad + 28 * scale, h * 0.67, w - pad * 2 - 56 * scale, Math.min(w * 0.04, h * 0.032), Math.min(w * 0.047, h * 0.038), 4);
     ctx.restore();
+    drawBadges(w, h, data, scale);
     drawFooter(w, h, data, scale);
   }
 
@@ -921,6 +1002,7 @@
     ctx.fillStyle = COLORS.white;
     ctx.font = `900 ${Math.min(w * 0.042, h * 0.033)}px ${BODY_FONT}`;
     wrapParagraph(data.summary || 'Contacte le club et viens porter les couleurs du RCC.', pad + 26 * scale, h * 0.66, w - pad * 2 - 52 * scale, Math.min(w * 0.042, h * 0.033), Math.min(w * 0.048, h * 0.038), 3);
+    drawBadges(w, h, data, scale);
     drawFooter(w, h, data, scale);
   }
 
@@ -1015,6 +1097,12 @@
   }
 
   async function prepareExport() {
+    const data = readForm();
+    if (!clean(data.title)) {
+      form.elements.title?.focus();
+      setStatus('Ajoute un titre avant de telecharger le visuel.');
+      return false;
+    }
     if (document.fonts && !state.fontsReady) {
       setStatus('Preparation des polices avant export...');
       await loadFonts();
@@ -1022,10 +1110,11 @@
       await document.fonts.ready;
     }
     render();
+    return true;
   }
 
   async function downloadPng() {
-    await prepareExport();
+    if (!await prepareExport()) return;
     const data = readForm();
     const link = document.createElement('a');
     link.href = canvas.toDataURL('image/png');
@@ -1039,7 +1128,7 @@
   }
 
   async function downloadPdf() {
-    await prepareExport();
+    if (!await prepareExport()) return;
     const data = readForm();
     const jpeg = canvas.toDataURL('image/jpeg', 0.94);
     const binary = atob(jpeg.split(',')[1]);
@@ -1105,7 +1194,12 @@
   }
 
   form?.addEventListener('input', render);
-  form?.addEventListener('change', render);
+  form?.addEventListener('change', (event) => {
+    if (event.target?.name === 'template') {
+      setTemplate(event.target.value);
+    }
+    render();
+  });
   document.querySelector('[data-poster-image]')?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'image'));
   document.querySelector('[data-opponent-logo]')?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'opponentLogo'));
   downloadButton?.addEventListener('click', downloadPng);
@@ -1142,13 +1236,14 @@
     render();
   });
   resetPhotoButton?.addEventListener('click', () => {
-    state.imageOffsetX = 0;
-    state.imageOffsetY = 0;
     setField('photoZoom', 112);
+    setField('photoOffsetX', 0);
+    setField('photoOffsetY', 0);
     render();
   });
 
   setSourceSelectLoading('Chargement du CMS...');
+  syncTemplateButtons(readForm().template || 'upcoming');
   loadFonts();
   loadSources();
   render();

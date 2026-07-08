@@ -45,8 +45,25 @@
       <section class="studio-layout">
         <aside class="studio-sidebar studio-left">
           <div class="poster-panel-head">
-            <span>Contenu</span>
-            <strong>Source CMS</strong>
+            <span>Etape 1</span>
+            <strong>Choisir un modele</strong>
+          </div>
+          <div class="studio-template-grid" data-template-buttons>
+            <button type="button" class="is-active" data-template-preset="upcoming">Match</button>
+            <button type="button" data-template-preset="result">Resultat</button>
+            <button type="button" data-template-preset="tournament">Tournoi</button>
+            <button type="button" data-template-preset="training">Entrainement</button>
+            <button type="button" data-template-preset="club">Vie du club</button>
+            <button type="button" data-template-preset="news">Actualite</button>
+            <button type="button" data-template-preset="partner">Partenaire</button>
+            <button type="button" data-template-preset="recruitment">Recrutement</button>
+            <button type="button" data-template-preset="weekend">Calendrier</button>
+            <button type="button" data-template-preset="newsletter">Newsletter</button>
+          </div>
+
+          <div class="poster-panel-head compact">
+            <span>Etape 2</span>
+            <strong>Charger une source</strong>
           </div>
           <div class="studio-source-list" data-source-buttons>
             <button type="button" class="is-active" data-source-kind="blank">Nouvelle affiche</button>
@@ -64,29 +81,7 @@
             </select>
           </label>
 
-          <div class="poster-panel-head compact">
-            <span>Modeles rapides</span>
-            <strong>Communication</strong>
-          </div>
-          <div class="studio-template-grid" data-template-buttons>
-            <button type="button" data-template-preset="upcoming">Match</button>
-            <button type="button" data-template-preset="result">Resultat</button>
-            <button type="button" data-template-preset="tournament">Tournoi</button>
-            <button type="button" data-template-preset="training">Entrainement</button>
-            <button type="button" data-template-preset="news">Actualite</button>
-            <button type="button" data-template-preset="club">Vie du club</button>
-            <button type="button" data-template-preset="recruitment">Recrutement</button>
-            <button type="button" data-template-preset="partner">Partenaire</button>
-            <button type="button" data-template-preset="birthday">Anniversaire</button>
-            <button type="button" data-template-preset="thanks">Merci</button>
-            <button type="button" data-template-preset="congrats">Felicitations</button>
-            <button type="button" data-template-preset="weekend">Week-end</button>
-            <button type="button" data-template-preset="team">Equipe</button>
-            <button type="button" data-template-preset="educator">Educateur</button>
-            <button type="button" data-template-preset="newsletter">Newsletter</button>
-          </div>
-
-          <p class="poster-help" data-poster-status>Chargement du Studio RCC...</p>
+          <p class="poster-help" data-poster-status role="status" aria-live="polite">Chargement du Studio RCC...</p>
         </aside>
 
         <section class="studio-preview-panel">
@@ -95,10 +90,10 @@
             <strong data-poster-size>1080 x 1080</strong>
           </div>
           <div class="studio-preview-tools">
-            <button type="button" data-zoom-out>Zoom -</button>
-            <button type="button" data-zoom-in>Zoom +</button>
-            <button type="button" data-toggle-grid>Grille</button>
-            <button type="button" data-reset-photo>Recentrer photo</button>
+            <button type="button" data-zoom-out aria-label="Reduire le zoom de la photo">Zoom -</button>
+            <button type="button" data-zoom-in aria-label="Agrandir le zoom de la photo">Zoom +</button>
+            <button type="button" data-toggle-grid aria-label="Afficher ou masquer la grille de composition">Grille</button>
+            <button type="button" data-reset-photo aria-label="Recentrer la photo principale">Recentrer photo</button>
           </div>
           <div class="poster-canvas-wrap studio-canvas-wrap">
             <canvas id="posterCanvas" width="1080" height="1080" aria-label="Apercu de la communication RCC"></canvas>
@@ -107,8 +102,8 @@
 
         <form class="studio-sidebar studio-right poster-form" data-poster-form>
           <div class="poster-panel-head">
-            <span>Informations</span>
-            <strong>Affiche</strong>
+            <span>Etape 3</span>
+            <strong>Ajuster l'affiche</strong>
           </div>
 
           <label>Format
@@ -125,21 +120,15 @@
           <div class="poster-field-grid">
             <label>Type
               <select name="template" data-poster-input>
-                <option value="news">Actualite</option>
                 <option value="upcoming">Match a venir</option>
+                <option value="news">Actualite</option>
                 <option value="result">Resultat</option>
                 <option value="tournament">Tournoi</option>
                 <option value="training">Entrainement</option>
                 <option value="club">Vie du club</option>
                 <option value="recruitment">Recrutement</option>
                 <option value="partner">Partenaire</option>
-                <option value="shop">Boutique</option>
-                <option value="birthday">Anniversaire</option>
-                <option value="thanks">Merci</option>
-                <option value="congrats">Felicitations</option>
                 <option value="weekend">Calendrier week-end</option>
-                <option value="team">Presentation equipe</option>
-                <option value="educator">Educateur / benevole</option>
                 <option value="newsletter">Newsletter</option>
               </select>
             </label>
@@ -155,40 +144,52 @@
             </label>
           </div>
 
+          <div class="poster-panel-head compact">
+            <span>Contenu</span>
+            <strong>Texte principal</strong>
+          </div>
           <label>Titre
-            <input name="title" type="text" value="Reprise de la preparation" data-poster-input />
+            <input name="title" type="text" value="Reprise de la preparation" maxlength="80" required placeholder="Ex. Match de rugby, Tournoi U10, Rejoins le RCC" data-poster-input />
           </label>
           <label>Sous-titre
-            <input name="subtitle" type="text" value="Le RCC retrouve le terrain" data-poster-input />
+            <input name="subtitle" type="text" value="Le RCC retrouve le terrain" maxlength="90" placeholder="Ex. Ensemble au stade samedi" data-poster-input />
           </label>
           <label>Resume
-            <textarea name="summary" rows="3" data-poster-input>Ensemble, vivons notre passion aux couleurs du RCC.</textarea>
+            <textarea name="summary" rows="3" maxlength="220" placeholder="Phrase courte pour expliquer l'information." data-poster-input>Ensemble, vivons notre passion aux couleurs du RCC.</textarea>
           </label>
 
+          <div class="poster-panel-head compact">
+            <span>Infos</span>
+            <strong>Badges</strong>
+          </div>
           <div class="poster-field-grid poster-field-grid-three">
             <label>Date
-              <input name="date" type="text" value="" data-poster-input />
+              <input name="date" type="text" value="" placeholder="Ex. 18 mai 2026" data-poster-input />
             </label>
             <label>Heure
-              <input name="time" type="text" value="" data-poster-input />
+              <input name="time" type="text" value="" placeholder="Ex. 15h00" data-poster-input />
             </label>
             <label>Score
-              <input name="score" type="text" value="" data-poster-input />
+              <input name="score" type="text" value="" placeholder="Ex. 28-14" data-poster-input />
             </label>
           </div>
 
           <label>Lieu
-            <input name="location" type="text" value="Plaine des Sports Laurent Ricci" data-poster-input />
+            <input name="location" type="text" value="Plaine des Sports Laurent Ricci" placeholder="Ex. Plaine des Sports Laurent Ricci" data-poster-input />
           </label>
           <div class="poster-field-grid">
             <label>Categorie / competition
-              <input name="category" type="text" value="Club" data-poster-input />
+              <input name="category" type="text" value="Club" placeholder="Ex. Seniors, U14, Championnat" data-poster-input />
             </label>
             <label>Adversaire / partenaire
-              <input name="opponent" type="text" value="" data-poster-input />
+              <input name="opponent" type="text" value="" placeholder="Ex. US Bordeaux" data-poster-input />
             </label>
           </div>
 
+          <div class="poster-panel-head compact">
+            <span>Image</span>
+            <strong>Photos et logos</strong>
+          </div>
           <label>Photo principale
             <input name="image" type="file" accept="image/*" data-poster-image />
           </label>
@@ -196,6 +197,10 @@
             <input name="opponentLogo" type="file" accept="image/*" data-opponent-logo />
           </label>
 
+          <div class="poster-panel-head compact">
+            <span>Style</span>
+            <strong>Composition</strong>
+          </div>
           <div class="poster-field-grid">
             <label>Couleur
               <select name="colorMode" data-poster-input>
@@ -216,12 +221,24 @@
           <div class="poster-field-grid poster-field-grid-three">
             <label>Titre
               <input name="textScale" type="range" min="82" max="122" value="100" data-poster-input />
+              <span class="poster-range-help">Taille du titre</span>
             </label>
             <label>Overlay
               <input name="overlay" type="range" min="45" max="82" value="65" data-poster-input />
+              <span class="poster-range-help">Photo plus sombre</span>
             </label>
             <label>Photo
               <input name="photoZoom" type="range" min="100" max="170" value="112" data-poster-input />
+              <span class="poster-range-help">Recadrage</span>
+            </label>
+          </div>
+
+          <div class="poster-field-grid">
+            <label>Decalage horizontal
+              <input name="photoOffsetX" type="range" min="-35" max="35" value="0" data-poster-input />
+            </label>
+            <label>Decalage vertical
+              <input name="photoOffsetY" type="range" min="-35" max="35" value="0" data-poster-input />
             </label>
           </div>
 
@@ -244,18 +261,12 @@
             <button class="button ghost" type="button" data-copy-caption>Copier le texte</button>
           </div>
           <textarea class="studio-caption" rows="4" data-caption-output readonly></textarea>
-          <div class="studio-disabled-actions">
-            <button type="button" disabled>Publier Facebook</button>
-            <button type="button" disabled>Publier Instagram</button>
-            <button type="button" disabled>Programmer</button>
-            <button type="button" disabled>Newsletter</button>
-          </div>
         </form>
       </section>
     </main>
 
-    <script src="./poster-auth.js?v=studio-rcc-2"></script>
+    <script src="./poster-auth.js?v=studio-rcc-4"></script>
     <script src="../script.js"></script>
-    <script src="./poster-generator.js?v=studio-rcc-2"></script>
+    <script src="./poster-generator.js?v=studio-rcc-4"></script>
   </body>
 </html>

@@ -3,6 +3,7 @@
   "short_name": "RCC",
   "description": "Site officiel du Rugby Club Cubzaguais.",
   "lang": "fr",
+  "id": "https://rccubzaguais.fr/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -30,6 +31,29 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Calendrier",
+      "short_name": "Calendrier",
+      "description": "Voir les matchs, tournois et rendez-vous du RCC.",
+      "url": "/calendrier.html",
+      "icons": [{ "src": "/assets/pwa-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Actualites",
+      "short_name": "Actus",
+      "description": "Lire les dernieres nouvelles du club.",
+      "url": "/actualites.html",
+      "icons": [{ "src": "/assets/pwa-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Nous rejoindre",
+      "short_name": "Contact",
+      "description": "Contacter le RC Cubzaguais.",
+      "url": "/nous-rejoindre.html",
+      "icons": [{ "src": "/assets/pwa-icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

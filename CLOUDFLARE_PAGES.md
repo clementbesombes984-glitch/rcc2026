@@ -85,7 +85,7 @@ env.RCC_PUSH_SUBSCRIPTIONS
 
 Dans GitHub > Settings > Secrets and variables > Actions, ajouter :
 
-- `RCC_SITE_URL` : URL publique du site, par exemple `https://rcc2026.pages.dev`
+- `RCC_SITE_URL` : URL publique du site, par exemple `https://rccubzaguais.fr`
 - `RCC_PUSH_ADMIN_TOKEN` : meme valeur que `PUSH_ADMIN_TOKEN` dans Cloudflare
 
 ## Test apres deploiement
@@ -93,8 +93,8 @@ Dans GitHub > Settings > Secrets and variables > Actions, ajouter :
 Ces URL doivent repondre :
 
 ```text
-https://rcc2026.pages.dev/api/push/config
-https://rcc2026.pages.dev/cms-login
+https://rccubzaguais.fr/api/push/config
+https://rccubzaguais.fr/cms-login
 ```
 
 Si `/api/push/config` donne une erreur 404, les Pages Functions ne sont pas deployees.

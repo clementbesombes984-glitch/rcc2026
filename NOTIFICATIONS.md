@@ -64,7 +64,7 @@ Redeployer ensuite le site.
 
 Dans le depot GitHub, ajouter les secrets Actions :
 
-- `RCC_SITE_URL` : URL du site, par exemple `https://rcc2026.pages.dev`
+- `RCC_SITE_URL` : URL du site, par exemple `https://rccubzaguais.fr`
 - `RCC_PUSH_ADMIN_TOKEN` : exactement la meme valeur que `PUSH_ADMIN_TOKEN` dans Cloudflare
 
 Quand Pages CMS modifiera `data/news.json` ou `data/matches.json`, GitHub Actions appellera `/api/push/send`.

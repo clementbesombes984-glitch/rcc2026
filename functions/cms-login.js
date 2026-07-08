@@ -24,10 +24,10 @@ function page(error = "") {
     <main class="box">
       <span class="mark">C</span>
       <h1>Accès Pages CMS</h1>
-      <p>Entrez le mot de passe du club pour accéder à l’interface de gestion des matchs, actualités et joueurs.</p>
+      <p>Entrez le mot de passe du club. Vous serez ensuite redirige vers Pages CMS pour modifier les actualites, le calendrier, les equipes, la boutique et les partenaires.</p>
       <form method="post">
         <label>Mot de passe
-          <input type="password" name="password" autocomplete="current-password" autofocus required />
+          <input type="password" name="password" autocomplete="current-password" placeholder="Mot de passe du club" autofocus required />
         </label>
         <button type="submit">Entrer</button>
       </form>

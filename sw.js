@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v19';
+const CACHE_VERSION = 'rcc-pwa-v23';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
