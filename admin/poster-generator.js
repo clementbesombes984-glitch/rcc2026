@@ -87,6 +87,7 @@
   const copyFacebookButton = document.querySelector('[data-copy-facebook]');
   const copyInstagramButton = document.querySelector('[data-copy-instagram]');
   const copyHashtagsButton = document.querySelector('[data-copy-hashtags]');
+  const publishStudioButton = document.querySelector('[data-publish-studio]');
   const prepareDistributionButton = document.querySelector('[data-prepare-distribution]');
   const checkMetaButton = document.querySelector('[data-check-meta]');
   const hashtagOutput = document.querySelector('[data-hashtag-output]');
@@ -1179,6 +1180,28 @@
     return data[name] === 'yes' || data[name] === 'on';
   }
 
+  function audienceFromCategory(value) {
+    const text = clean(value).toLowerCase();
+    const audience = new Set(['general']);
+    if (text.includes('senior')) audience.add('seniors');
+    if (text.includes('cadette') || text.includes('feminine') || text.includes('féminine')) audience.add('cadettes');
+    if (text.includes('u6')) audience.add('u6');
+    if (text.includes('u8')) audience.add('u8');
+    if (text.includes('u10')) audience.add('u10');
+    if (text.includes('u12')) audience.add('u12');
+    if (text.includes('u14')) audience.add('u14');
+    if (text.includes('u16')) audience.add('u16');
+    if (text.includes('u18') || text.includes('u19')) audience.add('u18');
+    if (text.includes('ecole') || text.includes('école') || text.includes('u6') || text.includes('u8') || text.includes('u10') || text.includes('u12') || text.includes('u14')) audience.add('ecole');
+    if (text.includes('jeune') || text.includes('u16') || text.includes('u18') || text.includes('u19')) audience.add('jeunes');
+    if (text.includes('tournoi')) audience.add('tournois');
+    if (text.includes('match')) audience.add('matchs');
+    if (text.includes('entrainement') || text.includes('entraînement')) audience.add('entrainements');
+    if (text.includes('benevole') || text.includes('bénévole')) audience.add('benevoles');
+    if (text.includes('partenaire')) audience.add('partenaires');
+    return [...audience];
+  }
+
   function recordPublication(status = 'préparée', error = '') {
     try {
       const data = readForm();
@@ -1357,6 +1380,113 @@
     return { ok: response.ok, status: response.status, data };
   }
 
+  function studioPassword() {
+    return sessionStorage.getItem('rcc-poster-generator-password') || '';
+  }
+
+  function buildPublicationPayload(data, imageData) {
+    const summary = clean(data.summary || data.subtitle || 'Nouvelle publication du RC Cubzaguais.');
+    const audience = audienceFromCategory(`${data.category || ''} ${data.template || ''}`);
+    const body = [
+      data.subtitle,
+      data.summary,
+      data.date ? `Date : ${data.date}` : '',
+      data.time ? `Heure : ${data.time}` : '',
+      data.location ? `Lieu : ${data.location}` : '',
+      data.opponent ? `Adversaire / partenaire : ${data.opponent}` : '',
+      hashtagOutput?.value || hashtagsFor(data).join(' ')
+    ].filter(Boolean).join('\n');
+
+    return {
+      publishSite: checkedChannel(data, 'publishSite'),
+      publishPush: checkedChannel(data, 'publishPush'),
+      password: studioPassword(),
+      article: {
+        title: clean(data.title || 'Publication RCC'),
+        summary,
+        body,
+        imageData,
+        category: clean(data.category || templateLabel(data.template) || 'Club'),
+        audience,
+        important: false,
+        notification: checkedChannel(data, 'publishPush'),
+        featured: false,
+        date: new Date().toISOString().slice(0, 10),
+        hashtags: hashtagsFor(data)
+      },
+      push: {
+        type: data.template || 'news',
+        title: clean(data.title || 'Publication RCC'),
+        body: summary,
+        audience,
+        url: '/actualites.html'
+      }
+    };
+  }
+
+  async function publishStudio() {
+    if (!await prepareExport()) return;
+
+    const data = readForm();
+    const imageData = canvas.toDataURL('image/png');
+    const results = [];
+    let articleUrl = '/actualites.html';
+    let siteReady = !checkedChannel(data, 'publishSite');
+
+    if (publishStudioButton) publishStudioButton.disabled = true;
+    setStatus('Publication RCC en cours...');
+
+    try {
+      if (checkedChannel(data, 'publishSite') || checkedChannel(data, 'publishPush')) {
+        const siteResult = await postJson('/api/studio/publish', buildPublicationPayload(data, imageData));
+        if (!siteResult.ok) {
+          const message = siteResult.data.error || 'Publication impossible.';
+          setStatus(message);
+          recordPublication('Publication échouée', message);
+          return;
+        }
+
+        siteReady = true;
+        articleUrl = siteResult.data.url || '/actualites.html';
+        if (checkedChannel(data, 'publishSite')) results.push(siteResult.data.articleCreated ? 'Site : article publié' : 'Site : prêt');
+        if (checkedChannel(data, 'publishPush')) {
+          const push = siteResult.data.push || {};
+          results.push(push.ok ? `Push : ${push.sent || 0} envoyé(s)` : `Push : ${push.error || 'non envoyé'}`);
+        }
+      }
+
+      if (siteReady && checkedChannel(data, 'publishFacebook')) {
+        const result = await postJson('/api/meta/facebook', {
+          title: data.title,
+          text: socialText(data, 'facebook'),
+          link: new URL(articleUrl, window.location.origin).href,
+          image: 'studio-rcc-canvas-ready'
+        });
+        results.push(`Facebook : ${result.data.message || result.data.error || 'préparé'}`);
+      }
+
+      if (siteReady && checkedChannel(data, 'publishInstagram')) {
+        const result = await postJson('/api/meta/instagram', {
+          title: data.title,
+          text: socialText(data, 'instagram'),
+          link: new URL(articleUrl, window.location.origin).href,
+          image: 'studio-rcc-canvas-ready'
+        });
+        results.push(`Instagram : ${result.data.message || result.data.error || 'préparé'}`);
+      }
+
+      const message = results.length ? results.join(' | ') : 'Aucun canal coché.';
+      setStatus(message);
+      recordPublication('Publication terminée', message);
+    } catch (error) {
+      const message = error.message || 'Erreur pendant la publication.';
+      setStatus(message);
+      recordPublication('Publication échouée', message);
+    } finally {
+      if (publishStudioButton) publishStudioButton.disabled = false;
+    }
+  }
+
   async function prepareDistribution() {
     if (!await prepareExport()) return;
     const data = readForm();
@@ -1401,6 +1531,7 @@
   copyFacebookButton?.addEventListener('click', copyFacebook);
   copyInstagramButton?.addEventListener('click', copyInstagram);
   copyHashtagsButton?.addEventListener('click', copyHashtags);
+  publishStudioButton?.addEventListener('click', publishStudio);
   prepareDistributionButton?.addEventListener('click', prepareDistribution);
   checkMetaButton?.addEventListener('click', checkMetaStatus);
   sourceSelect?.addEventListener('change', (event) => applySource(event.target.value));

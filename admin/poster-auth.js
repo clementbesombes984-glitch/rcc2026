@@ -1,5 +1,6 @@
 (() => {
   const STORAGE_KEY = 'rcc-poster-generator-authenticated';
+  const PASSWORD_KEY = 'rcc-poster-generator-password';
   const body = document.body;
   const form = document.querySelector('[data-poster-lock-form]');
   const errorNode = document.querySelector('[data-poster-lock-error]');
@@ -50,6 +51,7 @@
     }
 
     sessionStorage.setItem(STORAGE_KEY, 'yes');
+    sessionStorage.setItem(PASSWORD_KEY, String(password || ''));
     unlock();
   });
 })();

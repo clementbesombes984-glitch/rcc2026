@@ -37,7 +37,7 @@ function shortTitle(value, fallback = 'RC Cubzaguais') {
 }
 
 function isAuthorized(request, env) {
-  const expected = env.PUSH_ADMIN_TOKEN || '';
+  const expected = env.PUSH_ADMIN_TOKEN || env.RCC_PUSH_ADMIN_TOKEN || '';
   if (!expected) return false;
   const header = request.headers.get('authorization') || '';
   return header === `Bearer ${expected}`;
