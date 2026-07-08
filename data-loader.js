@@ -376,7 +376,7 @@
               <div class="player-info">
                 <span>${escapeHtml(player.position)}</span>
                 <h3><strong>${escapeHtml(player.firstName)}</strong> ${escapeHtml(player.lastName)}</h3>
-                <p>${escapeHtml([player.weight, player.tag].filter(Boolean).join(' Â· '))}</p>
+                <p>${escapeHtml([player.weight, player.tag].filter(Boolean).join(' · '))}</p>
               </div>
             </article>
           `).join('')}

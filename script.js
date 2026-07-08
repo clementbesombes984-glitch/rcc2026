@@ -1,4 +1,4 @@
-﻿document.documentElement.classList.add('js');
+document.documentElement.classList.add('js');
 const toggle = document.querySelector('[data-menu-toggle]');
 const nav = document.querySelector('[data-nav]');
 const mobileNavLabels = [
@@ -90,7 +90,7 @@ function buildMailto(form) {
   const phone = data.get('phone') || '';
   const message = data.get('message') || '';
   const target = document.querySelector('[data-cms="email"]')?.textContent?.trim() || 'lerccdemain@gmail.com';
-  const body = mailBody(['Nom : ' + name, 'Email : ' + email, phone ? 'TÃ©lÃ©phone : ' + phone : '', '', String(message)].filter(Boolean));
+  const body = mailBody(['Nom : ' + name, 'Email : ' + email, phone ? 'Téléphone : ' + phone : '', '', String(message)].filter(Boolean));
   return 'mailto:' + encodeURIComponent(target) + '?subject=' + encodeURIComponent(String(subject)) + '&body=' + encodeURIComponent(body);
 }
 
