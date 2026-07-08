@@ -83,6 +83,16 @@
   const downloadButton = document.querySelector('[data-download-poster]');
   const downloadPdfButton = document.querySelector('[data-download-pdf]');
   const copyCaptionButton = document.querySelector('[data-copy-caption]');
+  const copyFacebookButton = document.querySelector('[data-copy-facebook]');
+  const copyInstagramButton = document.querySelector('[data-copy-instagram]');
+  const copyHashtagsButton = document.querySelector('[data-copy-hashtags]');
+  const prepareDistributionButton = document.querySelector('[data-prepare-distribution]');
+  const checkMetaButton = document.querySelector('[data-check-meta]');
+  const hashtagOutput = document.querySelector('[data-hashtag-output]');
+  const previewSite = document.querySelector('[data-preview-site]');
+  const previewFacebook = document.querySelector('[data-preview-facebook]');
+  const previewInstagram = document.querySelector('[data-preview-instagram]');
+  const previewPush = document.querySelector('[data-preview-push]');
   const zoomInButton = document.querySelector('[data-zoom-in]');
   const zoomOutButton = document.querySelector('[data-zoom-out]');
   const toggleGridButton = document.querySelector('[data-toggle-grid]');
@@ -1084,16 +1094,124 @@
     updateCaption(data);
   }
 
+  function templateLabel(template) {
+    const labels = {
+      news: 'actualite',
+      upcoming: 'match',
+      result: 'resultat',
+      tournament: 'tournoi',
+      training: 'entrainement',
+      club: 'vie du club',
+      recruitment: 'recrutement',
+      partner: 'partenaire',
+      shop: 'boutique',
+      weekend: 'calendrier',
+      team: 'equipe',
+      educator: 'staff',
+      newsletter: 'newsletter'
+    };
+    return labels[template] || 'publication';
+  }
+
+  function channelIntro(data) {
+    const type = templateLabel(data.template);
+    const title = clean(data.title || TEMPLATE_TITLES[data.template] || 'Info RCC');
+    const category = clean(data.category || data.subtitle || 'Club');
+    if (data.template === 'upcoming') return `Le Racing Club Cubzaguais vous donne rendez-vous pour ${title}.`;
+    if (data.template === 'result') return `${title}${data.score ? ` : ${data.score}` : ''}.`;
+    if (data.template === 'tournament') return `Le RCC vous donne rendez-vous pour ${title}.`;
+    if (data.template === 'training') return `Entrainement RCC : ${title}.`;
+    if (data.template === 'recruitment') return `${title || 'Rejoins le RCC'} !`;
+    if (data.template === 'partner') return `Le RCC remercie ${clean(data.opponent || data.subtitle || 'son partenaire')} pour son soutien.`;
+    if (data.template === 'club') return `Vie du club : ${title}.`;
+    return `${category} : ${title}.`;
+  }
+
+  function publicationDetails(data) {
+    return [
+      data.date,
+      data.time,
+      data.location,
+      data.opponent ? `Adversaire / partenaire : ${data.opponent}` : ''
+    ].filter(Boolean).join('\n');
+  }
+
+  function hashtagsFor(data) {
+    const tags = new Set(['RCCubzaguais', 'RacingClubCubzaguais', 'Rugby', 'NouvelleAquitaine']);
+    const category = clean(data.category || data.subtitle).toLowerCase();
+    const type = data.template;
+    if (['u6', 'u8', 'u10', 'u12', 'u14'].some((key) => category.includes(key)) || category.includes('ecole')) tags.add('EcoleDeRugby');
+    if (type === 'upcoming' || type === 'result') tags.add('MatchDeRugby');
+    if (type === 'tournament') tags.add('TournoiRugby');
+    if (type === 'training') tags.add('EntrainementRugby');
+    if (type === 'partner') tags.add('PartenairesRCC');
+    if (type === 'recruitment') tags.add('RejoinsLeRCC');
+    if (type === 'club') tags.add('VieDuClub');
+    if (category.includes('senior')) tags.add('SeniorsRCC');
+    if (category.includes('cadette')) tags.add('CadettesRCC');
+    if (category.includes('u16') || category.includes('u18')) tags.add('PoleJeunes');
+    return Array.from(tags).map((tag) => `#${tag}`);
+  }
+
+  function socialText(data, channel = 'facebook') {
+    const intro = channelIntro(data);
+    const details = publicationDetails(data);
+    const summary = clean(data.summary);
+    const site = 'https://rccubzaguais.fr';
+    const parts = [
+      intro,
+      details,
+      summary,
+      channel === 'instagram' ? hashtagsFor(data).join(' ') : `${site}\n\n${hashtagsFor(data).slice(0, 6).join(' ')}`
+    ].filter(Boolean);
+    return parts.join('\n\n');
+  }
+
+  function notificationPreview(data) {
+    const title = clean(data.title || TEMPLATE_TITLES[data.template] || 'Info RCC');
+    const short = title.length > 40 ? `${title.slice(0, 37).trimEnd()}...` : title;
+    const body = [data.date, data.time, data.location].filter(Boolean).join(' - ') || clean(data.summary || 'Nouvelle information du RCC.');
+    return `${short}\n${body}`;
+  }
+
+  function checkedChannel(data, name) {
+    return data[name] === 'yes' || data[name] === 'on';
+  }
+
+  function recordPublication(status = 'préparée', error = '') {
+    try {
+      const data = readForm();
+      const entry = {
+        date: new Date().toISOString(),
+        type: templateLabel(data.template),
+        title: clean(data.title || 'Publication RCC'),
+        site: checkedChannel(data, 'publishSite'),
+        facebook: checkedChannel(data, 'publishFacebook'),
+        instagram: checkedChannel(data, 'publishInstagram'),
+        push: checkedChannel(data, 'publishPush'),
+        status,
+        error
+      };
+      const key = 'rcc_publication_history';
+      const history = JSON.parse(localStorage.getItem(key) || '[]');
+      history.unshift(entry);
+      localStorage.setItem(key, JSON.stringify(history.slice(0, 80)));
+    } catch (error) {
+      // Historique local non critique.
+    }
+  }
+
   function updateCaption(data = readForm()) {
     if (!captionOutput) return;
-    const parts = [
-      data.title,
-      data.subtitle,
-      [data.date, data.time, data.location].filter(Boolean).join(' - '),
-      data.summary,
-      '#RCC #Rugby #SaintAndreDeCubzac'
-    ].filter(Boolean);
-    captionOutput.value = parts.join('\n\n');
+    const facebook = socialText(data, 'facebook');
+    const instagram = socialText(data, 'instagram');
+    const hashtags = hashtagsFor(data).join(' ');
+    if (document.activeElement !== captionOutput) captionOutput.value = facebook;
+    if (hashtagOutput) hashtagOutput.value = hashtags;
+    if (previewSite) previewSite.textContent = clean(`${data.title || 'Publication RCC'} - ${data.summary || data.subtitle || 'Pret pour le site.'}`);
+    if (previewFacebook) previewFacebook.textContent = facebook;
+    if (previewInstagram) previewInstagram.textContent = instagram;
+    if (previewPush) previewPush.textContent = notificationPreview(data);
   }
 
   async function prepareExport() {
@@ -1120,6 +1238,7 @@
     link.href = canvas.toDataURL('image/png');
     link.download = `studio-rcc-${data.template || 'publication'}-${data.format || 'format'}.png`;
     link.click();
+    recordPublication('PNG téléchargé');
     setStatus('PNG HD telecharge. Le visuel est pret a publier.');
   }
 
@@ -1179,18 +1298,91 @@
     link.download = `studio-rcc-${data.template || 'publication'}-${data.format || 'format'}.pdf`;
     link.click();
     URL.revokeObjectURL(link.href);
+    recordPublication('PDF téléchargé');
     setStatus('PDF telecharge.');
   }
 
-  async function copyCaption() {
-    const text = captionOutput?.value || '';
+  async function copyText(text, fallbackNode, successMessage) {
     try {
       await navigator.clipboard.writeText(text);
-      setStatus('Texte de publication copie.');
+      setStatus(successMessage);
     } catch (error) {
-      captionOutput?.select();
+      fallbackNode?.select?.();
       setStatus('Texte pret a copier.');
     }
+  }
+
+  async function copyCaption() {
+    await copyText(captionOutput?.value || '', captionOutput, 'Texte de publication copie.');
+    recordPublication('Texte copié');
+  }
+
+  async function copyFacebook() {
+    await copyText(socialText(readForm(), 'facebook'), captionOutput, 'Texte Facebook copie.');
+    recordPublication('Facebook manuel prêt');
+  }
+
+  async function copyInstagram() {
+    await copyText(socialText(readForm(), 'instagram'), captionOutput, 'Texte Instagram copie.');
+    recordPublication('Instagram manuel prêt');
+  }
+
+  async function copyHashtags() {
+    await copyText(hashtagOutput?.value || hashtagsFor(readForm()).join(' '), hashtagOutput, 'Hashtags copies.');
+    recordPublication('Hashtags copiés');
+  }
+
+  async function checkMetaStatus() {
+    try {
+      const response = await fetch('/api/meta/status', { cache: 'no-store' });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Statut Meta indisponible.');
+      const missing = Array.isArray(data.missingSecrets) && data.missingSecrets.length ? ` Variables manquantes : ${data.missingSecrets.join(', ')}.` : '';
+      setStatus(data.metaConfigured ? 'Meta est configure pour les prochaines etapes.' : `Meta non configure.${missing}`);
+      recordPublication(data.metaConfigured ? 'Meta prêt' : 'Meta non configuré', missing);
+    } catch (error) {
+      setStatus('Statut Meta indisponible pour le moment.');
+      recordPublication('Erreur Meta', error.message || 'Statut indisponible');
+    }
+  }
+
+  async function postJson(url, payload) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json().catch(() => ({}));
+    return { ok: response.ok, status: response.status, data };
+  }
+
+  async function prepareDistribution() {
+    if (!await prepareExport()) return;
+    const data = readForm();
+    const payloadBase = {
+      title: data.title,
+      text: captionOutput?.value || socialText(data, 'facebook'),
+      link: 'https://rccubzaguais.fr/',
+      image: 'studio-rcc-canvas-ready'
+    };
+    const results = [];
+
+    if (checkedChannel(data, 'publishSite')) results.push('Site : prêt pour Pages CMS');
+    if (checkedChannel(data, 'publishPush')) results.push('Push : prêt via notification RCC');
+
+    if (checkedChannel(data, 'publishFacebook')) {
+      const result = await postJson('/api/meta/facebook', { ...payloadBase, text: socialText(data, 'facebook') });
+      results.push(`Facebook : ${result.data.message || result.data.error || 'préparé'}`);
+    }
+
+    if (checkedChannel(data, 'publishInstagram')) {
+      const result = await postJson('/api/meta/instagram', { ...payloadBase, text: socialText(data, 'instagram') });
+      results.push(`Instagram : ${result.data.message || result.data.error || 'préparé'}`);
+    }
+
+    const message = results.length ? results.join(' | ') : 'Aucun canal coche.';
+    setStatus(message);
+    recordPublication('Diffusion préparée', message);
   }
 
   form?.addEventListener('input', render);
@@ -1205,6 +1397,11 @@
   downloadButton?.addEventListener('click', downloadPng);
   downloadPdfButton?.addEventListener('click', downloadPdf);
   copyCaptionButton?.addEventListener('click', copyCaption);
+  copyFacebookButton?.addEventListener('click', copyFacebook);
+  copyInstagramButton?.addEventListener('click', copyInstagram);
+  copyHashtagsButton?.addEventListener('click', copyHashtags);
+  prepareDistributionButton?.addEventListener('click', prepareDistribution);
+  checkMetaButton?.addEventListener('click', checkMetaStatus);
   sourceSelect?.addEventListener('change', (event) => applySource(event.target.value));
   sourceButtons?.addEventListener('click', (event) => {
     const button = event.target.closest('[data-source-kind]');

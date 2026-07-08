@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Publications - Studio RCC</title>
+    <meta name="description" content="Historique local des publications préparées dans le Studio RCC." />
+    <link rel="stylesheet" href="../styles.css" />
+    <meta name="theme-color" content="#b11845" />
+    <link rel="manifest" href="../manifest.webmanifest" />
+  </head>
+  <body class="poster-admin-page poster-locked studio-page">
+    <section class="poster-lock" data-poster-lock>
+      <form class="poster-lock-box" data-poster-lock-form>
+        <img src="../assets/logo-rcc.png" alt="RC Cubzaguais" />
+        <span>Acces communication</span>
+        <h1>Publications</h1>
+        <p>Entrez le mot de passe du club pour consulter l'historique local du Studio RCC.</p>
+        <label>Mot de passe
+          <input type="password" name="password" autocomplete="current-password" required autofocus />
+        </label>
+        <button class="button primary" type="submit">Entrer</button>
+        <p class="poster-lock-error" data-poster-lock-error hidden>Mot de passe incorrect.</p>
+        <a href="./generateur-affiche.html">Retour Studio RCC</a>
+      </form>
+    </section>
+
+    <main class="studio-shell publications-admin" data-poster-admin>
+      <header class="studio-topbar">
+        <a class="poster-admin-brand" href="./generateur-affiche.html">
+          <img src="../assets/logo-rcc.png" alt="RC Cubzaguais" />
+          <span>Studio RCC</span>
+        </a>
+        <div>
+          <p class="section-kicker">Diffusion</p>
+          <h1>Publications</h1>
+          <p>Suivi local des visuels, textes et diffusions préparés depuis le Studio RCC.</p>
+        </div>
+        <a class="button ghost" href="./generateur-affiche.html">Créer une publication</a>
+      </header>
+
+      <section class="publication-history-panel">
+        <div class="poster-panel-head">
+          <span>Historique</span>
+          <strong>Dernières préparations</strong>
+        </div>
+        <div class="publication-history-table" data-publication-history>
+          <p class="poster-help">Aucune publication préparée pour le moment.</p>
+        </div>
+        <button class="button ghost" type="button" data-clear-publication-history>Vider l'historique local</button>
+      </section>
+    </main>
+
+    <script src="./poster-auth.js?v=studio-rcc-4"></script>
+    <script src="./publications.js"></script>
+  </body>
+</html>

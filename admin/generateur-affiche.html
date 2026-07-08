@@ -39,7 +39,10 @@
           <h1>Studio RCC</h1>
           <p>Une seule interface pour creer les visuels, textes et supports de communication du club.</p>
         </div>
-        <a class="button ghost" href="/cms-login">Administration</a>
+        <div class="studio-topbar-actions">
+          <a class="button ghost" href="./publications.html">Publications</a>
+          <a class="button ghost" href="/cms-login">Administration</a>
+        </div>
       </header>
 
       <section class="studio-layout">
@@ -253,14 +256,69 @@
 
           <div class="poster-panel-head compact">
             <span>Diffusion</span>
+            <strong>Canaux</strong>
+          </div>
+          <div class="studio-distribution" data-distribution-options>
+            <label class="poster-check">
+              <input name="publishSite" type="checkbox" value="yes" checked data-poster-input />
+              Publier sur le site
+            </label>
+            <label class="poster-check">
+              <input name="publishFacebook" type="checkbox" value="yes" data-poster-input />
+              Publier sur Facebook
+            </label>
+            <label class="poster-check">
+              <input name="publishInstagram" type="checkbox" value="yes" data-poster-input />
+              Publier sur Instagram
+            </label>
+            <label class="poster-check">
+              <input name="publishPush" type="checkbox" value="yes" data-poster-input />
+              Envoyer une notification Push
+            </label>
+          </div>
+
+          <div class="poster-panel-head compact">
+            <span>Apercus</span>
+            <strong>Avant diffusion</strong>
+          </div>
+          <div class="studio-channel-previews" data-channel-previews>
+            <article>
+              <span>Site</span>
+              <p data-preview-site>Le resume de la publication apparaitra ici.</p>
+            </article>
+            <article>
+              <span>Facebook</span>
+              <p data-preview-facebook>Le texte Facebook sera genere automatiquement.</p>
+            </article>
+            <article>
+              <span>Instagram</span>
+              <p data-preview-instagram>Le texte Instagram et les hashtags seront prepares ici.</p>
+            </article>
+            <article>
+              <span>Notification</span>
+              <p data-preview-push>Le titre court et le message push seront affiches ici.</p>
+            </article>
+          </div>
+
+          <label>Texte de publication
+            <textarea class="studio-caption" rows="5" data-caption-output></textarea>
+          </label>
+          <textarea class="studio-hashtags" rows="3" data-hashtag-output readonly></textarea>
+
+          <div class="poster-panel-head compact">
+            <span>Mode manuel</span>
             <strong>Exports</strong>
           </div>
           <div class="poster-actions studio-actions">
             <button class="button primary" type="button" data-download-poster>Telecharger PNG HD</button>
             <button class="button ghost" type="button" data-download-pdf>Telecharger PDF</button>
             <button class="button ghost" type="button" data-copy-caption>Copier le texte</button>
+            <button class="button ghost" type="button" data-copy-facebook>Copier Facebook</button>
+            <button class="button ghost" type="button" data-copy-instagram>Copier Instagram</button>
+            <button class="button ghost" type="button" data-copy-hashtags>Copier hashtags</button>
+            <button class="button ghost" type="button" data-prepare-distribution>Preparer diffusion</button>
+            <button class="button ghost" type="button" data-check-meta>Verifier Meta</button>
           </div>
-          <textarea class="studio-caption" rows="4" data-caption-output readonly></textarea>
         </form>
       </section>
     </main>

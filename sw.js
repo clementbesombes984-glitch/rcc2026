@@ -1,4 +1,4 @@
-﻿const CACHE_VERSION = 'rcc-pwa-v26';
+const CACHE_VERSION = 'rcc-pwa-v27';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -22,6 +22,7 @@ const STATIC_ASSETS = [
   '/rcc-demain.html',
   '/notifications.html',
   '/admin/generateur-affiche.html',
+  '/admin/publications.html',
   '/nous-rejoindre.html',
   '/contact.html',
   '/styles.css',
@@ -31,6 +32,7 @@ const STATIC_ASSETS = [
   '/notifications.js',
   '/admin/poster-generator.js',
   '/admin/poster-auth.js',
+  '/admin/publications.js',
   '/manifest.webmanifest',
   '/assets/logo-rcc.png',
   '/assets/pwa-icon-192.png',
