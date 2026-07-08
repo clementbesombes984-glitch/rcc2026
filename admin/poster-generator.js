@@ -12,6 +12,7 @@
   const TITLE_FONT = '"Bebas Neue", "Anton", Impact, sans-serif';
   const IMPACT_FONT = '"Anton", "League Spartan", Impact, sans-serif';
   const BODY_FONT = '"Rajdhani", "Oswald", Arial, sans-serif';
+  const CURRENT_SEASON = '2026-2027';
 
   const COLORS = {
     black: '#020203',
@@ -677,7 +678,7 @@
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(255,248,239,.78)';
     ctx.font = `800 ${22 * scale}px ${BODY_FONT}`;
-    ctx.fillText(upper(state.data.settings.season || 'SAISON 2025-2026'), w - pad, pad);
+    ctx.fillText(upper(state.data.settings.season || `SAISON ${CURRENT_SEASON}`), w - pad, pad);
     ctx.textAlign = 'left';
   }
 
