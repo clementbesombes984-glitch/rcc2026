@@ -1723,7 +1723,8 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
   body .site-nav.is-open .nav-cta,
   body .site-nav.is-open .notification-link,
   body .site-nav.is-open .settings-link{display:flex!important;width:min(320px,86vw)!important;height:auto!important;min-height:52px!important;flex:auto!important;align-items:center;justify-content:center;margin:0!important;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.035);color:#f7f4ef;font-family:Arial,Helvetica,sans-serif;font-size:15px!important;font-weight:900;letter-spacing:.9px;line-height:1.2;text-transform:uppercase}
-  body .site-nav.is-open .nav-text-link{font-size:0!important;color:transparent}
+  body .site-nav.is-open .nav-text-link,
+  body .site-nav.is-open .nav-cta{font-size:0!important;color:transparent!important}
   body .site-nav.is-open .nav-text-link:before,
   body .site-nav.is-open .notification-link:before,
   body .site-nav.is-open .settings-link:before,
