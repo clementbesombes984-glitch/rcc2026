@@ -35,6 +35,11 @@
           "lastName": "Vallejo",
           "role": "Éducateur",
           "photo": "/assets/uploads/img20260708204804.jpg"
+        },
+        {
+          "firstName": "Lena",
+          "lastName": "Buceta",
+          "role": "Educatrice"
         }
       ]
     },
