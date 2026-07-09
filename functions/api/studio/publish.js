@@ -91,10 +91,14 @@ function githubConfig(env) {
   };
 }
 
+function githubTokenConfigured(env) {
+  return Boolean(env.RCC_GITHUB_TOKEN || env.GITHUB_TOKEN);
+}
+
 async function githubRequest(path, env, options = {}) {
   const { repository, token } = githubConfig(env);
   if (!token) {
-    const error = new Error('Token GitHub manquant. Ajoute RCC_GITHUB_TOKEN dans Cloudflare Pages.');
+    const error = new Error('Token GitHub manquant. Ajoute RCC_GITHUB_TOKEN dans Cloudflare Pages > Settings > Environment variables.');
     error.status = 503;
     throw error;
   }
@@ -210,6 +214,18 @@ async function sendPush(push, env, request) {
     body: JSON.stringify(push)
   });
   return response.json().catch(() => ({ ok: response.ok }));
+}
+
+export async function onRequestGet({ env }) {
+  const { repository, branch } = githubConfig(env);
+  return json({
+    ok: true,
+    sitePublishingReady: githubTokenConfigured(env),
+    expectedVariable: 'RCC_GITHUB_TOKEN',
+    repository,
+    branch,
+    help: 'Pour activer la publication sur le site, ajoute la variable RCC_GITHUB_TOKEN dans Cloudflare Pages > Settings > Environment variables.'
+  });
 }
 
 export async function onRequestPost({ request, env }) {

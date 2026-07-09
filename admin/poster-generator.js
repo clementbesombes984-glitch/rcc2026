@@ -1380,6 +1380,22 @@
     return { ok: response.ok, status: response.status, data };
   }
 
+  async function checkSitePublishingConfig() {
+    try {
+      const response = await fetch('/api/studio/publish', { method: 'GET' });
+      const data = await response.json().catch(() => ({}));
+      return {
+        ok: response.ok && Boolean(data.sitePublishingReady),
+        message: data.help || 'Pour activer la publication sur le site, ajoute la variable RCC_GITHUB_TOKEN dans Cloudflare Pages > Settings > Environment variables.'
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        message: 'Configuration publication indisponible. Verifie que les Cloudflare Pages Functions sont deployees.'
+      };
+    }
+  }
+
   function buildPublicationPayload(data, imageData, adminPassword = '') {
     const summary = clean(data.summary || data.subtitle || 'Nouvelle publication du RC Cubzaguais.');
     const audience = audienceFromCategory(`${data.category || ''} ${data.template || ''}`);
@@ -1421,9 +1437,19 @@
   }
 
   async function publishStudio() {
+    const data = readForm();
+    if (checkedChannel(data, 'publishSite')) {
+      setStatus('Verification de la configuration GitHub...');
+      const config = await checkSitePublishingConfig();
+      if (!config.ok) {
+        setStatus(config.message);
+        recordPublication('Publication site non configuree', config.message);
+        return;
+      }
+    }
+
     if (!await prepareExport()) return;
 
-    const data = readForm();
     const imageData = canvas.toDataURL('image/png');
     const results = [];
     let articleUrl = '/actualites.html';

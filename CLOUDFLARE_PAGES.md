@@ -60,6 +60,10 @@ Ajouter dans Cloudflare Pages :
 - `VAPID_SUBJECT`
 - `PUSH_ADMIN_TOKEN`
 - `PAGES_CMS_PASSWORD`
+- `RCC_GITHUB_TOKEN` : token GitHub permettant au Studio RCC de creer directement un article dans `data/news.json`
+
+Pour `RCC_GITHUB_TOKEN`, utiliser Cloudflare Pages > Settings > Environment variables.
+Sans cette variable, le Studio RCC peut preparer les visuels mais ne peut pas publier un article sur le site.
 
 Les valeurs VAPID sont dans le fichier local non publie :
 
