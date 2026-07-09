@@ -42,21 +42,7 @@
       "age": "U10",
       "label": "Construire le jeu",
       "summary": "Technique individuelle, placement, contact maîtrisé et esprit d’équipe.",
-      "training": "Mercredi 18h · Samedi 10h",
-      "staff": [
-        {
-          "firstName": "Nicolas",
-          "lastName": "Barreau"
-        },
-        {
-          "firstName": "Élodie",
-          "lastName": "Martin"
-        },
-        {
-          "firstName": "Romain",
-          "lastName": "Tessier"
-        }
-      ]
+      "training": "Mercredi 18h · Samedi 10h"
     },
     {
       "age": "U12",
