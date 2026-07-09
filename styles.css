@@ -2826,3 +2826,77 @@ body{
     margin-bottom:clamp(18px,2.2vw,30px)!important;
   }
 }
+
+/* Home desktop density: keep the signature design, show useful content sooner */
+@media(min-width:1121px){
+  body .hero#accueil{
+    min-height:clamp(430px,45vh,520px)!important;
+    padding-top:86px!important;
+  }
+
+  body .hero#accueil:before,
+  body .hero#accueil .hero-art{
+    inset:86px 0 0!important;
+  }
+
+  body .hero#accueil .hero-content{
+    min-height:auto!important;
+    padding-top:clamp(22px,2.8vh,34px)!important;
+    padding-bottom:clamp(20px,3vh,34px)!important;
+    align-content:start!important;
+  }
+
+  body .hero#accueil .club-signature-wrap,
+  body .hero#accueil .hero-signature{
+    margin-top:0!important;
+    margin-bottom:0!important;
+  }
+
+  body .hero#accueil .hero-signature .club-signature-card{
+    min-height:clamp(140px,16vh,168px)!important;
+    padding:clamp(18px,1.7vw,24px) clamp(24px,2.4vw,34px)!important;
+    gap:clamp(20px,2.1vw,32px)!important;
+  }
+
+  body .hero#accueil .hero-signature .club-signature-logo{
+    width:clamp(118px,8.8vw,148px)!important;
+    min-width:clamp(118px,8.8vw,148px)!important;
+    height:clamp(118px,8.8vw,148px)!important;
+  }
+
+  body .hero#accueil .hero-signature .club-signature-logo img{
+    max-width:clamp(110px,8.2vw,140px)!important;
+    max-height:clamp(110px,8.2vw,140px)!important;
+  }
+
+  body .hero#accueil .hero-signature .club-signature-text h1{
+    font-size:clamp(42px,5vw,76px)!important;
+    line-height:.94!important;
+  }
+
+  body .hero#accueil .hero-signature .club-signature-text small{
+    font-size:clamp(11px,.82vw,13px)!important;
+    letter-spacing:1.35px!important;
+  }
+
+  body .important-news-shell{
+    margin-top:0!important;
+    margin-bottom:clamp(10px,1.4vw,20px)!important;
+    padding-top:clamp(18px,2vw,28px)!important;
+  }
+
+  body #actus.news,
+  body .home-match-preview{
+    padding-top:clamp(28px,3vw,42px)!important;
+    padding-bottom:clamp(34px,3.6vw,56px)!important;
+  }
+
+  body .important-news-shell:not([hidden]) + #actus.news{
+    padding-top:clamp(20px,2.2vw,32px)!important;
+  }
+
+  body #actus .section-head,
+  body .home-match-preview .section-head{
+    margin-bottom:clamp(16px,2vw,28px)!important;
+  }
+}
