@@ -1859,6 +1859,9 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
   white-space:nowrap;
   cursor:pointer;
 }
+.nav-submenu-panel{
+  display:contents;
+}
 .nav-submenu{
   position:absolute;
   top:calc(100% + 10px);
@@ -2636,5 +2639,116 @@ body{
 
   body .history-redesign .history-timeline-modern article{
     padding:12px!important;
+  }
+}
+
+/* ===================================================================
+   V2.1 — Header premium desktop uniquement (>=1121px)
+   - boutons plus visibles (bordure, fond translucide, padding, taille)
+   - correction du hover des menus déroulants (zone tampon invisible)
+   - style des sous-menus (panneau distinct du conteneur de hover)
+   Le mobile (max-width:1120px) n'est pas concerné par ce bloc.
+   =================================================================== */
+@media(min-width:1121px){
+  .site-nav.v1-nav{
+    gap:clamp(6px,.6vw,12px);
+  }
+
+  /* Boutons premium : Accueil, Le Club, Les Équipes, Galerie, Partenaires, Boutique */
+  .site-nav.v1-nav .nav-text-link,
+  .site-nav.v1-nav .nav-dropdown-main{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:clamp(42px,3.1vw,48px);
+    padding:0 clamp(14px,1.15vw,22px);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:10px;
+    background:rgba(255,255,255,.03);
+    color:#cfc9c2;
+    font-size:clamp(12.5px,.85vw,15px);
+    letter-spacing:1px;
+    transition:color .22s ease,border-color .22s ease,background .22s ease;
+  }
+  .site-nav.v1-nav .nav-text-link:hover,
+  .site-nav.v1-nav .nav-dropdown-main:hover,
+  .site-nav.v1-nav .nav-text-link.is-active,
+  .site-nav.v1-nav .nav-dropdown.is-active > .nav-dropdown-main{
+    color:#fff;
+    border-color:rgba(211,26,82,.55);
+    background:rgba(177,24,69,.14);
+  }
+
+  /* Barre rouge RCC qui glisse sous le bouton, contenue dans ses bords */
+  .site-nav.v1-nav .nav-text-link:after,
+  .site-nav.v1-nav .nav-dropdown-main:after{
+    display:block;
+    position:absolute;
+    left:clamp(14px,1.15vw,22px);
+    right:clamp(14px,1.15vw,22px);
+    bottom:7px;
+    height:2px;
+    content:"";
+    background:var(--red-bright);
+    transform:scaleX(0);
+    transform-origin:right;
+    transition:transform .22s ease;
+  }
+  .site-nav.v1-nav .nav-text-link:hover:after,
+  .site-nav.v1-nav .nav-dropdown-main:hover:after,
+  .site-nav.v1-nav .nav-text-link.is-active:after,
+  .site-nav.v1-nav .nav-dropdown.is-active > .nav-dropdown-main:after{
+    transform:scaleX(1);
+    transform-origin:left;
+  }
+
+  /* Contact : reste plus fort visuellement mais aligné en hauteur avec le reste */
+  .site-nav.v1-nav .nav-cta{
+    min-height:clamp(44px,3.3vw,50px);
+    padding-inline:clamp(18px,1.6vw,28px);
+    border-radius:10px;
+    font-size:clamp(12px,.82vw,13.5px);
+    letter-spacing:1.1px;
+  }
+
+  /* ===== Correction du hover : suppression du vide entre bouton et sous-menu ===== */
+  .nav-submenu{
+    top:100%;
+    padding:14px 0 0;
+    min-width:230px;
+    background:transparent;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
+    transform:translate(-50%,4px);
+  }
+  .nav-dropdown:hover .nav-submenu,
+  .nav-dropdown:focus-within .nav-submenu,
+  .nav-dropdown.is-submenu-open .nav-submenu{
+    transform:translate(-50%,0);
+  }
+
+  /* Le panneau visible du sous-menu, distinct de la zone de hover */
+  .nav-submenu-panel{
+    display:grid;
+    gap:2px;
+    padding:10px;
+    border:1px solid rgba(177,24,69,.4);
+    border-radius:14px;
+    background:rgba(10,10,10,.92);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    box-shadow:0 26px 60px rgba(0,0,0,.5);
+  }
+  .nav-submenu a{
+    padding:0 16px!important;
+    min-height:42px;
+    border-radius:9px;
+    letter-spacing:.9px;
+  }
+  .nav-submenu a:hover,
+  .nav-submenu a.is-active{
+    background:rgba(177,24,69,.22)!important;
   }
 }
