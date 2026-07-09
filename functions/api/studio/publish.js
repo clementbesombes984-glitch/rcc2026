@@ -1,14 +1,61 @@
-function json(body, status = 200) {
+const SESSION_COOKIE = 'rcc_admin_session';
+const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
+
+function json(body, status = 200, extraHeaders = {}) {
   return Response.json(body, {
     status,
     headers: {
-      'Cache-Control': 'no-store'
+      'Cache-Control': 'no-store',
+      ...extraHeaders
     }
   });
 }
 
 function clean(value) {
   return String(value || '').replace(/\s+/g, ' ').trim();
+}
+
+function base64Url(bytes) {
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+async function signSession(value, env) {
+  const secret = env.ADMIN_SESSION_SECRET || env.PAGES_CMS_PASSWORD || 'RCCdemain';
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign', 'verify']
+  );
+  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(value));
+  return base64Url(new Uint8Array(signature));
+}
+
+function readCookie(request, name) {
+  const cookies = request.headers.get('cookie') || '';
+  return cookies
+    .split(';')
+    .map((item) => item.trim())
+    .find((item) => item.startsWith(`${name}=`))
+    ?.slice(name.length + 1) || '';
+}
+
+async function validSession(request, env) {
+  const token = readCookie(request, SESSION_COOKIE);
+  const [expires, signature] = token.split('.');
+  if (!expires || !signature || Number(expires) < Math.floor(Date.now() / 1000)) return false;
+  return signature === await signSession(expires, env);
+}
+
+async function sessionCookie(request, env) {
+  const expires = Math.floor(Date.now() / 1000) + SESSION_MAX_AGE;
+  const payload = String(expires);
+  const signature = await signSession(payload, env);
+  const secure = new URL(request.url).protocol === 'https:' ? '; Secure' : '';
+  return `${SESSION_COOKIE}=${payload}.${signature}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_MAX_AGE}${secure}`;
 }
 
 function slugify(value) {
@@ -174,8 +221,16 @@ export async function onRequestPost({ request, env }) {
   }
 
   const expectedPassword = env.PAGES_CMS_PASSWORD || 'RCCdemain';
-  if (payload.password !== expectedPassword) {
-    return json({ ok: false, error: 'Mot de passe Studio invalide.' }, 401);
+  const passwordOk = payload.password && payload.password === expectedPassword;
+  const sessionOk = await validSession(request, env);
+  const authHeaders = passwordOk ? { 'Set-Cookie': await sessionCookie(request, env) } : {};
+
+  if (!sessionOk && !passwordOk) {
+    return json({
+      ok: false,
+      authRequired: true,
+      error: 'Session admin expirée. Renseigne le mot de passe admin pour publier.'
+    }, 401);
   }
 
   const result = {
@@ -198,8 +253,8 @@ export async function onRequestPost({ request, env }) {
       result.push = await sendPush(payload.push, env, request);
     }
 
-    return json(result);
+    return json(result, 200, authHeaders);
   } catch (error) {
-    return json({ ok: false, error: error.message || 'Publication impossible.' }, error.status || 500);
+    return json({ ok: false, error: error.message || 'Publication impossible.' }, error.status || 500, authHeaders);
   }
 }

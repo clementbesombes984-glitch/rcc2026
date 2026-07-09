@@ -1380,11 +1380,7 @@
     return { ok: response.ok, status: response.status, data };
   }
 
-  function studioPassword() {
-    return sessionStorage.getItem('rcc-poster-generator-password') || '';
-  }
-
-  function buildPublicationPayload(data, imageData) {
+  function buildPublicationPayload(data, imageData, adminPassword = '') {
     const summary = clean(data.summary || data.subtitle || 'Nouvelle publication du RC Cubzaguais.');
     const audience = audienceFromCategory(`${data.category || ''} ${data.template || ''}`);
     const body = [
@@ -1400,7 +1396,7 @@
     return {
       publishSite: checkedChannel(data, 'publishSite'),
       publishPush: checkedChannel(data, 'publishPush'),
-      password: studioPassword(),
+      ...(adminPassword ? { password: adminPassword } : {}),
       article: {
         title: clean(data.title || 'Publication RCC'),
         summary,
@@ -1438,7 +1434,16 @@
 
     try {
       if (checkedChannel(data, 'publishSite') || checkedChannel(data, 'publishPush')) {
-        const siteResult = await postJson('/api/studio/publish', buildPublicationPayload(data, imageData));
+        let siteResult = await postJson('/api/studio/publish', buildPublicationPayload(data, imageData));
+        if (siteResult.status === 401 && siteResult.data.authRequired) {
+          const adminPassword = window.prompt('Mot de passe admin');
+          if (!adminPassword) {
+            setStatus('Publication annulée : mot de passe admin requis.');
+            recordPublication('Publication annulée', 'Mot de passe admin requis');
+            return;
+          }
+          siteResult = await postJson('/api/studio/publish', buildPublicationPayload(data, imageData, adminPassword));
+        }
         if (!siteResult.ok) {
           const message = siteResult.data.error || 'Publication impossible.';
           setStatus(message);
