@@ -1848,6 +1848,164 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
   .team-hub-content p{font-size:16px}
 }
 
+/* Menu deroulant equipes */
+.nav-dropdown{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-height:44px;
+}
+.nav-dropdown-main{
+  white-space:nowrap;
+}
+.nav-dropdown-toggle{
+  display:inline-grid;
+  width:24px;
+  height:24px;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  background:rgba(255,255,255,.035);
+  color:#d8d0c6;
+  cursor:pointer;
+  font-size:13px;
+  line-height:1;
+  transition:background .2s ease,border-color .2s ease,color .2s ease,transform .2s ease;
+}
+.nav-dropdown:hover .nav-dropdown-toggle,
+.nav-dropdown:focus-within .nav-dropdown-toggle,
+.nav-dropdown.is-active .nav-dropdown-toggle{
+  border-color:rgba(211,26,82,.48);
+  background:rgba(177,24,69,.16);
+  color:#fff;
+}
+.nav-dropdown.is-submenu-open .nav-dropdown-toggle{
+  transform:rotate(180deg);
+}
+.nav-submenu{
+  position:absolute;
+  top:calc(100% + 10px);
+  left:50%;
+  z-index:30;
+  display:grid;
+  min-width:220px;
+  padding:8px;
+  border:1px solid rgba(177,24,69,.38);
+  border-radius:12px;
+  background:linear-gradient(180deg,rgba(18,18,18,.98),rgba(7,7,7,.98));
+  box-shadow:0 24px 60px rgba(0,0,0,.48);
+  opacity:0;
+  pointer-events:none;
+  transform:translate(-50%,8px);
+  transition:opacity .18s ease,transform .18s ease;
+}
+.nav-dropdown:hover .nav-submenu,
+.nav-dropdown:focus-within .nav-submenu,
+.nav-dropdown.is-submenu-open .nav-submenu{
+  opacity:1;
+  pointer-events:auto;
+  transform:translate(-50%,0);
+}
+.nav-submenu a{
+  display:flex;
+  align-items:center;
+  min-height:40px;
+  padding:0 14px!important;
+  border-radius:8px;
+  color:#c7c0b9;
+  font-family:"Arial Narrow",Impact,Haettenschweiler,sans-serif;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.nav-submenu a:after{
+  display:none!important;
+}
+.nav-submenu a:hover,
+.nav-submenu a.is-active{
+  background:rgba(177,24,69,.18)!important;
+  color:#fff!important;
+}
+.nav-dropdown.is-active > .nav-dropdown-main{
+  color:#fff;
+}
+
+@media(max-width:1120px){
+  body .site-nav.is-open .nav-dropdown{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) 52px!important;
+    gap:8px!important;
+    width:min(88vw,360px)!important;
+    max-width:360px!important;
+    margin:0!important;
+    align-items:center!important;
+  }
+  body .site-nav.is-open .nav-dropdown-main{
+    display:flex!important;
+    width:auto!important;
+    max-width:none!important;
+    min-height:52px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    margin:0!important;
+    border:1px solid rgba(255,255,255,.08)!important;
+    border-radius:12px!important;
+    background:rgba(255,255,255,.035)!important;
+    color:transparent!important;
+    font-size:0!important;
+  }
+  body .site-nav.is-open .nav-dropdown-main:before{
+    content:attr(data-mobile-label);
+    color:#f7f4ef;
+    font-family:Arial,Helvetica,sans-serif;
+    font-size:15px!important;
+    font-weight:900;
+    letter-spacing:.9px;
+    text-transform:uppercase;
+  }
+  body .site-nav.is-open .nav-dropdown-toggle{
+    display:flex!important;
+    width:52px!important;
+    height:52px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border-radius:12px!important;
+    font-size:17px!important;
+  }
+  body .site-nav.is-open .nav-submenu{
+    position:static!important;
+    grid-column:1 / -1!important;
+    display:none!important;
+    min-width:0!important;
+    width:100%!important;
+    padding:8px!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+    transform:none!important;
+  }
+  body .site-nav.is-open .nav-dropdown.is-submenu-open .nav-submenu{
+    display:grid!important;
+    gap:7px!important;
+  }
+  body .site-nav.is-open .nav-submenu a{
+    width:100%!important;
+    min-height:46px!important;
+    justify-content:center!important;
+    margin:0!important;
+    border:1px solid rgba(255,255,255,.07)!important;
+    border-radius:10px!important;
+    background:rgba(255,255,255,.025)!important;
+    color:#f7f4ef!important;
+    font-family:Arial,Helvetica,sans-serif!important;
+    font-size:14px!important;
+    letter-spacing:.8px!important;
+    text-align:center!important;
+  }
+}
+
 /* Micro-sprint compact cards: densite accrue sans changer l'identite visuelle */
 :root{
   --compact-section-y:clamp(58px,5.4vw,84px);

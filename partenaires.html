@@ -1,10 +1,10 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Partenaires - RC Cubzaguais</title>
-    <meta name="description" content="Découvrez les partenaires du Rugby Club Cubzaguais et les possibilités de soutenir le club." />
+    <meta name="description" content="DÃ©couvrez les partenaires du Rugby Club Cubzaguais et les possibilitÃ©s de soutenir le club." />
     <link rel="canonical" href="https://rccubzaguais.fr/partenaires.html" />
     <meta name="theme-color" content="#b11845" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="./styles.css" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Partenaires - RC Cubzaguais" />
-    <meta property="og:description" content="Découvrez les partenaires du Rugby Club Cubzaguais et les possibilités de soutenir le club." />
+    <meta property="og:description" content="DÃ©couvrez les partenaires du Rugby Club Cubzaguais et les possibilitÃ©s de soutenir le club." />
     <meta property="og:url" content="https://rccubzaguais.fr/partenaires.html" />
     <meta property="og:site_name" content="Racing Club Cubzaguais" />
     <meta property="og:locale" content="fr_FR" />
@@ -24,7 +24,7 @@
     <meta property="og:image:alt" content="Logo du Racing Club Cubzaguais" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Partenaires - RC Cubzaguais" />
-    <meta name="twitter:description" content="Découvrez les partenaires du Rugby Club Cubzaguais et les possibilités de soutenir le club." />
+    <meta name="twitter:description" content="DÃ©couvrez les partenaires du Rugby Club Cubzaguais et les possibilitÃ©s de soutenir le club." />
     <meta name="twitter:image" content="https://rccubzaguais.fr/assets/og-image.jpg.png" />
   </head>
 <body>
@@ -34,19 +34,28 @@
       <nav class="site-nav v1-nav" aria-label="Navigation principale" data-nav>
         <a class="nav-text-link" href="./index.html#accueil">Accueil</a>
         <a class="nav-text-link" href="./club.html">Le Club</a>
-        <a class="nav-text-link" href="./equipes.html">Les Équipes</a>
-        <a class="nav-text-link" href="./actualites.html">Actualités</a>
+        <div class="nav-dropdown" data-nav-dropdown>
+          <a class="nav-text-link nav-dropdown-main" href="./equipes.html">Les Équipes</a>
+          <button class="nav-dropdown-toggle" type="button" aria-label="Ouvrir le sous-menu Les Équipes" aria-expanded="false" data-nav-submenu-toggle>▾</button>
+          <div class="nav-submenu" data-nav-submenu>
+            <a href="./ecole.html">École de Rugby</a>
+            <a href="./jeunes.html">Pôle Jeunes</a>
+            <a href="./cadettes.html">Cadettes</a>
+            <a href="./senior.html">Seniors</a>
+          </div>
+        </div>
+        <a class="nav-text-link" href="./actualites.html">ActualitÃ©s</a>
         <a class="nav-text-link" href="./calendrier.html">Calendrier</a>
         <a class="nav-text-link" href="./galerie.html">Galerie</a>
         <a class="nav-text-link" href="./partenaires.html">Partenaires</a>
         <a class="nav-text-link" href="./boutique.html">Boutique</a>
         <a class="nav-cta" href="./nous-rejoindre.html">Contact</a>
         <a class="notification-link" href="./notifications.html" aria-label="Notifications" title="Notifications">&#128276;</a>
-        <a class="admin-link settings-link" href="/cms-login" aria-label="Accès administration" title="Administration">&#9881;</a>
+        <a class="admin-link settings-link" href="/cms-login" aria-label="AccÃ¨s administration" title="Administration">&#9881;</a>
       </nav>
     </header>
     <main>
-      <section class="history-hero partners-hero"><div class="hero-art" aria-hidden="true"><div class="stadium-light light-one"></div><div class="stadium-light light-two"></div><div class="rugby-scene academy-scene"><span class="player player-one"></span><span class="rugby-ball"></span><span class="field-line field-one"></span></div></div><div class="page-shell history-hero-content"><p class="eyebrow"><span></span> Réseau local</p><h1><span>Nos</span><strong>partenaires</strong></h1><p class="hero-copy inner-hero-copy">Les entreprises et acteurs locaux qui accompagnent le développement du Rugby Club Cubzaguais.</p><div class="hero-actions"><a class="button primary" href="./nous-rejoindre.html">Devenir partenaire</a></div></div></section>
+      <section class="history-hero partners-hero"><div class="hero-art" aria-hidden="true"><div class="stadium-light light-one"></div><div class="stadium-light light-two"></div><div class="rugby-scene academy-scene"><span class="player player-one"></span><span class="rugby-ball"></span><span class="field-line field-one"></span></div></div><div class="page-shell history-hero-content"><p class="eyebrow"><span></span> RÃ©seau local</p><h1><span>Nos</span><strong>partenaires</strong></h1><p class="hero-copy inner-hero-copy">Les entreprises et acteurs locaux qui accompagnent le dÃ©veloppement du Rugby Club Cubzaguais.</p><div class="hero-actions"><a class="button primary" href="./nous-rejoindre.html">Devenir partenaire</a></div></div></section>
       <section class="partners-page page-shell"><div class="section-head"><div><p class="section-kicker">Ils nous accompagnent</p></div></div><div class="partners-grid" data-partners></div></section>
     </main>
     <footer class="site-footer rcc-footer" data-footer></footer><script src="./script.js"></script><script src="./data-loader.js"></script>
