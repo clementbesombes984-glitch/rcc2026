@@ -7,19 +7,13 @@
       "image": "/assets/uploads/studio-staff-u8-1783596006387.png",
       "category": "Club",
       "audience": [
-        "general"
+        "u8",
+        "ecole"
       ],
       "important": false,
-      "notification": false,
+      "notification": true,
       "featured": false,
-      "date": "2026-07-09",
-      "hashtags": [
-        "#RCCubzaguais",
-        "#RacingClubCubzaguais",
-        "#Rugby",
-        "#NouvelleAquitaine",
-        "#RejoinsLeRCC"
-      ]
+      "date": "2026-07-09"
     },
     {
       "title": "Forum des Association 6 Septembre 2026",
