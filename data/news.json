@@ -43,6 +43,18 @@
       "notification": true,
       "featured": true,
       "date": "2026-07-09"
+    },
+    {
+      "title": "STAFF U8",
+      "body": "🏉 Deux éducateurs déjà présents à l'École de Rugby poursuivent l'aventure avec les U8. Une équipe expérimentée et motivée pour accompagner nos jeunes toute la saison ! 💙❤️Clément Besombes et Mathieu Vallejo\n\n#RCCubzaguais #RacingClubCubzaguais #Rugby #NouvelleAquitaine #RejoinsLeRCC",
+      "category": "Ecole de rugby",
+      "audience": [
+        "u8"
+      ],
+      "important": false,
+      "notification": true,
+      "featured": false,
+      "date": "2026-07-09"
     }
   ]
 }
