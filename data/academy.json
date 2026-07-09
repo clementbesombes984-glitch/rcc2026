@@ -48,21 +48,7 @@
       "age": "U12",
       "label": "Grandir en collectif",
       "summary": "Lecture du jeu, organisation défensive, conservation et prise d’initiative.",
-      "training": "Mercredi 18h · Samedi 10h",
-      "staff": [
-        {
-          "firstName": "Mathieu",
-          "lastName": "Girard"
-        },
-        {
-          "firstName": "Claire",
-          "lastName": "Dupont"
-        },
-        {
-          "firstName": "Alexandre",
-          "lastName": "Roy"
-        }
-      ]
+      "training": "Mercredi 18h · Samedi 10h"
     },
     {
       "age": "U14",
