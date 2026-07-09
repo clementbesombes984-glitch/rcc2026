@@ -54,21 +54,7 @@
       "age": "U14",
       "label": "Entrer dans le grand terrain",
       "summary": "Travail technique, premières organisations collectives complètes, attitude défensive et confiance dans le contact.",
-      "training": "Mardi 18h30 · Vendredi 18h30",
-      "staff": [
-        {
-          "firstName": "Sébastien",
-          "lastName": "Caron"
-        },
-        {
-          "firstName": "Laura",
-          "lastName": "Besson"
-        },
-        {
-          "firstName": "Yanis",
-          "lastName": "Dumas"
-        }
-      ]
+      "training": "Mardi 18h30 · Vendredi 18h30"
     }
   ]
 }
