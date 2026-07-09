@@ -1848,6 +1848,303 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
   .team-hub-content p{font-size:16px}
 }
 
+
+/* Ajustements anti-debordement et cartes mobiles tres compactes */
+html,
+body{
+  max-width:100%;
+  overflow-x:hidden;
+}
+
+.news-grid article{
+  overflow:hidden;
+}
+
+.partner-card,
+.contact-panel,
+.contact-form,
+.academy-content,
+.roster-title,
+.player-card,
+.team-hub-card,
+.journal-card,
+.shop-card{
+  min-width:0;
+}
+
+.partner-card *,
+.contact-panel *,
+.contact-form *,
+.academy-content *,
+.team-hub-card *,
+.journal-card *,
+.shop-card *{
+  min-width:0;
+}
+
+@media(max-width:760px){
+  .team-hub-card{
+    grid-template-columns:88px minmax(0,1fr)!important;
+    min-height:0!important;
+  }
+
+  .team-hub-visual{
+    min-height:100%!important;
+    padding:8px!important;
+  }
+
+  .team-hub-visual img{
+    width:68px!important;
+  }
+
+  .team-hub-content{
+    gap:10px!important;
+    padding:14px!important;
+  }
+
+  .team-hub-content h2{
+    font-size:clamp(28px,9vw,38px)!important;
+  }
+
+  .team-hub-content p{
+    font-size:14.5px!important;
+    line-height:1.42!important;
+  }
+
+  .team-hub-content dl{
+    gap:8px!important;
+  }
+
+  .team-hub-content dl div{
+    padding:10px!important;
+  }
+
+  .team-hub-content .button{
+    min-height:40px!important;
+    width:100%!important;
+  }
+
+  .partner-card{
+    grid-template-columns:68px minmax(0,1fr)!important;
+    gap:12px!important;
+  }
+
+  .partner-logo{
+    width:68px!important;
+  }
+
+  .partner-card h3,
+  .partner-card span,
+  .partner-card p{
+    overflow-wrap:anywhere;
+  }
+
+  .history-card-content p,
+  .history-next-chapter p:not(.section-kicker){
+    font-size:14.5px!important;
+    line-height:1.42!important;
+  }
+
+  .history-timeline-modern article{
+    padding:14px!important;
+    gap:10px!important;
+  }
+}
+
+@media(max-width:390px){
+  .team-hub-card{
+    grid-template-columns:76px minmax(0,1fr)!important;
+  }
+
+  .team-hub-visual img{
+    width:58px!important;
+  }
+
+  .team-hub-content{
+    padding:12px!important;
+  }
+
+  .team-hub-content h2{
+    font-size:clamp(25px,8.4vw,34px)!important;
+  }
+
+  .team-hub-content span,
+  .team-hub-content dt{
+    letter-spacing:.8px!important;
+  }
+}
+
+/* Derniere priorite mobile: chronologie et journal vraiment compacts */
+@media(max-width:760px){
+  .journal-card-secondary{
+    display:block!important;
+    min-height:0!important;
+  }
+
+  .journal-card-secondary .journal-image{
+    min-height:128px!important;
+  }
+
+  .journal-card-secondary .journal-card-body{
+    min-height:0!important;
+    padding:14px!important;
+  }
+}
+
+@media(max-width:430px){
+  .history-card-content h3{
+    font-size:clamp(24px,7.8vw,31px)!important;
+    line-height:1.02!important;
+    margin-bottom:7px!important;
+  }
+
+  .history-card-content span{
+    font-size:11px!important;
+    letter-spacing:.9px!important;
+  }
+
+  .history-card-content p,
+  .history-next-chapter p:not(.section-kicker){
+    font-size:13.1px!important;
+    line-height:1.32!important;
+  }
+
+  .history-timeline-modern article{
+    padding:12px!important;
+    gap:8px!important;
+  }
+
+  .history-date{
+    min-height:32px!important;
+    font-size:21px!important;
+    padding-inline:10px!important;
+  }
+
+  .journal-card-secondary h3{
+    font-size:clamp(24px,7.6vw,31px)!important;
+  }
+
+  body .history-redesign .history-timeline-modern .history-card-content p{
+    font-size:13px!important;
+    line-height:1.32!important;
+  }
+
+  body .history-redesign .history-timeline-modern article{
+    padding:12px!important;
+  }
+}
+
+/* ===================================================================
+   V2.1 - Header premium desktop uniquement (>=1121px)
+   - boutons plus visibles (bordure, fond translucide, padding, taille)
+   - correction du hover des menus deroulants (zone tampon invisible)
+   - style des sous-menus (panneau distinct du conteneur de hover)
+   Le mobile (max-width:1120px) n'est pas concerne par ce bloc.
+   =================================================================== */
+@media(min-width:1121px){
+  .site-nav.v1-nav{
+    gap:clamp(6px,.6vw,12px);
+  }
+
+  /* Boutons premium : Accueil, Le Club, Les Equipes, Galerie, Partenaires, Boutique */
+  .site-nav.v1-nav .nav-text-link,
+  .site-nav.v1-nav .nav-dropdown-main{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:clamp(42px,3.1vw,48px);
+    padding:0 clamp(14px,1.15vw,22px);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:10px;
+    background:rgba(255,255,255,.03);
+    color:#cfc9c2;
+    font-size:clamp(12.5px,.85vw,15px);
+    letter-spacing:1px;
+    transition:color .22s ease,border-color .22s ease,background .22s ease;
+  }
+  .site-nav.v1-nav .nav-text-link:hover,
+  .site-nav.v1-nav .nav-dropdown-main:hover,
+  .site-nav.v1-nav .nav-text-link.is-active,
+  .site-nav.v1-nav .nav-dropdown.is-active > .nav-dropdown-main{
+    color:#fff;
+    border-color:rgba(211,26,82,.55);
+    background:rgba(177,24,69,.14);
+  }
+
+  /* Barre rouge RCC qui glisse sous le bouton, contenue dans ses bords */
+  .site-nav.v1-nav .nav-text-link:after,
+  .site-nav.v1-nav .nav-dropdown-main:after{
+    display:block;
+    position:absolute;
+    left:clamp(14px,1.15vw,22px);
+    right:clamp(14px,1.15vw,22px);
+    bottom:7px;
+    height:2px;
+    content:"";
+    background:var(--red-bright);
+    transform:scaleX(0);
+    transform-origin:right;
+    transition:transform .22s ease;
+  }
+  .site-nav.v1-nav .nav-text-link:hover:after,
+  .site-nav.v1-nav .nav-dropdown-main:hover:after,
+  .site-nav.v1-nav .nav-text-link.is-active:after,
+  .site-nav.v1-nav .nav-dropdown.is-active > .nav-dropdown-main:after{
+    transform:scaleX(1);
+    transform-origin:left;
+  }
+
+  /* Contact : reste plus fort visuellement mais aligne en hauteur avec le reste */
+  .site-nav.v1-nav .nav-cta{
+    min-height:clamp(44px,3.3vw,50px);
+    padding-inline:clamp(18px,1.6vw,28px);
+    border-radius:10px;
+    font-size:clamp(12px,.82vw,13.5px);
+    letter-spacing:1.1px;
+  }
+
+  /* ===== Correction du hover : suppression du vide entre bouton et sous-menu ===== */
+  .nav-submenu{
+    top:100%;
+    padding:14px 0 0;
+    min-width:230px;
+    background:transparent;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
+    transform:translate(-50%,4px);
+  }
+  .nav-dropdown:hover .nav-submenu,
+  .nav-dropdown:focus-within .nav-submenu,
+  .nav-dropdown.is-submenu-open .nav-submenu{
+    transform:translate(-50%,0);
+  }
+
+  /* Le panneau visible du sous-menu, distinct de la zone de hover */
+  .nav-submenu-panel{
+    display:grid;
+    gap:2px;
+    padding:10px;
+    border:1px solid rgba(177,24,69,.4);
+    border-radius:14px;
+    background:rgba(10,10,10,.92);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    box-shadow:0 26px 60px rgba(0,0,0,.5);
+  }
+  .nav-submenu a{
+    padding:0 16px!important;
+    min-height:42px;
+    border-radius:9px;
+    letter-spacing:.9px;
+  }
+  .nav-submenu a:hover,
+  .nav-submenu a.is-active{
+    background:rgba(177,24,69,.22)!important;
+  }
+}
+
 /* Menu deroulant Accueil / Les Equipes */
 .nav-dropdown{
   position:relative;
@@ -2456,299 +2753,76 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
     font-size:clamp(24px,7.8vw,32px)!important;
   }
 }
-
-/* Ajustements anti-debordement et cartes mobiles tres compactes */
-html,
-body{
-  max-width:100%;
-  overflow-x:hidden;
-}
-
-.news-grid article{
-  overflow:hidden;
-}
-
-.partner-card,
-.contact-panel,
-.contact-form,
-.academy-content,
-.roster-title,
-.player-card,
-.team-hub-card,
-.journal-card,
-.shop-card{
-  min-width:0;
-}
-
-.partner-card *,
-.contact-panel *,
-.contact-form *,
-.academy-content *,
-.team-hub-card *,
-.journal-card *,
-.shop-card *{
-  min-width:0;
-}
-
-@media(max-width:760px){
-  .team-hub-card{
-    grid-template-columns:88px minmax(0,1fr)!important;
-    min-height:0!important;
-  }
-
-  .team-hub-visual{
-    min-height:100%!important;
-    padding:8px!important;
-  }
-
-  .team-hub-visual img{
-    width:68px!important;
-  }
-
-  .team-hub-content{
-    gap:10px!important;
-    padding:14px!important;
-  }
-
-  .team-hub-content h2{
-    font-size:clamp(28px,9vw,38px)!important;
-  }
-
-  .team-hub-content p{
-    font-size:14.5px!important;
-    line-height:1.42!important;
-  }
-
-  .team-hub-content dl{
-    gap:8px!important;
-  }
-
-  .team-hub-content dl div{
-    padding:10px!important;
-  }
-
-  .team-hub-content .button{
-    min-height:40px!important;
-    width:100%!important;
-  }
-
-  .partner-card{
-    grid-template-columns:68px minmax(0,1fr)!important;
-    gap:12px!important;
-  }
-
-  .partner-logo{
-    width:68px!important;
-  }
-
-  .partner-card h3,
-  .partner-card span,
-  .partner-card p{
-    overflow-wrap:anywhere;
-  }
-
-  .history-card-content p,
-  .history-next-chapter p:not(.section-kicker){
-    font-size:14.5px!important;
-    line-height:1.42!important;
-  }
-
-  .history-timeline-modern article{
-    padding:14px!important;
-    gap:10px!important;
-  }
-}
-
-@media(max-width:390px){
-  .team-hub-card{
-    grid-template-columns:76px minmax(0,1fr)!important;
-  }
-
-  .team-hub-visual img{
-    width:58px!important;
-  }
-
-  .team-hub-content{
-    padding:12px!important;
-  }
-
-  .team-hub-content h2{
-    font-size:clamp(25px,8.4vw,34px)!important;
-  }
-
-  .team-hub-content span,
-  .team-hub-content dt{
-    letter-spacing:.8px!important;
-  }
-}
-
-/* Derniere priorite mobile: chronologie et journal vraiment compacts */
-@media(max-width:760px){
-  .journal-card-secondary{
-    display:block!important;
-    min-height:0!important;
-  }
-
-  .journal-card-secondary .journal-image{
-    min-height:128px!important;
-  }
-
-  .journal-card-secondary .journal-card-body{
-    min-height:0!important;
-    padding:14px!important;
-  }
-}
-
-@media(max-width:430px){
-  .history-card-content h3{
-    font-size:clamp(24px,7.8vw,31px)!important;
-    line-height:1.02!important;
-    margin-bottom:7px!important;
-  }
-
-  .history-card-content span{
-    font-size:11px!important;
-    letter-spacing:.9px!important;
-  }
-
-  .history-card-content p,
-  .history-next-chapter p:not(.section-kicker){
-    font-size:13.1px!important;
-    line-height:1.32!important;
-  }
-
-  .history-timeline-modern article{
-    padding:12px!important;
-    gap:8px!important;
-  }
-
-  .history-date{
-    min-height:32px!important;
-    font-size:21px!important;
-    padding-inline:10px!important;
-  }
-
-  .journal-card-secondary h3{
-    font-size:clamp(24px,7.6vw,31px)!important;
-  }
-
-  body .history-redesign .history-timeline-modern .history-card-content p{
-    font-size:13px!important;
-    line-height:1.32!important;
-  }
-
-  body .history-redesign .history-timeline-modern article{
-    padding:12px!important;
-  }
-}
-
-/* ===================================================================
-   V2.1 — Header premium desktop uniquement (>=1121px)
-   - boutons plus visibles (bordure, fond translucide, padding, taille)
-   - correction du hover des menus déroulants (zone tampon invisible)
-   - style des sous-menus (panneau distinct du conteneur de hover)
-   Le mobile (max-width:1120px) n'est pas concerné par ce bloc.
-   =================================================================== */
+/* Desktop spacing pass: reduce empty vertical space without changing mobile rhythm */
 @media(min-width:1121px){
-  .site-nav.v1-nav{
-    gap:clamp(6px,.6vw,12px);
+  :root{
+    --compact-section-y:clamp(44px,4.2vw,66px);
   }
 
-  /* Boutons premium : Accueil, Le Club, Les Équipes, Galerie, Partenaires, Boutique */
-  .site-nav.v1-nav .nav-text-link,
-  .site-nav.v1-nav .nav-dropdown-main{
-    position:relative;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    min-height:clamp(42px,3.1vw,48px);
-    padding:0 clamp(14px,1.15vw,22px);
-    border:1px solid rgba(255,255,255,.14);
-    border-radius:10px;
-    background:rgba(255,255,255,.03);
-    color:#cfc9c2;
-    font-size:clamp(12.5px,.85vw,15px);
-    letter-spacing:1px;
-    transition:color .22s ease,border-color .22s ease,background .22s ease;
-  }
-  .site-nav.v1-nav .nav-text-link:hover,
-  .site-nav.v1-nav .nav-dropdown-main:hover,
-  .site-nav.v1-nav .nav-text-link.is-active,
-  .site-nav.v1-nav .nav-dropdown.is-active > .nav-dropdown-main{
-    color:#fff;
-    border-color:rgba(211,26,82,.55);
-    background:rgba(177,24,69,.14);
+  .hero{
+    min-height:clamp(610px,58vw,700px)!important;
   }
 
-  /* Barre rouge RCC qui glisse sous le bouton, contenue dans ses bords */
-  .site-nav.v1-nav .nav-text-link:after,
-  .site-nav.v1-nav .nav-dropdown-main:after{
-    display:block;
-    position:absolute;
-    left:clamp(14px,1.15vw,22px);
-    right:clamp(14px,1.15vw,22px);
-    bottom:7px;
-    height:2px;
-    content:"";
-    background:var(--red-bright);
-    transform:scaleX(0);
-    transform-origin:right;
-    transition:transform .22s ease;
-  }
-  .site-nav.v1-nav .nav-text-link:hover:after,
-  .site-nav.v1-nav .nav-dropdown-main:hover:after,
-  .site-nav.v1-nav .nav-text-link.is-active:after,
-  .site-nav.v1-nav .nav-dropdown.is-active > .nav-dropdown-main:after{
-    transform:scaleX(1);
-    transform-origin:left;
+  .hero-content{
+    padding-top:clamp(34px,4.2vw,58px)!important;
   }
 
-  /* Contact : reste plus fort visuellement mais aligné en hauteur avec le reste */
-  .site-nav.v1-nav .nav-cta{
-    min-height:clamp(44px,3.3vw,50px);
-    padding-inline:clamp(18px,1.6vw,28px);
-    border-radius:10px;
-    font-size:clamp(12px,.82vw,13.5px);
-    letter-spacing:1.1px;
+  .club-signature-wrap,
+  .hero-signature-wrap,
+  .signature-card-wrap{
+    margin-top:clamp(18px,2.5vw,36px)!important;
+    margin-bottom:clamp(28px,3.2vw,48px)!important;
   }
 
-  /* ===== Correction du hover : suppression du vide entre bouton et sous-menu ===== */
-  .nav-submenu{
-    top:100%;
-    padding:14px 0 0;
-    min-width:230px;
-    background:transparent;
-    border:0;
-    border-radius:0;
-    box-shadow:none;
-    transform:translate(-50%,4px);
-  }
-  .nav-dropdown:hover .nav-submenu,
-  .nav-dropdown:focus-within .nav-submenu,
-  .nav-dropdown.is-submenu-open .nav-submenu{
-    transform:translate(-50%,0);
+  .home-important-shell,
+  .important-news-shell,
+  .home-news-alert{
+    margin-top:clamp(24px,3vw,42px)!important;
+    margin-bottom:clamp(22px,2.8vw,38px)!important;
   }
 
-  /* Le panneau visible du sous-menu, distinct de la zone de hover */
-  .nav-submenu-panel{
-    display:grid;
-    gap:2px;
-    padding:10px;
-    border:1px solid rgba(177,24,69,.4);
-    border-radius:14px;
-    background:rgba(10,10,10,.92);
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
-    box-shadow:0 26px 60px rgba(0,0,0,.5);
+  .home-match-preview{
+    padding-top:clamp(30px,3.2vw,48px)!important;
+    padding-bottom:clamp(42px,4.4vw,66px)!important;
   }
-  .nav-submenu a{
-    padding:0 16px!important;
-    min-height:42px;
-    border-radius:9px;
-    letter-spacing:.9px;
+
+  .history-hero,
+  .senior-hero,
+  .academy-hero{
+    min-height:clamp(320px,30vw,420px)!important;
   }
-  .nav-submenu a:hover,
-  .nav-submenu a.is-active{
-    background:rgba(177,24,69,.22)!important;
+
+  .history-hero-content,
+  .senior-hero-content,
+  .academy-hero-content{
+    padding-top:clamp(42px,4.8vw,66px)!important;
+    padding-bottom:clamp(28px,3.4vw,48px)!important;
+  }
+
+  .actualites-page,
+  .calendar-page,
+  .teams-hub,
+  .gallery-page,
+  .partners-page,
+  .shop-page,
+  .join-contact-page,
+  .project-page,
+  .roster-page,
+  .academy-page,
+  .notifications-page,
+  .history-redesign .history-page{
+    padding-top:clamp(34px,3.6vw,54px)!important;
+    padding-bottom:clamp(46px,4.8vw,72px)!important;
+  }
+
+  .section-head{
+    margin-bottom:clamp(18px,2.4vw,34px)!important;
+  }
+
+  .calendar-filters,
+  .journal-filters,
+  .shop-filters,
+  .gallery-filters{
+    margin-bottom:clamp(18px,2.2vw,30px)!important;
   }
 }
