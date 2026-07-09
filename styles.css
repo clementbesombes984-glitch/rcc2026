@@ -1789,9 +1789,9 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 /* Version 1.0 - navigation simplifiee et pages pivot */
 @media(min-width:1121px){
   .site-header{gap:18px}
-  .site-nav.v1-nav{gap:clamp(9px,.72vw,15px);font-size:clamp(10px,.72vw,12.5px)}
-  .site-nav.v1-nav .nav-text-link{min-height:42px;padding:0;white-space:nowrap}
-  .site-nav.v1-nav .nav-cta{min-height:44px;padding-inline:16px}
+  .site-nav.v1-nav{gap:clamp(10px,.8vw,16px);font-size:clamp(11.5px,.8vw,14px)}
+  .site-nav.v1-nav .nav-text-link{min-height:44px;padding:0 9px;white-space:nowrap}
+  .site-nav.v1-nav .nav-cta{min-height:46px;padding-inline:18px}
 }
 
 .club-identity-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:clamp(34px,5vw,62px) 0}
@@ -1848,40 +1848,16 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
   .team-hub-content p{font-size:16px}
 }
 
-/* Menu deroulant equipes */
+/* Menu deroulant Accueil / Les Equipes */
 .nav-dropdown{
   position:relative;
   display:inline-flex;
   align-items:center;
-  gap:6px;
   min-height:44px;
 }
 .nav-dropdown-main{
   white-space:nowrap;
-}
-.nav-dropdown-toggle{
-  display:inline-grid;
-  width:24px;
-  height:24px;
-  place-items:center;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:999px;
-  background:rgba(255,255,255,.035);
-  color:#d8d0c6;
   cursor:pointer;
-  font-size:13px;
-  line-height:1;
-  transition:background .2s ease,border-color .2s ease,color .2s ease,transform .2s ease;
-}
-.nav-dropdown:hover .nav-dropdown-toggle,
-.nav-dropdown:focus-within .nav-dropdown-toggle,
-.nav-dropdown.is-active .nav-dropdown-toggle{
-  border-color:rgba(211,26,82,.48);
-  background:rgba(177,24,69,.16);
-  color:#fff;
-}
-.nav-dropdown.is-submenu-open .nav-dropdown-toggle{
-  transform:rotate(180deg);
 }
 .nav-submenu{
   position:absolute;
@@ -1935,17 +1911,14 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 
 @media(max-width:1120px){
   body .site-nav.is-open .nav-dropdown{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) 52px!important;
-    gap:8px!important;
-    width:min(88vw,360px)!important;
-    max-width:360px!important;
+    display:block!important;
+    width:min(320px,86vw)!important;
+    max-width:none!important;
     margin:0!important;
-    align-items:center!important;
   }
   body .site-nav.is-open .nav-dropdown-main{
     display:flex!important;
-    width:auto!important;
+    width:100%!important;
     max-width:none!important;
     min-height:52px!important;
     align-items:center!important;
@@ -1957,6 +1930,10 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
     color:transparent!important;
     font-size:0!important;
   }
+  body .site-nav.is-open .nav-dropdown.is-submenu-open .nav-dropdown-main{
+    border-color:rgba(211,26,82,.5)!important;
+    background:rgba(177,24,69,.14)!important;
+  }
   body .site-nav.is-open .nav-dropdown-main:before{
     content:attr(data-mobile-label);
     color:#f7f4ef;
@@ -1966,21 +1943,12 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
     letter-spacing:.9px;
     text-transform:uppercase;
   }
-  body .site-nav.is-open .nav-dropdown-toggle{
-    display:flex!important;
-    width:52px!important;
-    height:52px!important;
-    align-items:center!important;
-    justify-content:center!important;
-    border-radius:12px!important;
-    font-size:17px!important;
-  }
   body .site-nav.is-open .nav-submenu{
     position:static!important;
-    grid-column:1 / -1!important;
     display:none!important;
     min-width:0!important;
     width:100%!important;
+    margin-top:8px!important;
     padding:8px!important;
     opacity:1!important;
     pointer-events:auto!important;

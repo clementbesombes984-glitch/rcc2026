@@ -71,11 +71,29 @@ if (nav) {
   nav.querySelectorAll('[data-nav-dropdown]').forEach((dropdown) => {
     dropdown.classList.toggle('is-active', Boolean(dropdown.querySelector('a.is-active')));
   });
-  nav.querySelectorAll('[data-nav-submenu-toggle]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const dropdown = button.closest('[data-nav-dropdown]');
-      const isOpen = dropdown?.classList.toggle('is-submenu-open');
-      button.setAttribute('aria-expanded', String(Boolean(isOpen)));
+  const closeAllSubmenus = (except) => {
+    nav.querySelectorAll('[data-nav-dropdown]').forEach((dropdown) => {
+      if (dropdown === except) return;
+      dropdown.classList.remove('is-submenu-open');
+      dropdown.querySelector('[data-nav-dropdown-main]')?.setAttribute('aria-expanded', 'false');
+    });
+  };
+  nav.querySelectorAll('[data-nav-dropdown-main]').forEach((mainLink) => {
+    mainLink.addEventListener('click', (event) => {
+      const dropdown = mainLink.closest('[data-nav-dropdown]');
+      if (!dropdown) return;
+      event.preventDefault();
+      const isOpen = dropdown.classList.toggle('is-submenu-open');
+      mainLink.setAttribute('aria-expanded', String(isOpen));
+      if (isOpen) closeAllSubmenus(dropdown);
+    });
+  });
+  document.addEventListener('click', (event) => {
+    nav.querySelectorAll('[data-nav-dropdown].is-submenu-open').forEach((dropdown) => {
+      if (!dropdown.contains(event.target)) {
+        dropdown.classList.remove('is-submenu-open');
+        dropdown.querySelector('[data-nav-dropdown-main]')?.setAttribute('aria-expanded', 'false');
+      }
     });
   });
 }
@@ -85,10 +103,11 @@ if (toggle && nav) {
     toggle.setAttribute('aria-expanded', String(isOpen));
   });
   nav.addEventListener('click', (event) => {
-    if (event.target instanceof HTMLAnchorElement) {
+    const link = event.target.closest('a');
+    if (link && !link.matches('[data-nav-dropdown-main]')) {
       nav.classList.remove('is-open');
       nav.querySelectorAll('[data-nav-dropdown]').forEach((dropdown) => dropdown.classList.remove('is-submenu-open'));
-      nav.querySelectorAll('[data-nav-submenu-toggle]').forEach((button) => button.setAttribute('aria-expanded', 'false'));
+      nav.querySelectorAll('[data-nav-dropdown-main]').forEach((mainLink) => mainLink.setAttribute('aria-expanded', 'false'));
       toggle.setAttribute('aria-expanded', 'false');
     }
   });

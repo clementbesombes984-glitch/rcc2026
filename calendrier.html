@@ -32,11 +32,17 @@
       <a class="brand brand-logo-only" href="./index.html#accueil" aria-label="RC Cubzaguais accueil"><img src="./assets/logo-rcc.png" alt="RC Cubzaguais" decoding="async" fetchpriority="high" /></a>
       <button class="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-menu-toggle><span></span><span></span></button>
       <nav class="site-nav v1-nav" aria-label="Navigation principale" data-nav>
-        <a class="nav-text-link" href="./index.html#accueil">Accueil</a>
+        <div class="nav-dropdown" data-nav-dropdown>
+          <a class="nav-text-link nav-dropdown-main" href="./index.html#accueil" data-nav-dropdown-main aria-haspopup="true" aria-expanded="false">Accueil</a>
+          <div class="nav-submenu" data-nav-submenu>
+            <a href="./index.html#accueil">Accueil</a>
+            <a href="./actualites.html">Actualités</a>
+            <a href="./calendrier.html">Calendrier</a>
+          </div>
+        </div>
         <a class="nav-text-link" href="./club.html">Le Club</a>
         <div class="nav-dropdown" data-nav-dropdown>
-          <a class="nav-text-link nav-dropdown-main" href="./equipes.html">Les Équipes</a>
-          <button class="nav-dropdown-toggle" type="button" aria-label="Ouvrir le sous-menu Les Équipes" aria-expanded="false" data-nav-submenu-toggle>▾</button>
+          <a class="nav-text-link nav-dropdown-main" href="./equipes.html" data-nav-dropdown-main aria-haspopup="true" aria-expanded="false">Les Équipes</a>
           <div class="nav-submenu" data-nav-submenu>
             <a href="./ecole.html">École de Rugby</a>
             <a href="./jeunes.html">Pôle Jeunes</a>
@@ -44,8 +50,6 @@
             <a href="./senior.html">Seniors</a>
           </div>
         </div>
-        <a class="nav-text-link" href="./actualites.html">Actualités</a>
-        <a class="nav-text-link" href="./calendrier.html">Calendrier</a>
         <a class="nav-text-link" href="./galerie.html">Galerie</a>
         <a class="nav-text-link" href="./partenaires.html">Partenaires</a>
         <a class="nav-text-link" href="./boutique.html">Boutique</a>

@@ -51,11 +51,17 @@
       <a class="brand brand-logo-only" href="./index.html#accueil" aria-label="RC Cubzaguais accueil"><img src="./assets/logo-rcc.png" alt="RC Cubzaguais" decoding="async" fetchpriority="high" /></a>
       <button class="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-menu-toggle><span></span><span></span></button>
       <nav class="site-nav v1-nav" aria-label="Navigation principale" data-nav>
-        <a class="nav-text-link" href="./index.html#accueil">Accueil</a>
+        <div class="nav-dropdown" data-nav-dropdown>
+          <a class="nav-text-link nav-dropdown-main" href="./index.html#accueil" data-nav-dropdown-main aria-haspopup="true" aria-expanded="false">Accueil</a>
+          <div class="nav-submenu" data-nav-submenu>
+            <a href="./index.html#accueil">Accueil</a>
+            <a href="./actualites.html">Actualités</a>
+            <a href="./calendrier.html">Calendrier</a>
+          </div>
+        </div>
         <a class="nav-text-link" href="./club.html">Le Club</a>
         <div class="nav-dropdown" data-nav-dropdown>
-          <a class="nav-text-link nav-dropdown-main" href="./equipes.html">Les Équipes</a>
-          <button class="nav-dropdown-toggle" type="button" aria-label="Ouvrir le sous-menu Les Équipes" aria-expanded="false" data-nav-submenu-toggle>▾</button>
+          <a class="nav-text-link nav-dropdown-main" href="./equipes.html" data-nav-dropdown-main aria-haspopup="true" aria-expanded="false">Les Équipes</a>
           <div class="nav-submenu" data-nav-submenu>
             <a href="./ecole.html">École de Rugby</a>
             <a href="./jeunes.html">Pôle Jeunes</a>
@@ -63,8 +69,6 @@
             <a href="./senior.html">Seniors</a>
           </div>
         </div>
-        <a class="nav-text-link" href="./actualites.html">Actualités</a>
-        <a class="nav-text-link" href="./calendrier.html">Calendrier</a>
         <a class="nav-text-link" href="./galerie.html">Galerie</a>
         <a class="nav-text-link" href="./partenaires.html">Partenaires</a>
         <a class="nav-text-link" href="./boutique.html">Boutique</a>
@@ -102,6 +106,14 @@
       </section>
 
       <section class="important-news-shell page-shell" data-important-news hidden></section>
+
+      <section class="news page-shell" id="actus">
+        <p class="section-kicker">Actualités</p>
+        <div class="section-head">
+          <h2>Vie du club</h2>
+        </div>
+        <div class="news-grid"></div>
+      </section>
 
       <section class="section page-shell home-match-preview" id="matches">
         <p class="section-kicker">Calendrier</p>
@@ -143,13 +155,6 @@
 
             <section class="cards-section page-shell" id="ecole"><p class="section-kicker">Formation</p><h2>École de rugby</h2><div class="cards"><a class="card" href="./ecole.html"><span>U6 - U14</span><h3>Découvrir</h3><p>Apprendre les gestes essentiels, courir, partager et prendre confiance avec le ballon.</p></a><a class="card" id="jeunes" href="./jeunes.html"><span>U16 - U18</span><h3>Grandir</h3><p>Développer la technique, l'esprit d'équipe et le plaisir de jouer dans un cadre structuré.</p></a><a class="card" id="cadettes" href="./cadettes.html"><span>Cadettes</span><h3>S'engager</h3><p>Le groupe Cadettes pour progresser, jouer et porter les couleurs du RCC.</p></a></div></section>
 
-      <section class="news page-shell" id="actus">
-        <p class="section-kicker">Actualités</p>
-        <div class="section-head">
-          <h2>Vie du club</h2>
-        </div>
-        <div class="news-grid"></div>
-      </section>
       <section class="join-cta-band" id="rejoindre">
         <div class="page-shell join-cta-inner">
           <div><p class="section-kicker">Nous rejoindre</p><h2>Porte nos couleurs</h2><p>Joueur, joueuse, parent, bénévole ou partenaire : toutes les demandes passent désormais par une page unique.</p></div>
