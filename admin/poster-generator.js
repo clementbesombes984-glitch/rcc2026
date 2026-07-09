@@ -99,6 +99,21 @@
   const zoomOutButton = document.querySelector('[data-zoom-out]');
   const toggleGridButton = document.querySelector('[data-toggle-grid]');
   const resetPhotoButton = document.querySelector('[data-reset-photo]');
+  const studioTabButtons = document.querySelectorAll('[data-studio-tab]');
+  const studioTabPanels = document.querySelectorAll('[data-studio-tab-panel]');
+  const pushSettings = document.querySelector('[data-push-settings]');
+  const compositionTeam = document.querySelector('[data-composition-team]');
+  const compositionMatch = document.querySelector('[data-composition-match]');
+  const compositionMatchInfo = document.querySelector('[data-composition-match-info]');
+  const compositionList = document.querySelector('[data-composition-list]');
+  const compositionPreview = document.querySelector('[data-composition-preview]');
+  const newsletterItems = document.querySelector('[data-newsletter-items]');
+  const newsletterPreview = document.querySelector('[data-newsletter-preview]');
+  const newsletterTitle = document.querySelector('[data-newsletter-title]');
+  const newsletterPeriod = document.querySelector('[data-newsletter-period]');
+  const newsletterIntro = document.querySelector('[data-newsletter-intro]');
+  const newsletterPartner = document.querySelector('[data-newsletter-partner]');
+  const newsletterReminder = document.querySelector('[data-newsletter-reminder]');
 
   const state = {
     activeSource: 'blank',
@@ -116,6 +131,9 @@
       albums: [],
       teams: [],
       settings: {}
+    },
+    composition: {
+      slots: Array.from({ length: 23 }, (_, index) => ({ number: index + 1, player: '' }))
     }
   };
 
@@ -128,6 +146,67 @@
   const upper = (value) => clean(value).toUpperCase();
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const asList = (value) => Array.isArray(value) ? value.filter(Boolean) : (value ? [value] : []);
+  const slug = (value) => clean(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[char]);
+
+  function matchesAudience(item, team) {
+    const text = clean([
+      item.team,
+      item.category,
+      item.title,
+      item.audience,
+      item.type_evenement,
+      item.competition
+    ].flat().join(' ')).toLowerCase();
+    const key = clean(team).toLowerCase();
+    if (key === 'seniors') return text.includes('senior') || text.includes('rcc') || !text;
+    if (key === 'cadettes') return text.includes('cadette') || text.includes('feminine');
+    if (key === 'u18') return text.includes('u18') || text.includes('junior');
+    if (key === 'u16') return text.includes('u16') || text.includes('cadet');
+    return text.includes(key);
+  }
+
+  function eventTitle(item) {
+    return clean(item.title || item.tournamentName || item.nom_tournoi || item.opponent || item.adversaire || 'Rendez-vous RCC');
+  }
+
+  function eventDetails(item) {
+    return [
+      item.date ? formatDate(item.date) : '',
+      item.time || item.heure || '',
+      item.location || item.lieu || '',
+      item.competition || ''
+    ].filter(Boolean).join(' - ');
+  }
+
+  function playerName(player) {
+    return clean(player.age || `${player.firstName || player.prenom || ''} ${player.lastName || player.nom || ''}` || player.name || player.title);
+  }
+
+  function playerPool(team = '') {
+    const key = clean(team).toLowerCase();
+    return state.data.teams
+      .filter((item) => {
+        const source = clean(`${item.source || ''} ${item.label || ''} ${item.category || ''} ${item.age || ''}`).toLowerCase();
+        if (key === 'seniors') return source.includes('senior');
+        if (key === 'cadettes') return source.includes('cadette') || source.includes('feminine');
+        if (key === 'u18') return source.includes('u18') || source.includes('junior');
+        if (key === 'u16') return source.includes('u16') || source.includes('cadet');
+        return source.includes(key);
+      })
+      .map((item) => ({
+        name: playerName(item),
+        role: clean(item.position || item.role || item.label || ''),
+        photo: clean(item.photo || item.teamPhoto || item.image || '')
+      }))
+      .filter((item) => item.name);
+  }
 
   function getStyleKey(style, template) {
     const key = clean(style).toLowerCase();
@@ -269,6 +348,9 @@
     hydrateSourceSelect();
     const count = state.data.news.length + state.data.events.length + state.data.partners.length + state.data.products.length + state.data.albums.length + state.data.teams.length;
     setStatus(`${count} element(s) CMS disponibles pour le Studio RCC.`);
+    hydrateCompositionMatches();
+    hydrateCompositionPlayers();
+    hydrateNewsletterSources();
     render();
   }
 
@@ -307,6 +389,194 @@
     }
     sourceSelect.disabled = false;
     sourceSelect.innerHTML = '<option value="">Choisir dans le CMS</option>' + items.map((item, index) => `<option value="${index}">${labelForItem(item)}</option>`).join('');
+  }
+
+  function switchStudioTab(tab) {
+    studioTabButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.studioTab === tab));
+    studioTabPanels.forEach((panel) => {
+      const active = panel.dataset.studioTabPanel === tab;
+      panel.classList.toggle('is-active', active);
+      panel.hidden = !active;
+    });
+    if (tab === 'compositions') renderComposition();
+    if (tab === 'newsletters') renderNewsletter();
+  }
+
+  function hydrateCompositionMatches() {
+    if (!compositionMatch) return;
+    const team = compositionTeam?.value || 'Seniors';
+    const matches = state.data.events.filter((item) => matchesAudience(item, team));
+    compositionMatch.innerHTML = '<option value="">Choisir un match</option>' + matches.map((item, index) => {
+      const originalIndex = state.data.events.indexOf(item);
+      return `<option value="${originalIndex}">${escapeHtml(`${item.date ? formatDate(item.date) + ' - ' : ''}${eventTitle(item)}`)}</option>`;
+    }).join('');
+    updateCompositionMatchInfo();
+  }
+
+  function hydrateCompositionPlayers() {
+    if (!compositionList) return;
+    const team = compositionTeam?.value || 'Seniors';
+    const players = playerPool(team);
+    const options = players
+      .map((player) => `<option value="${escapeHtml(player.name)}">${player.role ? escapeHtml(player.role) : ''}</option>`)
+      .join('');
+    state.composition.slots = state.composition.slots.length
+      ? state.composition.slots
+      : Array.from({ length: 23 }, (_, index) => ({ number: index + 1, player: '' }));
+    compositionList.innerHTML = `<datalist id="composition-player-options">${options}</datalist>` + state.composition.slots.map((slot, index) => {
+      const label = index < 15 ? `Titulaire ${index + 1}` : `Remplacant ${index - 14}`;
+      return `
+        <label class="composition-slot">
+          <span>${label}</span>
+          <input list="composition-player-options" data-composition-player="${index}" value="${escapeHtml(slot.player || '')}" placeholder="Nom du joueur" />
+        </label>
+      `;
+    }).join('');
+    compositionList.querySelectorAll('[data-composition-player]').forEach((input) => {
+      input.addEventListener('input', () => {
+        state.composition.slots[Number(input.dataset.compositionPlayer)].player = input.value;
+        renderComposition();
+      });
+    });
+    renderComposition();
+  }
+
+  function updateCompositionMatchInfo() {
+    if (!compositionMatchInfo) return;
+    const item = state.data.events[Number(compositionMatch?.value)];
+    compositionMatchInfo.innerHTML = item
+      ? `<strong>${escapeHtml(eventTitle(item))}</strong><span>${escapeHtml(eventDetails(item))}</span>`
+      : 'Selectionne une equipe puis un match du calendrier.';
+  }
+
+  function renderComposition() {
+    updateCompositionMatchInfo();
+    if (!compositionPreview) return;
+    const team = compositionTeam?.value || 'Seniors';
+    const item = state.data.events[Number(compositionMatch?.value)] || {};
+    const filled = state.composition.slots.filter((slot) => clean(slot.player));
+    compositionPreview.innerHTML = `
+      <div class="composition-card">
+        <header>
+          <img src="../assets/logo-rcc.png" alt="" />
+          <div>
+            <span>${escapeHtml(team)}</span>
+            <strong>${escapeHtml(eventTitle(item) || 'Composition RCC')}</strong>
+            <small>${escapeHtml(eventDetails(item))}</small>
+          </div>
+        </header>
+        <div class="composition-board">
+          ${state.composition.slots.map((slot, index) => `
+            <article class="${index < 15 ? 'starter' : 'bench'}">
+              <b>${slot.number}</b>
+              <span>${escapeHtml(slot.player || 'A definir')}</span>
+            </article>
+          `).join('')}
+        </div>
+        <footer>${filled.length}/23 joueurs renseignes</footer>
+      </div>
+    `;
+  }
+
+  function compositionStorageKey() {
+    return `rcc_composition_${slug(compositionTeam?.value || 'seniors')}`;
+  }
+
+  function saveCompositionDraft() {
+    localStorage.setItem(compositionStorageKey(), JSON.stringify({
+      team: compositionTeam?.value || 'Seniors',
+      match: compositionMatch?.value || '',
+      slots: state.composition.slots,
+      savedAt: new Date().toISOString()
+    }));
+    setStatus('Brouillon de composition enregistre.');
+  }
+
+  function loadCompositionDraft() {
+    const draft = JSON.parse(localStorage.getItem(compositionStorageKey()) || 'null');
+    if (!draft) {
+      setStatus('Aucun brouillon trouve pour cette equipe.');
+      return;
+    }
+    if (compositionMatch) compositionMatch.value = draft.match || '';
+    state.composition.slots = Array.isArray(draft.slots) ? draft.slots : state.composition.slots;
+    hydrateCompositionPlayers();
+    setStatus('Brouillon de composition charge.');
+  }
+
+  function clearCompositionDraft() {
+    state.composition.slots = Array.from({ length: 23 }, (_, index) => ({ number: index + 1, player: '' }));
+    hydrateCompositionPlayers();
+    setStatus('Composition videe.');
+  }
+
+  function compositionText(channel = 'facebook') {
+    const team = compositionTeam?.value || 'Seniors';
+    const item = state.data.events[Number(compositionMatch?.value)] || {};
+    const players = state.composition.slots.filter((slot) => clean(slot.player)).map((slot) => `${slot.number}. ${slot.player}`);
+    return [
+      `Composition ${team} - ${eventTitle(item)}`,
+      eventDetails(item),
+      players.join('\n'),
+      channel === 'instagram' ? '#RCCubzaguais #Rugby' : 'https://rccubzaguais.fr'
+    ].filter(Boolean).join('\n\n');
+  }
+
+  function hydrateNewsletterSources() {
+    if (!newsletterItems) return;
+    const items = [
+      ...state.data.news.slice(0, 8).map((item, index) => ({ type: 'Actu', title: item.title, detail: item.summary || item.category, value: `news-${index}` })),
+      ...state.data.events.slice(0, 8).map((item, index) => ({ type: 'Calendrier', title: eventTitle(item), detail: eventDetails(item), value: `event-${index}` }))
+    ];
+    newsletterItems.innerHTML = items.length ? items.map((item, index) => `
+      <label class="newsletter-item">
+        <input type="checkbox" value="${escapeHtml(item.value)}" ${index < 4 ? 'checked' : ''} data-newsletter-check />
+        <span><b>${escapeHtml(item.type)}</b>${escapeHtml(item.title || 'Info RCC')}<small>${escapeHtml(item.detail || '')}</small></span>
+      </label>
+    `).join('') : '<p class="poster-help">Aucun contenu disponible.</p>';
+    if (newsletterPartner) {
+      newsletterPartner.innerHTML = '<option value="">Choisir un partenaire</option>' + state.data.partners.map((item, index) => `<option value="${index}">${escapeHtml(item.name || 'Partenaire RCC')}</option>`).join('');
+    }
+    newsletterItems.querySelectorAll('[data-newsletter-check]').forEach((checkbox) => checkbox.addEventListener('change', renderNewsletter));
+    [newsletterTitle, newsletterPeriod, newsletterIntro, newsletterPartner, newsletterReminder].forEach((node) => node?.addEventListener('input', renderNewsletter));
+    renderNewsletter();
+  }
+
+  function selectedNewsletterItems() {
+    return [...(newsletterItems?.querySelectorAll('[data-newsletter-check]:checked') || [])].map((checkbox) => {
+      const [type, index] = checkbox.value.split('-');
+      return type === 'news'
+        ? { type: 'Actualite', item: state.data.news[Number(index)] }
+        : { type: 'Calendrier', item: state.data.events[Number(index)] };
+    }).filter((entry) => entry.item);
+  }
+
+  function renderNewsletter() {
+    if (!newsletterPreview) return;
+    const selected = selectedNewsletterItems();
+    const partner = state.data.partners[Number(newsletterPartner?.value)];
+    newsletterPreview.innerHTML = `
+      <article class="newsletter-page">
+        <header>
+          <img src="../assets/logo-rcc.png" alt="" />
+          <div><strong>${escapeHtml(newsletterTitle?.value || 'Newsletter RCC')}</strong><span>${escapeHtml(newsletterPeriod?.value || CURRENT_SEASON)}</span></div>
+        </header>
+        <p>${escapeHtml(newsletterIntro?.value || '')}</p>
+        <section>
+          ${selected.slice(0, 6).map(({ type, item }) => `
+            <div>
+              <b>${escapeHtml(type)}</b>
+              <strong>${escapeHtml(item.title || eventTitle(item))}</strong>
+              <span>${escapeHtml(item.summary || eventDetails(item) || item.category || '')}</span>
+            </div>
+          `).join('')}
+        </section>
+        <footer>
+          <span>${partner ? `Partenaire : ${escapeHtml(partner.name || '')}` : 'RC Cubzaguais'}</span>
+          <span>${escapeHtml(newsletterReminder?.value || 'rccubzaguais.fr')}</span>
+        </footer>
+      </article>
+    `;
   }
 
   function loadRemoteImage(src, key = 'image') {
@@ -1170,10 +1440,25 @@
   }
 
   function notificationPreview(data) {
-    const title = clean(data.title || TEMPLATE_TITLES[data.template] || 'Info RCC');
+    if (!checkedChannel(data, 'publishPush')) return 'Notification desactivee pour cette publication.';
+    const title = clean(data.pushTitle || data.title || TEMPLATE_TITLES[data.template] || 'Info RCC');
     const short = title.length > 40 ? `${title.slice(0, 37).trimEnd()}...` : title;
-    const body = [data.date, data.time, data.location].filter(Boolean).join(' - ') || clean(data.summary || 'Nouvelle information du RCC.');
-    return `${short}\n${body}`;
+    const body = clean(data.pushBody || data.summary || data.subtitle || 'Nouvelle information du RCC.');
+    const audience = clean(data.pushAudience || data.category || 'general');
+    const importance = data.pushImportance === 'important' ? 'Important' : 'Normal';
+    const link = clean(data.pushUrl || '/actualites.html');
+    return `${short}\n${body}\nPublic : ${audience} | ${importance}\nLien : ${link}`;
+  }
+
+  function syncPushSettings(data = readForm()) {
+    if (!pushSettings) return;
+    const enabled = checkedChannel(data, 'publishPush');
+    pushSettings.hidden = !enabled;
+    if (!enabled) return;
+    if (!clean(form.elements.pushTitle?.value)) setField('pushTitle', data.title || TEMPLATE_TITLES[data.template] || 'Info RCC');
+    if (!clean(form.elements.pushBody?.value)) setField('pushBody', data.summary || data.subtitle || 'Nouvelle information du RCC.');
+    if (!clean(form.elements.pushUrl?.value)) setField('pushUrl', '/actualites.html');
+    if (!clean(form.elements.pushAudience?.value)) setField('pushAudience', audienceFromCategory(data.category || data.template || 'general')[0] || 'general');
   }
 
   function checkedChannel(data, name) {
@@ -1202,7 +1487,7 @@
     return [...audience];
   }
 
-  function recordPublication(status = 'préparée', error = '') {
+  function recordPublication(status = 'préparée', error = '', meta = {}) {
     try {
       const data = readForm();
       const entry = {
@@ -1213,6 +1498,10 @@
         facebook: checkedChannel(data, 'publishFacebook'),
         instagram: checkedChannel(data, 'publishInstagram'),
         push: checkedChannel(data, 'publishPush'),
+        notificationSent: Boolean(meta.notificationSent),
+        notificationAudience: clean(meta.notificationAudience || data.pushAudience || ''),
+        notificationSentAt: meta.notificationSent ? new Date().toISOString() : '',
+        notificationError: clean(meta.notificationError || ''),
         status,
         error
       };
@@ -1398,7 +1687,11 @@
 
   function buildPublicationPayload(data, imageData, adminPassword = '') {
     const summary = clean(data.summary || data.subtitle || 'Nouvelle publication du RC Cubzaguais.');
-    const audience = audienceFromCategory(`${data.category || ''} ${data.template || ''}`);
+    const audience = data.pushAudience
+      ? [data.pushAudience]
+      : audienceFromCategory(`${data.category || ''} ${data.template || ''}`);
+    const sendPushNow = checkedChannel(data, 'publishPush') && data.pushMode !== 'draft';
+    const pushUrl = clean(data.pushUrl || '/actualites.html');
     const body = [
       data.subtitle,
       data.summary,
@@ -1411,7 +1704,7 @@
 
     return {
       publishSite: checkedChannel(data, 'publishSite'),
-      publishPush: checkedChannel(data, 'publishPush'),
+      publishPush: sendPushNow,
       ...(adminPassword ? { password: adminPassword } : {}),
       article: {
         title: clean(data.title || 'Publication RCC'),
@@ -1421,17 +1714,18 @@
         category: clean(data.category || templateLabel(data.template) || 'Club'),
         audience,
         important: false,
-        notification: checkedChannel(data, 'publishPush'),
+        notification: sendPushNow,
         featured: false,
         date: new Date().toISOString().slice(0, 10),
         hashtags: hashtagsFor(data)
       },
       push: {
         type: data.template || 'news',
-        title: clean(data.title || 'Publication RCC'),
-        body: summary,
+        title: clean(data.pushTitle || data.title || 'Publication RCC').slice(0, 48),
+        body: clean(data.pushBody || summary).slice(0, 140),
         audience,
-        url: '/actualites.html'
+        url: pushUrl,
+        important: data.pushImportance === 'important'
       }
     };
   }
@@ -1454,12 +1748,15 @@
     const results = [];
     let articleUrl = '/actualites.html';
     let siteReady = !checkedChannel(data, 'publishSite');
+    const shouldSendPush = checkedChannel(data, 'publishPush') && data.pushMode !== 'draft';
+    let pushSent = false;
+    let pushError = '';
 
     if (publishStudioButton) publishStudioButton.disabled = true;
     setStatus('Publication RCC en cours...');
 
     try {
-      if (checkedChannel(data, 'publishSite') || checkedChannel(data, 'publishPush')) {
+      if (checkedChannel(data, 'publishSite') || shouldSendPush) {
         let siteResult = await postJson('/api/studio/publish', buildPublicationPayload(data, imageData));
         if (siteResult.status === 401 && siteResult.data.authRequired) {
           const adminPassword = window.prompt('Mot de passe admin');
@@ -1480,10 +1777,16 @@
         siteReady = true;
         articleUrl = siteResult.data.url || '/actualites.html';
         if (checkedChannel(data, 'publishSite')) results.push(siteResult.data.articleCreated ? 'Site : article publié' : 'Site : prêt');
-        if (checkedChannel(data, 'publishPush')) {
+        if (shouldSendPush) {
           const push = siteResult.data.push || {};
+          pushSent = Boolean(push.ok);
+          pushError = push.ok ? '' : (push.error || 'non envoye');
           results.push(push.ok ? `Push : ${push.sent || 0} envoyé(s)` : `Push : ${push.error || 'non envoyé'}`);
         }
+      }
+
+      if (checkedChannel(data, 'publishPush') && data.pushMode === 'draft') {
+        results.push('Push : prepare seulement');
       }
 
       if (siteReady && checkedChannel(data, 'publishFacebook')) {
@@ -1508,7 +1811,11 @@
 
       const message = results.length ? results.join(' | ') : 'Aucun canal coché.';
       setStatus(message);
-      recordPublication('Publication terminée', message);
+      recordPublication('Publication terminée', message, {
+        notificationSent: pushSent,
+        notificationAudience: data.pushAudience,
+        notificationError: pushError
+      });
     } catch (error) {
       const message = error.message || 'Erreur pendant la publication.';
       setStatus(message);
@@ -1516,6 +1823,192 @@
     } finally {
       if (publishStudioButton) publishStudioButton.disabled = false;
     }
+  }
+
+  function downloadCanvasImage(sourceCanvas, filename) {
+    const link = document.createElement('a');
+    link.href = sourceCanvas.toDataURL('image/png');
+    link.download = filename;
+    link.click();
+  }
+
+  function drawCompositionExport() {
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = 1080;
+    exportCanvas.height = 1350;
+    const c = exportCanvas.getContext('2d');
+    const team = compositionTeam?.value || 'Seniors';
+    const item = state.data.events[Number(compositionMatch?.value)] || {};
+    c.fillStyle = COLORS.black;
+    c.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+    const gradient = c.createLinearGradient(0, 0, exportCanvas.width, exportCanvas.height);
+    gradient.addColorStop(0, 'rgba(177,24,69,.42)');
+    gradient.addColorStop(.55, 'rgba(6,27,56,.20)');
+    gradient.addColorStop(1, 'rgba(0,0,0,.85)');
+    c.fillStyle = gradient;
+    c.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+    c.strokeStyle = COLORS.red;
+    c.lineWidth = 5;
+    c.strokeRect(54, 54, exportCanvas.width - 108, exportCanvas.height - 108);
+    c.fillStyle = COLORS.redBright;
+    c.font = `44px ${BODY_FONT}`;
+    c.fillText(team.toUpperCase(), 80, 118);
+    c.fillStyle = COLORS.white;
+    c.font = `116px ${TITLE_FONT}`;
+    c.fillText('COMPOSITION', 80, 235);
+    c.font = `42px ${BODY_FONT}`;
+    c.fillText(eventTitle(item).toUpperCase().slice(0, 34), 80, 298);
+    c.fillStyle = COLORS.muted;
+    c.font = `30px ${BODY_FONT}`;
+    c.fillText(eventDetails(item).slice(0, 70), 80, 342);
+    c.fillStyle = 'rgba(255,255,255,.08)';
+    c.fillRect(80, 390, 920, 760);
+    c.fillStyle = COLORS.white;
+    c.font = `30px ${BODY_FONT}`;
+    state.composition.slots.forEach((slot, index) => {
+      const col = index < 12 ? 0 : 1;
+      const row = col === 0 ? index : index - 12;
+      const x = col === 0 ? 116 : 590;
+      const y = 442 + row * 56;
+      c.fillStyle = index < 15 ? COLORS.redBright : COLORS.navyBright;
+      c.fillRect(x, y - 30, 46, 38);
+      c.fillStyle = COLORS.white;
+      c.textAlign = 'center';
+      c.fillText(String(slot.number), x + 23, y);
+      c.textAlign = 'left';
+      c.fillText((slot.player || 'A definir').toUpperCase().slice(0, 22), x + 66, y);
+    });
+    c.fillStyle = COLORS.redBright;
+    c.font = `32px ${BODY_FONT}`;
+    c.fillText('RCCUBZAGUAIS.FR', 80, 1265);
+    return exportCanvas;
+  }
+
+  function exportCompositionPng() {
+    downloadCanvasImage(drawCompositionExport(), `composition-rcc-${slug(compositionTeam?.value || 'equipe')}.png`);
+    setStatus('Composition exportee en PNG.');
+  }
+
+  function newsletterText(channel = 'facebook') {
+    const selected = selectedNewsletterItems().map(({ type, item }) => `- ${type} : ${item.title || eventTitle(item)}`);
+    return [
+      newsletterTitle?.value || 'Newsletter RCC',
+      newsletterIntro?.value || '',
+      selected.join('\n'),
+      newsletterReminder?.value || '',
+      channel === 'instagram' ? '#RCCubzaguais #Rugby' : 'https://rccubzaguais.fr'
+    ].filter(Boolean).join('\n\n');
+  }
+
+  function wrapCanvasText(target, text, x, y, maxWidth, lineHeight, maxLines = 4) {
+    const words = clean(text).split(/\s+/).filter(Boolean);
+    let line = '';
+    let lineCount = 0;
+    words.forEach((word) => {
+      if (lineCount >= maxLines) return;
+      const test = line ? `${line} ${word}` : word;
+      if (target.measureText(test).width > maxWidth && line) {
+        target.fillText(line, x, y + lineCount * lineHeight);
+        line = word;
+        lineCount += 1;
+      } else {
+        line = test;
+      }
+    });
+    if (line && lineCount < maxLines) target.fillText(line, x, y + lineCount * lineHeight);
+  }
+
+  function drawNewsletterCanvas() {
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = 1748;
+    exportCanvas.height = 2480;
+    const c = exportCanvas.getContext('2d');
+    c.fillStyle = COLORS.black;
+    c.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+    c.fillStyle = 'rgba(177,24,69,.18)';
+    c.fillRect(0, 0, exportCanvas.width, 360);
+    c.fillStyle = COLORS.redBright;
+    c.font = `64px ${BODY_FONT}`;
+    c.fillText((newsletterPeriod?.value || CURRENT_SEASON).toUpperCase(), 120, 130);
+    c.fillStyle = COLORS.white;
+    c.font = `142px ${TITLE_FONT}`;
+    c.fillText((newsletterTitle?.value || 'NEWSLETTER RCC').toUpperCase().slice(0, 22), 120, 280);
+    c.font = `42px ${BODY_FONT}`;
+    c.fillStyle = COLORS.muted;
+    wrapCanvasText(c, newsletterIntro?.value || '', 120, 430, 1480, 54, 3);
+    let y = 650;
+    selectedNewsletterItems().slice(0, 8).forEach(({ type, item }) => {
+      c.fillStyle = 'rgba(255,255,255,.075)';
+      c.fillRect(120, y - 54, 1500, 170);
+      c.fillStyle = COLORS.redBright;
+      c.font = `36px ${BODY_FONT}`;
+      c.fillText(type.toUpperCase(), 160, y);
+      c.fillStyle = COLORS.white;
+      c.font = `56px ${IMPACT_FONT}`;
+      c.fillText((item.title || eventTitle(item) || 'Info RCC').toUpperCase().slice(0, 42), 160, y + 58);
+      c.fillStyle = COLORS.muted;
+      c.font = `34px ${BODY_FONT}`;
+      c.fillText(clean(item.summary || eventDetails(item) || item.category || '').slice(0, 92), 160, y + 110);
+      y += 205;
+    });
+    c.fillStyle = COLORS.redBright;
+    c.font = `44px ${BODY_FONT}`;
+    c.fillText('RCCUBZAGUAIS.FR', 120, 2320);
+    c.fillStyle = COLORS.muted;
+    c.fillText((newsletterReminder?.value || '').slice(0, 70), 120, 2384);
+    return exportCanvas;
+  }
+
+  function exportNewsletterPdf() {
+    const sourceCanvas = drawNewsletterCanvas();
+    const jpeg = sourceCanvas.toDataURL('image/jpeg', 0.94);
+    const binary = atob(jpeg.split(',')[1]);
+    const imgBytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) imgBytes[i] = binary.charCodeAt(i);
+    const w = sourceCanvas.width;
+    const h = sourceCanvas.height;
+    const textEncoder = new TextEncoder();
+    const parts = [];
+    let length = 0;
+    const offsets = [0];
+    const pushText = (text) => {
+      const bytes = textEncoder.encode(text);
+      parts.push(bytes);
+      length += bytes.byteLength;
+    };
+    const pushBytes = (bytes) => {
+      parts.push(bytes);
+      length += bytes.byteLength;
+    };
+    const startObject = (id) => {
+      offsets[id] = length;
+      pushText(`${id} 0 obj\n`);
+    };
+    pushText('%PDF-1.4\n');
+    startObject(1);
+    pushText('<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+    startObject(2);
+    pushText('<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n');
+    startObject(3);
+    pushText(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>\nendobj\n`);
+    startObject(4);
+    pushText(`<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgBytes.byteLength} >>\nstream\n`);
+    pushBytes(imgBytes);
+    pushText('\nendstream\nendobj\n');
+    const content = `q ${w} 0 0 ${h} 0 0 cm /Im0 Do Q`;
+    startObject(5);
+    pushText(`<< /Length ${content.length} >>\nstream\n${content}\nendstream\nendobj\n`);
+    const xref = length;
+    pushText('xref\n0 6\n0000000000 65535 f \n');
+    for (let i = 1; i <= 5; i += 1) pushText(`${String(offsets[i]).padStart(10, '0')} 00000 n \n`);
+    pushText(`trailer\n<< /Size 6 /Root 1 0 R /Title (${escapePdfText(newsletterTitle?.value || 'Newsletter RCC')}) >>\nstartxref\n${xref}\n%%EOF`);
+    const blob = new Blob(parts, { type: 'application/pdf' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `newsletter-rcc-${slug(newsletterTitle?.value || 'newsletter')}.pdf`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    setStatus('Newsletter exportee en PDF.');
   }
 
   async function prepareDistribution() {
@@ -1547,11 +2040,31 @@
     recordPublication('Diffusion préparée', message);
   }
 
-  form?.addEventListener('input', render);
+  studioTabButtons.forEach((button) => button.addEventListener('click', () => switchStudioTab(button.dataset.studioTab)));
+  compositionTeam?.addEventListener('change', () => {
+    hydrateCompositionMatches();
+    hydrateCompositionPlayers();
+  });
+  compositionMatch?.addEventListener('change', renderComposition);
+  document.querySelector('[data-composition-load-last]')?.addEventListener('click', loadCompositionDraft);
+  document.querySelector('[data-composition-clear]')?.addEventListener('click', clearCompositionDraft);
+  document.querySelector('[data-composition-save]')?.addEventListener('click', saveCompositionDraft);
+  document.querySelector('[data-composition-export]')?.addEventListener('click', exportCompositionPng);
+  document.querySelector('[data-composition-copy-facebook]')?.addEventListener('click', () => copyText(compositionText('facebook'), captionOutput, 'Texte composition Facebook copie.'));
+  document.querySelector('[data-composition-copy-instagram]')?.addEventListener('click', () => copyText(compositionText('instagram'), captionOutput, 'Texte composition Instagram copie.'));
+  document.querySelector('[data-newsletter-export-pdf]')?.addEventListener('click', exportNewsletterPdf);
+  document.querySelector('[data-newsletter-copy-facebook]')?.addEventListener('click', () => copyText(newsletterText('facebook'), captionOutput, 'Texte newsletter Facebook copie.'));
+  document.querySelector('[data-newsletter-copy-instagram]')?.addEventListener('click', () => copyText(newsletterText('instagram'), captionOutput, 'Texte newsletter Instagram copie.'));
+
+  form?.addEventListener('input', () => {
+    syncPushSettings(readForm());
+    render();
+  });
   form?.addEventListener('change', (event) => {
     if (event.target?.name === 'template') {
       setTemplate(event.target.value);
     }
+    syncPushSettings(readForm());
     render();
   });
   document.querySelector('[data-poster-image]')?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'image'));
@@ -1604,6 +2117,7 @@
 
   setSourceSelectLoading('Chargement du CMS...');
   syncTemplateButtons(readForm().template || 'upcoming');
+  syncPushSettings(readForm());
   loadFonts();
   loadSources();
   render();

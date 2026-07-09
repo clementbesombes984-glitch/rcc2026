@@ -784,5 +784,96 @@ content:
             label: Adresse du lien
             type: string
 
+  - name: compositions
+    label: Compositions Studio RCC
+    type: file
+    path: data/compositions.json
+    format: json
+    fields:
+      - name: compositions
+        label: Brouillons de compositions
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{team} - {title}"
+        fields:
+          - name: title
+            label: Titre
+            type: string
+          - name: team
+            label: Equipe
+            type: select
+            options:
+              values:
+                - Seniors
+                - U18
+                - U16
+                - Cadettes
+          - name: event
+            label: Match / evenement
+            type: string
+          - name: date
+            label: Date
+            type: date
+          - name: players
+            label: Joueurs
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{number} - {name}"
+            fields:
+              - name: number
+                label: Numero
+                type: number
+              - name: name
+                label: Nom du joueur
+                type: string
+              - name: role
+                label: Poste
+                type: string
+
+  - name: newsletters
+    label: Newsletters Studio RCC
+    type: file
+    path: data/newsletters.json
+    format: json
+    fields:
+      - name: newsletters
+        label: Brouillons de newsletters
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{period} - {title}"
+        fields:
+          - name: title
+            label: Titre
+            type: string
+          - name: period
+            label: Periode
+            type: string
+          - name: intro
+            label: Introduction
+            type: text
+          - name: items
+            label: Contenus selectionnes
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{type} - {title}"
+            fields:
+              - name: type
+                label: Type
+                type: string
+              - name: title
+                label: Titre
+                type: string
+              - name: url
+                label: Lien
+                type: string
+
 settings:
   hide: false

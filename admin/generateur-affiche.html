@@ -45,7 +45,13 @@
         </div>
       </header>
 
-      <section class="studio-layout">
+      <nav class="studio-tabs" aria-label="Modules Studio RCC">
+        <button class="is-active" type="button" data-studio-tab="posters">Affiches & Publications</button>
+        <button type="button" data-studio-tab="compositions">Compositions d'equipe</button>
+        <button type="button" data-studio-tab="newsletters">Newsletters</button>
+      </nav>
+
+      <section class="studio-layout studio-tab-panel is-active" data-studio-tab-panel="posters">
         <aside class="studio-sidebar studio-left">
           <div class="poster-panel-head">
             <span>Etape 1</span>
@@ -276,6 +282,55 @@
               Envoyer une notification Push
             </label>
           </div>
+          <div class="studio-push-settings" data-push-settings hidden>
+            <div class="poster-panel-head compact">
+              <span>Notification Push</span>
+              <strong>Reglages</strong>
+            </div>
+            <label>Titre de la notification
+              <input name="pushTitle" type="text" maxlength="48" placeholder="Titre court" data-poster-input />
+            </label>
+            <label>Message court
+              <textarea name="pushBody" rows="2" maxlength="140" placeholder="Message court affiche sur le telephone" data-poster-input></textarea>
+            </label>
+            <div class="poster-field-grid">
+              <label>Categorie ciblee
+                <select name="pushAudience" data-poster-input>
+                  <option value="general">Tous</option>
+                  <option value="seniors">Seniors</option>
+                  <option value="ecole">Ecole de Rugby</option>
+                  <option value="u6">U6</option>
+                  <option value="u8">U8</option>
+                  <option value="u10">U10</option>
+                  <option value="u12">U12</option>
+                  <option value="u14">U14</option>
+                  <option value="jeunes">Pole Jeunes</option>
+                  <option value="u16">U16</option>
+                  <option value="u18">U18</option>
+                  <option value="cadettes">Cadettes</option>
+                  <option value="partenaires">Partenaires</option>
+                  <option value="benevoles">Benevoles</option>
+                  <option value="boutique">Boutique</option>
+                  <option value="evenements">Evenement</option>
+                </select>
+              </label>
+              <label>Importance
+                <select name="pushImportance" data-poster-input>
+                  <option value="normal">Normale</option>
+                  <option value="important">Importante</option>
+                </select>
+              </label>
+            </div>
+            <label>Lien de destination
+              <input name="pushUrl" type="text" value="/actualites.html" placeholder="/actualites.html" data-poster-input />
+            </label>
+            <label>Envoi
+              <select name="pushMode" data-poster-input>
+                <option value="now">Envoyer maintenant</option>
+                <option value="draft">Preparer seulement</option>
+              </select>
+            </label>
+          </div>
           <p class="poster-help studio-publish-help">
             Pour activer la publication sur le site, ajoute la variable <code>RCC_GITHUB_TOKEN</code> dans
             Cloudflare Pages &gt; Settings &gt; Environment variables.
@@ -325,6 +380,104 @@
             <button class="button ghost" type="button" data-check-meta>Verifier Meta</button>
           </div>
         </form>
+      </section>
+
+      <section class="studio-tab-panel studio-tool-panel" data-studio-tab-panel="compositions" hidden>
+        <div class="studio-tool-grid">
+          <aside class="studio-sidebar">
+            <div class="poster-panel-head">
+              <span>Composition</span>
+              <strong>Infos match</strong>
+            </div>
+            <label>Equipe
+              <select data-composition-team>
+                <option value="Seniors">Seniors</option>
+                <option value="U18">U18</option>
+                <option value="U16">U16</option>
+                <option value="Cadettes">Cadettes</option>
+              </select>
+            </label>
+            <label>Match existant
+              <select data-composition-match>
+                <option value="">Choisir un match</option>
+              </select>
+            </label>
+            <div class="studio-mini-card" data-composition-match-info>
+              Selectionne une equipe puis un match du calendrier.
+            </div>
+            <div class="poster-actions compact-actions">
+              <button class="button ghost" type="button" data-composition-load-last>Charger dernier brouillon</button>
+              <button class="button ghost" type="button" data-composition-clear>Vider</button>
+              <button class="button ghost" type="button" data-composition-save>Enregistrer brouillon</button>
+            </div>
+          </aside>
+          <section class="studio-preview-panel">
+            <div class="poster-preview-toolbar">
+              <span>Apercu composition</span>
+              <strong>15 + banc</strong>
+            </div>
+            <div class="composition-preview" data-composition-preview></div>
+          </section>
+          <aside class="studio-sidebar studio-right">
+            <div class="poster-panel-head">
+              <span>Joueurs</span>
+              <strong>Feuille</strong>
+            </div>
+            <div class="composition-list" data-composition-list></div>
+            <div class="poster-actions studio-actions">
+              <button class="button primary" type="button" data-composition-export>Telecharger PNG</button>
+              <button class="button ghost" type="button" data-composition-copy-facebook>Copier Facebook</button>
+              <button class="button ghost" type="button" data-composition-copy-instagram>Copier Instagram</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="studio-tab-panel studio-tool-panel" data-studio-tab-panel="newsletters" hidden>
+        <div class="studio-tool-grid">
+          <aside class="studio-sidebar">
+            <div class="poster-panel-head">
+              <span>Newsletter</span>
+              <strong>Contenus</strong>
+            </div>
+            <label>Titre
+              <input data-newsletter-title type="text" value="Newsletter RCC" />
+            </label>
+            <label>Mois / saison
+              <input data-newsletter-period type="text" value="Saison 2026-2027" />
+            </label>
+            <label>Mot du club
+              <textarea data-newsletter-intro rows="3">Les dernieres nouvelles du RC Cubzaguais.</textarea>
+            </label>
+            <div class="newsletter-source-list" data-newsletter-items></div>
+          </aside>
+          <section class="studio-preview-panel">
+            <div class="poster-preview-toolbar">
+              <span>Apercu A4</span>
+              <strong>2 pages max</strong>
+            </div>
+            <div class="newsletter-preview" data-newsletter-preview></div>
+          </section>
+          <aside class="studio-sidebar studio-right">
+            <div class="poster-panel-head">
+              <span>Actions</span>
+              <strong>Export</strong>
+            </div>
+            <label>Partenaire du mois
+              <select data-newsletter-partner>
+                <option value="">Choisir un partenaire</option>
+              </select>
+            </label>
+            <label>Rappel important
+              <textarea data-newsletter-reminder rows="3" placeholder="Infos licences, horaires, benevoles..."></textarea>
+            </label>
+            <div class="poster-actions studio-actions">
+              <button class="button primary" type="button" data-newsletter-export-pdf>Telecharger PDF</button>
+              <button class="button ghost" type="button" data-newsletter-copy-facebook>Copier Facebook</button>
+              <button class="button ghost" type="button" data-newsletter-copy-instagram>Copier Instagram</button>
+            </div>
+          </aside>
+        </div>
       </section>
     </main>
 

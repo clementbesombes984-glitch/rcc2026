@@ -50,6 +50,8 @@
             <th>Facebook</th>
             <th>Instagram</th>
             <th>Push</th>
+            <th>Cible Push</th>
+            <th>Envoi Push</th>
             <th>Statut</th>
             <th>Erreur</th>
           </tr>
@@ -64,8 +66,10 @@
               <td>${item.facebook ? 'Oui' : 'Non'}</td>
               <td>${item.instagram ? 'Oui' : 'Non'}</td>
               <td>${item.push ? 'Oui' : 'Non'}</td>
+              <td>${escapeHtml(item.notificationAudience || '')}</td>
+              <td>${item.notificationSent ? `Oui - ${escapeHtml(formatDate(item.notificationSentAt))}` : (item.push ? 'Non / prepare' : 'Non')}</td>
               <td>${escapeHtml(item.status || '')}</td>
-              <td>${escapeHtml(item.error || '')}</td>
+              <td>${escapeHtml(item.notificationError || item.error || '')}</td>
             </tr>
           `).join('')}
         </tbody>
