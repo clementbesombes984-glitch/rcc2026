@@ -4,51 +4,13 @@
       "age": "U16",
       "label": "Accélérer la progression",
       "summary": "Exigence physique, lecture du jeu, conquête, lancement de jeu et responsabilité dans le groupe.",
-      "count": "",
-      "training": "Mardi 19h · Jeudi 19h",
-      "teamPhoto": "",
-      "staff": [
-        {
-          "firstName": "Olivier",
-          "lastName": "Masson",
-          "photo": ""
-        },
-        {
-          "firstName": "Nina",
-          "lastName": "Valette",
-          "photo": ""
-        },
-        {
-          "firstName": "Karim",
-          "lastName": "Delmas",
-          "photo": ""
-        }
-      ]
+      "training": "Mardi 19h · Jeudi 19h"
     },
     {
       "age": "U18",
       "label": "Préparer le rugby senior",
       "summary": "Un cadre compétitif pour franchir un cap, gagner en autonomie et défendre les couleurs du club.",
-      "count": "",
-      "training": "Mercredi 19h · Vendredi 19h",
-      "teamPhoto": "",
-      "staff": [
-        {
-          "firstName": "François",
-          "lastName": "Rigal",
-          "photo": ""
-        },
-        {
-          "firstName": "Chloé",
-          "lastName": "Mercier",
-          "photo": ""
-        },
-        {
-          "firstName": "Baptiste",
-          "lastName": "Lemoine",
-          "photo": ""
-        }
-      ]
+      "training": "Mercredi 19h · Vendredi 19h"
     }
   ]
 }
