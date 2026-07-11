@@ -60,7 +60,15 @@
       "age": "U14",
       "label": "Entrer dans le grand terrain",
       "summary": "Travail technique, premières organisations collectives complètes, attitude défensive et confiance dans le contact.",
-      "training": "Mardi 18h30 · Vendredi 18h30"
+      "training": "Mardi 18h30 · Vendredi 18h30",
+      "staff": [
+        {
+          "firstName": "Stéphane",
+          "lastName": "Provost",
+          "role": "Éducateur ",
+          "photo": "/assets/uploads/img-20260710-wa0016.jpg"
+        }
+      ]
     }
   ]
 }
