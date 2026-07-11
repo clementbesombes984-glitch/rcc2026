@@ -1,6 +1,27 @@
 {
   "news": [
     {
+      "title": "STAFF U12",
+      "summary": "🏉 Une équipe d'éducateurs passionnés pour accompagner nos U12 ! Leur objectif : faire progresser chaque joueur tout en cultivant le plaisir de jouer et l'esprit d'équipe. 💙❤️",
+      "body": "Mathieu Sautron Cédric Ringuet Guillaume Houles\n🏉 Une équipe d'éducateurs passionnés pour accompagner nos U12 ! Leur objectif : faire progresser chaque joueur tout en cultivant le plaisir de jouer et l'esprit d'équipe. 💙❤️\nLieu : Plaine des Sports Laurent Ricci\n#RCCubzaguais #RacingClubCubzaguais #Rugby #NouvelleAquitaine #RejoinsLeRCC",
+      "image": "/assets/uploads/studio-staff-u12-1783761515842.png",
+      "category": "Club",
+      "audience": [
+        "general"
+      ],
+      "important": false,
+      "notification": false,
+      "featured": false,
+      "date": "2026-07-11",
+      "hashtags": [
+        "#RCCubzaguais",
+        "#RacingClubCubzaguais",
+        "#Rugby",
+        "#NouvelleAquitaine",
+        "#RejoinsLeRCC"
+      ]
+    },
+    {
       "title": "STAFF U14",
       "summary": "Stéphane Provost, Stéphane Mespoulède et Franck Paoletti 🏉 Après avoir accompagné cette génération en M12 la saison dernière, ils poursuivent l'aventure en M14.",
       "body": "STAFF\nStéphane Provost, Stéphane Mespoulède et Franck Paoletti 🏉 Après avoir accompagné cette génération en M12 la saison dernière, ils poursuivent  l'aventure en M14. \nLieu : Plaine des Sports Laurent Ricci\n#RCCubzaguais #RacingClubCubzaguais #Rugby #NouvelleAquitaine #RejoinsLeRCC",
