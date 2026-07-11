@@ -73,6 +73,11 @@
           "lastName": "Paoletti",
           "role": "Éducateur",
           "photo": "/assets/uploads/img-20260711-wa0046-1.jpg"
+        },
+        {
+          "firstName": "Stéphane",
+          "lastName": "Mespoulède",
+          "role": "Éducateur"
         }
       ]
     }
