@@ -67,6 +67,12 @@
           "lastName": "Provost",
           "role": "Éducateur ",
           "photo": "/assets/uploads/img-20260710-wa0016.jpg"
+        },
+        {
+          "firstName": "Franck",
+          "lastName": "Paoletti",
+          "role": "Éducateur",
+          "photo": "/assets/uploads/img-20260711-wa0046-1.jpg"
         }
       ]
     }
