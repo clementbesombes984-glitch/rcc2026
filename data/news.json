@@ -12,14 +12,7 @@
       "important": false,
       "notification": false,
       "featured": false,
-      "date": "2026-07-11",
-      "hashtags": [
-        "#RCCubzaguais",
-        "#RacingClubCubzaguais",
-        "#Rugby",
-        "#NouvelleAquitaine",
-        "#RejoinsLeRCC"
-      ]
+      "date": "2026-07-11"
     },
     {
       "title": "STAFF U14",
@@ -33,14 +26,7 @@
       "important": false,
       "notification": false,
       "featured": false,
-      "date": "2026-07-11",
-      "hashtags": [
-        "#RCCubzaguais",
-        "#RacingClubCubzaguais",
-        "#Rugby",
-        "#NouvelleAquitaine",
-        "#RejoinsLeRCC"
-      ]
+      "date": "2026-07-11"
     },
     {
       "title": "STAFF U8",
@@ -54,14 +40,7 @@
       "important": false,
       "notification": false,
       "featured": false,
-      "date": "2026-07-09",
-      "hashtags": [
-        "#RCCubzaguais",
-        "#RacingClubCubzaguais",
-        "#Rugby",
-        "#NouvelleAquitaine",
-        "#RejoinsLeRCC"
-      ]
+      "date": "2026-07-09"
     },
     {
       "title": "STAFF U8",
@@ -122,6 +101,21 @@
       "notification": true,
       "featured": true,
       "date": "2026-07-09"
+    },
+    {
+      "title": "Composition de Poule R3",
+      "summary": "🏉 SAISON 2026-2027 | RÉGIONALE 3 🏉\nUne nouvelle aventure commence pour le Racing Club Cubzaguais ! 🔴🔵",
+      "body": "🏉 SAISON 2026-2027 | RÉGIONALE 3 🏉\nUne nouvelle aventure commence pour le Racing Club Cubzaguais ! 🔴🔵\nUn groupe motivé, un staff engagé et une même ambition : défendre nos couleurs avec fierté, faire progresser le collectif et vivre une grande saison ensemble.\nNous avons hâte de vous retrouver au bord des terrains pour partager cette nouvelle aventure à vos côtés. ❤️🤍💙\nAllez RCC ! 💪🏉\n#RCC #RacingClubCubzaguais #Régionale3 #Saison20262027 #Rugby #NouvelleAquitaine #TousEnsemble #AllezRCC\n🌐 https://rccubzaguais.fr⁠�",
+      "image": "/assets/uploads/file000000009ed871f49e2acf27b26f52ba.png",
+      "category": "Seniors",
+      "audience": [
+        "seniors",
+        "evenements"
+      ],
+      "important": true,
+      "notification": true,
+      "featured": true,
+      "date": "2026-07-11"
     }
   ]
 }
