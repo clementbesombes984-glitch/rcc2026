@@ -10,7 +10,14 @@
       "age": "U18",
       "label": "Préparer le rugby senior",
       "summary": "Un cadre compétitif pour franchir un cap, gagner en autonomie et défendre les couleurs du club.",
-      "training": "Mercredi 19h · Vendredi 19h"
+      "training": "Mercredi 19h · Vendredi 19h",
+      "staff": [
+        {
+          "firstName": "Clément",
+          "lastName": "Besombes",
+          "photo": "/assets/uploads/img20260708204618-3.jpg"
+        }
+      ]
     }
   ]
 }
