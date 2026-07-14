@@ -1,4 +1,9 @@
 {
-  "staff": [],
-  "players": []
+  "players": [
+    {
+      "firstName": "Dylan",
+      "lastName": "Lesbarreres",
+      "position": "Arrière"
+    }
+  ]
 }
