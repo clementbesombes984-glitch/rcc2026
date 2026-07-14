@@ -4,7 +4,14 @@
       "age": "U16",
       "label": "Accélérer la progression",
       "summary": "Exigence physique, lecture du jeu, conquête, lancement de jeu et responsabilité dans le groupe.",
-      "training": "Mercredi 19H30 - Vendredi 19H30"
+      "training": "Mercredi 19H30 - Vendredi 19H30",
+      "staff": [
+        {
+          "firstName": "Dylan",
+          "lastName": "Lesbarreres",
+          "photo": "/assets/uploads/screenshot20260714075450comandroidchromechrometabbedactivity.jpg"
+        }
+      ]
     },
     {
       "age": "U18",
