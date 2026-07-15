@@ -3818,3 +3818,18 @@ body{
     max-height:none!important;
   }
 }
+
+.senior-position-group .roster-title .section-kicker{
+  color:var(--red-bright);
+}
+
+.player-secondary-position{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.35;
+}
+
+.player-info .player-secondary-position+p{
+  margin-top:2px;
+}

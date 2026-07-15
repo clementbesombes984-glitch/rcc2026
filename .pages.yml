@@ -477,10 +477,19 @@ content:
         list:
           collapsible:
             collapsed: true
-            summary: "{group} - {firstName} {lastName}"
+            summary: "{primaryPosition} - {firstName} {lastName}"
         fields:
+          - name: id
+            label: Identifiant joueur
+            type: string
+          - name: number
+            label: Numero
+            type: number
+          - name: category
+            label: Categorie
+            type: string
           - name: group
-            label: Poste / groupe
+            label: Ancien groupe / compatibilite
             type: string
           - name: firstName
             label: Prenom
@@ -488,8 +497,53 @@ content:
           - name: lastName
             label: Nom
             type: string
+          - name: primaryPosition
+            label: Poste principal
+            type: select
+            required: true
+            options:
+              values:
+                - Pilier gauche
+                - Talonneur
+                - Pilier droit
+                - Deuxième ligne
+                - Troisième ligne aile
+                - Numéro 8
+                - Demi de mêlée
+                - Demi d'ouverture
+                - Ailier
+                - Premier centre
+                - Deuxième centre
+                - Arrière
+                - Pilier
+                - Deuxième / troisième ligne
+                - Centre
+                - Trois-quarts polyvalent
+                - Non renseigné
+          - name: secondaryPosition
+            label: Poste secondaire optionnel
+            type: select
+            options:
+              values:
+                - Aucun poste secondaire
+                - Pilier gauche
+                - Talonneur
+                - Pilier droit
+                - Deuxième ligne
+                - Troisième ligne aile
+                - Numéro 8
+                - Demi de mêlée
+                - Demi d'ouverture
+                - Ailier
+                - Premier centre
+                - Deuxième centre
+                - Arrière
+                - Pilier
+                - Deuxième / troisième ligne
+                - Centre
+                - Trois-quarts polyvalent
           - name: position
-            label: Poste
+            label: Ancien champ poste / compatibilite
             type: string
           - name: tag
             label: Description courte
@@ -497,6 +551,9 @@ content:
           - name: photo
             label: Photo joueur
             type: image
+          - name: active
+            label: Joueur actif
+            type: boolean
 
   - name: academy
     label: Ecole de rugby

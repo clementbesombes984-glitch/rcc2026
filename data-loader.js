@@ -34,6 +34,83 @@
 
   const newsUrl = (item, index = 0) => `./actualite.html?id=${encodeURIComponent(newsId(item, index))}`;
 
+  const RUGBY_POSITIONS = [
+    'Pilier gauche',
+    'Talonneur',
+    'Pilier droit',
+    'Deuxième ligne',
+    'Troisième ligne aile',
+    'Numéro 8',
+    'Demi de mêlée',
+    "Demi d'ouverture",
+    'Ailier',
+    'Premier centre',
+    'Deuxième centre',
+    'Arrière',
+    'Pilier',
+    'Deuxième / troisième ligne',
+    'Centre',
+    'Trois-quarts polyvalent',
+    'Non renseigné'
+  ];
+
+  const POSITION_ALIASES = new Map([
+    ['flanker', 'Troisième ligne aile'],
+    ['troisieme ligne', 'Troisième ligne aile'],
+    ['troisieme ligne aile', 'Troisième ligne aile'],
+    ['numero 8', 'Numéro 8'],
+    ['n 8', 'Numéro 8'],
+    ['demi de melee', 'Demi de mêlée'],
+    ['demi melee', 'Demi de mêlée'],
+    ['demi d ouverture', "Demi d'ouverture"],
+    ['demi douverture', "Demi d'ouverture"],
+    ['ouvreur', "Demi d'ouverture"],
+    ['arriere', 'Arrière'],
+    ['ailier gauche', 'Ailier'],
+    ['ailier droit', 'Ailier'],
+    ['centre', 'Centre'],
+    ['pilier', 'Pilier']
+  ]);
+
+  const POSITION_LAYOUT = [
+    { group: 'Avants', subgroup: 'Première ligne', positions: ['Pilier gauche', 'Talonneur', 'Pilier droit', 'Pilier'] },
+    { group: 'Avants', subgroup: 'Deuxième ligne', positions: ['Deuxième ligne'] },
+    { group: 'Avants', subgroup: 'Troisième ligne', positions: ['Troisième ligne aile', 'Numéro 8', 'Deuxième / troisième ligne'] },
+    { group: 'Charnière', subgroup: 'Charnière', positions: ['Demi de mêlée', "Demi d'ouverture"] },
+    { group: 'Trois-quarts', subgroup: 'Trois-quarts', positions: ['Ailier', 'Premier centre', 'Deuxième centre', 'Centre', 'Arrière', 'Trois-quarts polyvalent'] },
+    { group: 'Non renseigné', subgroup: 'Poste non renseigné', positions: ['Non renseigné'] }
+  ];
+
+  const normalizePosition = (value) => {
+    const raw = String(value || '').trim();
+    if (!raw) return 'Non renseigné';
+    const direct = RUGBY_POSITIONS.find((item) => item.toLowerCase() === raw.toLowerCase());
+    if (direct) return direct;
+    const key = raw
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/['’]/g, ' ')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+    return POSITION_ALIASES.get(key) || 'Non renseigné';
+  };
+
+  const primaryPosition = (player) => normalizePosition(player.primaryPosition || player.position);
+  const secondaryPosition = (player) => {
+    const value = String(player.secondaryPosition || '').trim();
+    if (!value || value === 'Aucun poste secondaire') return '';
+    const normalized = normalizePosition(value);
+    if (normalized === primaryPosition(player)) return '';
+    return normalized === 'Non renseigné' ? '' : normalized;
+  };
+
+  const positionOrder = (position) => {
+    const normalized = normalizePosition(position);
+    const order = POSITION_LAYOUT.flatMap((item) => item.positions).indexOf(normalized);
+    return order === -1 ? 999 : order;
+  };
+
   const dataPath = (name) => `/data/${name}.json?v=${Date.now()}`;
 
   const fetchData = async (name) => {
@@ -459,10 +536,11 @@
     const players = source.players || [];
     const staff = source.staff || [];
 
-    const grouped = players.reduce((acc, player) => {
-      (acc[player.group || 'Effectif'] ||= []).push(player);
-      return acc;
-    }, {});
+    const decoratedPlayers = players.map((player) => ({
+      ...player,
+      _primaryPosition: primaryPosition(player),
+      _secondaryPosition: secondaryPosition(player)
+    }));
 
     const staffSection = staff.length ? `
       <section class="roster-group senior-staff-group">
@@ -485,26 +563,37 @@
       </section>
     ` : '';
 
-    const playerSections = Object.entries(grouped).map(([group, list]) => `
-      <section class="roster-group">
+    const playerSections = POSITION_LAYOUT.map((layout) => {
+      const list = decoratedPlayers
+        .filter((player) => layout.positions.includes(player._primaryPosition))
+        .sort((a, b) => (
+          positionOrder(a._primaryPosition) - positionOrder(b._primaryPosition)
+          || String(a.lastName || '').localeCompare(String(b.lastName || ''), 'fr')
+          || String(a.firstName || '').localeCompare(String(b.firstName || ''), 'fr')
+        ));
+      if (!list.length) return '';
+      return `
+      <section class="roster-group senior-position-group">
         <div class="roster-title">
-          <p class="section-kicker">Poste</p>
-          <h2>${escapeHtml(group)}</h2>
+          <p class="section-kicker">${escapeHtml(layout.group)}</p>
+          <h2>${escapeHtml(layout.subgroup)}</h2>
         </div>
         <div class="player-grid">
           ${list.map((player, index) => `
             <article class="player-card">
               ${playerPhoto(player, index)}
               <div class="player-info">
-                <span>${escapeHtml(player.position)}</span>
+                <span>${escapeHtml(player._primaryPosition)}</span>
                 <h3><strong>${escapeHtml(player.firstName)}</strong> ${escapeHtml(player.lastName)}</h3>
-                <p>${escapeHtml([player.weight, player.tag].filter(Boolean).join(' · '))}</p>
+                ${player._secondaryPosition ? `<p class="player-secondary-position">Poste secondaire : ${escapeHtml(player._secondaryPosition)}</p>` : ''}
+                ${[player.weight, player.tag].filter(Boolean).length ? `<p>${escapeHtml([player.weight, player.tag].filter(Boolean).join(' · '))}</p>` : ''}
               </div>
             </article>
           `).join('')}
         </div>
       </section>
-    `).join('');
+    `;
+    }).join('');
 
     page.innerHTML = staffSection + playerSections;
   }

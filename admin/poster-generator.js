@@ -126,13 +126,33 @@
 
   const RUGBY_POSITIONS = [
     'Pilier gauche', 'Talonneur', 'Pilier droit',
-    'Deuxieme ligne', 'Deuxieme ligne',
-    'Troisieme ligne aile', 'Troisieme ligne centre', 'Troisieme ligne aile',
-    'Demi de melee', 'Demi d ouverture',
-    'Ailier gauche', 'Centre', 'Centre', 'Ailier droit',
-    'Arriere',
-    'Remplacant 1', 'Remplacant 2', 'Remplacant 3', 'Remplacant 4',
-    'Remplacant 5', 'Remplacant 6', 'Remplacant 7', 'Remplacant 8'
+    'Deuxième ligne', 'Deuxième ligne',
+    'Troisième ligne aile', 'Numéro 8', 'Troisième ligne aile',
+    'Demi de mêlée', "Demi d'ouverture",
+    'Ailier', 'Premier centre', 'Deuxième centre', 'Ailier',
+    'Arrière',
+    'Remplaçant 1', 'Remplaçant 2', 'Remplaçant 3', 'Remplaçant 4',
+    'Remplaçant 5', 'Remplaçant 6', 'Remplaçant 7', 'Remplaçant 8'
+  ];
+
+  const OFFICIAL_RUGBY_POSITIONS = [
+    'Pilier gauche',
+    'Talonneur',
+    'Pilier droit',
+    'Deuxième ligne',
+    'Troisième ligne aile',
+    'Numéro 8',
+    'Demi de mêlée',
+    "Demi d'ouverture",
+    'Ailier',
+    'Premier centre',
+    'Deuxième centre',
+    'Arrière',
+    'Pilier',
+    'Deuxième / troisième ligne',
+    'Centre',
+    'Trois-quarts polyvalent',
+    'Non renseigné'
   ];
 
   const state = {
@@ -188,6 +208,54 @@
     '"': '&quot;',
     "'": '&#39;'
   })[char]);
+
+  const POSITION_ALIASES = new Map([
+    ['flanker', 'Troisième ligne aile'],
+    ['troisieme ligne', 'Troisième ligne aile'],
+    ['troisieme ligne aile', 'Troisième ligne aile'],
+    ['troisieme ligne centre', 'Numéro 8'],
+    ['numero 8', 'Numéro 8'],
+    ['n 8', 'Numéro 8'],
+    ['demi de melee', 'Demi de mêlée'],
+    ['demi melee', 'Demi de mêlée'],
+    ['demi d ouverture', "Demi d'ouverture"],
+    ['demi douverture', "Demi d'ouverture"],
+    ['ouvreur', "Demi d'ouverture"],
+    ['arriere', 'Arrière'],
+    ['ailier gauche', 'Ailier'],
+    ['ailier droit', 'Ailier'],
+    ['centre', 'Centre'],
+    ['pilier', 'Pilier']
+  ]);
+
+  function normalizePlayerPosition(value) {
+    const raw = clean(value);
+    if (!raw) return 'Non renseigné';
+    const direct = OFFICIAL_RUGBY_POSITIONS.find((item) => item.toLowerCase() === raw.toLowerCase());
+    if (direct) return direct;
+    const key = raw
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/['’]/g, ' ')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+    return POSITION_ALIASES.get(key) || raw;
+  }
+
+  function secondaryPlayerPosition(player) {
+    const normalized = normalizePlayerPosition(player.secondaryPosition || player.positionSecondary || player.posteSecondaire || player.secondaryRole);
+    const primary = normalizePlayerPosition(player.primaryPosition || player.position || player.role || player.label);
+    return normalized && normalized !== 'Non renseigné' && normalized !== primary ? normalized : '';
+  }
+
+  function playerPositionRank(player, targetPosition) {
+    const target = normalizePlayerPosition(targetPosition);
+    if (!target || target.startsWith('Remplaçant')) return 2;
+    if (normalizePlayerPosition(player.role) === target) return 0;
+    if (normalizePlayerPosition(player.secondaryRole) === target) return 1;
+    return 2;
+  }
 
   function matchesAudience(item, team) {
     const text = clean([
@@ -270,7 +338,7 @@
     return players.map((item) => ({
       ...item,
       age: `${item.firstName || item.prenom || item.name || ''} ${item.lastName || item.nom || ''}`,
-      label: item.position || item.primaryPosition || item.poste || team,
+      label: item.primaryPosition || item.position || item.poste || team,
       source: `${source} ${team}`,
       teamPhoto: item.photo || item.image || category.teamPhoto
     }));
@@ -289,9 +357,9 @@
       })
       .map((item) => ({
         name: playerName(item),
-        role: clean(item.position || item.role || item.label || ''),
+        role: normalizePlayerPosition(item.primaryPosition || item.position || item.role || item.label || ''),
         photo: clean(item.photo || item.teamPhoto || item.image || ''),
-        secondaryRole: clean(item.secondaryPosition || item.positionSecondary || item.posteSecondaire || ''),
+        secondaryRole: secondaryPlayerPosition(item),
         source: clean(item.source || ''),
         raw: item
       }))
@@ -301,6 +369,13 @@
 
   function selectedPlayerByKey(key, team) {
     return playerPool(team).find((player) => player.key === key);
+  }
+
+  function playersForSlot(slot, players) {
+    return [...players].sort((a, b) => (
+      playerPositionRank(a, slot.position) - playerPositionRank(b, slot.position)
+      || a.name.localeCompare(b.name, 'fr')
+    ));
   }
 
   function compositionSelectedNames() {
@@ -447,7 +522,7 @@
       ...collectionFrom(feminines.data, 'categories').map((item) => ({ ...item, source: 'Cadettes' })),
       ...collectionFrom(youth.data, 'categories').flatMap((item) => teamPlayersFromCategory(item, 'Pole jeunes')),
       ...collectionFrom(feminines.data, 'categories').flatMap((item) => teamPlayersFromCategory(item, 'Cadettes')),
-      ...(senior.data?.players || []).map((item) => ({ ...item, age: `${item.firstName || ''} ${item.lastName || ''}`, label: item.position || item.group || 'Senior', source: 'Senior', teamPhoto: item.photo })),
+      ...(senior.data?.players || []).map((item) => ({ ...item, age: `${item.firstName || ''} ${item.lastName || ''}`, label: item.primaryPosition || item.position || item.group || 'Senior', source: 'Senior', teamPhoto: item.photo })),
       ...(senior.data?.staff || []).map((item) => ({ ...item, age: `${item.firstName || ''} ${item.lastName || ''}`, label: item.role || 'Staff senior', source: 'Staff', teamPhoto: item.photo }))
     ];
     buildCompositionEvents();
@@ -525,10 +600,12 @@
     const team = compositionTeam?.value || 'Seniors';
     const players = playerPool(team);
     state.composition.slots = normalizeCompositionSlots(state.composition.slots);
-    const options = players.map((player) => `<option value="${escapeHtml(player.key)}">${escapeHtml(player.name)}${player.role ? ` - ${escapeHtml(player.role)}` : ''}</option>`).join('');
     compositionList.innerHTML = state.composition.slots.map((slot, index) => {
       const label = index < 15 ? `Titulaire ${slot.number}` : `Banc ${index - 14}`;
       const photo = normalizeAssetPath(slot.photo);
+      const options = playersForSlot(slot, players)
+        .map((player) => `<option value="${escapeHtml(player.key)}">${escapeHtml(player.name)}${player.role ? ` - ${escapeHtml(player.role)}` : ''}${player.secondaryRole ? ` / ${escapeHtml(player.secondaryRole)}` : ''}</option>`)
+        .join('');
       return `
         <article class="composition-slot" data-slot-editor="${index}">
           <button class="composition-slot-photo" type="button" data-focus-slot="${index}" aria-label="Modifier ${escapeHtml(slot.position)}">${photo ? `<img src="${escapeHtml(photo)}" alt="" loading="lazy" />` : `<b>${slot.number}</b>`}</button>
