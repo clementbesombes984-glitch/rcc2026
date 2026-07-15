@@ -1,9 +1,5 @@
 {
   "presidentMessage": {
-    "name": "",
-    "role": "Président",
-    "photo": "",
-    "text": "Le Racing Club Cubzaguais avance avec l'ambition de construire un club uni, formateur et ouvert à toutes les bonnes volontés. Notre priorité est de faire vivre un rugby exigeant, humain et fidèle aux valeurs du RCC."
-  },
-  "members": []
+    "role": "Président"
+  }
 }
