@@ -53,7 +53,7 @@ Le bouton `Pages CMS` du site pointe vers `/cms-login`.
 Dans Cloudflare Pages, ajouter une variable d’environnement :
 
 - `PAGES_CMS_PASSWORD` : mot de passe à donner aux personnes autorisées
-- `ADMIN_SESSION_SECRET` : secret long utilisé pour signer les sessions admin
+- `ADMIN_SESSION_SECRET` : secret long recommandé pour signer les sessions admin
 
 Après validation du mot de passe, la page redirige vers https://app.pagescms.org/.
 

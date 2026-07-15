@@ -60,7 +60,7 @@ Ajouter dans Cloudflare Pages :
 - `VAPID_SUBJECT`
 - `PUSH_ADMIN_TOKEN`
 - `PAGES_CMS_PASSWORD`
-- `ADMIN_SESSION_SECRET` : secret long pour signer les sessions admin
+- `ADMIN_SESSION_SECRET` : secret long recommande pour signer les sessions admin
 - `RCC_GITHUB_TOKEN` : token GitHub permettant au Studio RCC de creer directement un article dans `data/news.json`
 
 Pour `RCC_GITHUB_TOKEN`, utiliser Cloudflare Pages > Settings > Environment variables.

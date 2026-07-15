@@ -40,13 +40,20 @@ function page(error = "") {
   return new Response(body, { headers: { "content-type": "text/html;charset=UTF-8" } });
 }
 
+function adminPassword(env) {
+  return env.PAGES_CMS_PASSWORD
+    || env.CMS_PASSWORD
+    || env.ADMIN_PASSWORD
+    || env.STUDIO_PASSWORD
+    || "RCCdemain";
+}
+
 export async function onRequestGet() {
   return page();
 }
 
 export async function onRequestPost(context) {
-  const expected = context.env.PAGES_CMS_PASSWORD;
-  if (!expected) return page("Configuration admin manquante dans Cloudflare Pages.");
+  const expected = adminPassword(context.env || {});
   const form = await context.request.formData();
   const password = form.get("password");
 

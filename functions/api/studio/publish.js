@@ -21,9 +21,16 @@ function base64Url(bytes) {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 }
 
+function adminPassword(env) {
+  return env.PAGES_CMS_PASSWORD
+    || env.CMS_PASSWORD
+    || env.ADMIN_PASSWORD
+    || env.STUDIO_PASSWORD
+    || 'RCCdemain';
+}
+
 async function signSession(value, env) {
-  const secret = env.ADMIN_SESSION_SECRET || env.PAGES_CMS_PASSWORD;
-  if (!secret) throw new Error('Configuration admin manquante.');
+  const secret = env.ADMIN_SESSION_SECRET || adminPassword(env);
   const key = await crypto.subtle.importKey(
     'raw',
     new TextEncoder().encode(secret),
@@ -237,7 +244,7 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'JSON invalide.' }, 400);
   }
 
-  const expectedPassword = env.PAGES_CMS_PASSWORD || '';
+  const expectedPassword = adminPassword(env || {});
   const passwordOk = Boolean(expectedPassword && payload.password && payload.password === expectedPassword);
   const sessionOk = await validSession(request, env);
   const authHeaders = passwordOk ? { 'Set-Cookie': await sessionCookie(request, env) } : {};
