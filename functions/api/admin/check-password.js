@@ -8,7 +8,8 @@ function base64Url(bytes) {
 }
 
 async function signSession(value, env) {
-  const secret = env.ADMIN_SESSION_SECRET || env.PAGES_CMS_PASSWORD || 'RCCdemain';
+  const secret = env.ADMIN_SESSION_SECRET || env.PAGES_CMS_PASSWORD;
+  if (!secret) throw new Error('Configuration admin manquante.');
   const key = await crypto.subtle.importKey(
     'raw',
     new TextEncoder().encode(secret),
@@ -29,7 +30,8 @@ async function sessionCookie(request, env) {
 }
 
 export async function onRequestPost({ request, env }) {
-  const expected = env.PAGES_CMS_PASSWORD || 'RCCdemain';
+  const expected = env.PAGES_CMS_PASSWORD;
+  if (!expected) return Response.json({ ok: false, error: 'Configuration admin manquante.' }, { status: 500 });
   let password = '';
 
   try {

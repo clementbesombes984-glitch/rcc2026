@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v36';
+const CACHE_VERSION = 'rcc-pwa-v37';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -28,6 +28,7 @@ const STATIC_ASSETS = [
   '/contact.html',
   '/styles.css',
   '/script.js',
+  '/analytics.js',
   '/data-loader.js',
   '/matches-view.js',
   '/notifications.js',
@@ -56,7 +57,8 @@ const DATA_ASSETS = [
   '/data/newsletters.json',
   '/data/bureau.json',
   '/data/media-library.json',
-  '/data/settings.json'
+  '/data/settings.json',
+  '/data/rugby-positions.json'
 ];
 
 self.addEventListener('install', (event) => {

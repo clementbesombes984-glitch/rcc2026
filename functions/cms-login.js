@@ -45,7 +45,8 @@ export async function onRequestGet() {
 }
 
 export async function onRequestPost(context) {
-  const expected = context.env.PAGES_CMS_PASSWORD || "RCCdemain";
+  const expected = context.env.PAGES_CMS_PASSWORD;
+  if (!expected) return page("Configuration admin manquante dans Cloudflare Pages.");
   const form = await context.request.formData();
   const password = form.get("password");
 

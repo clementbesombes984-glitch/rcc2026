@@ -22,7 +22,8 @@ function base64Url(bytes) {
 }
 
 async function signSession(value, env) {
-  const secret = env.ADMIN_SESSION_SECRET || env.PAGES_CMS_PASSWORD || 'RCCdemain';
+  const secret = env.ADMIN_SESSION_SECRET || env.PAGES_CMS_PASSWORD;
+  if (!secret) throw new Error('Configuration admin manquante.');
   const key = await crypto.subtle.importKey(
     'raw',
     new TextEncoder().encode(secret),
@@ -236,8 +237,8 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'JSON invalide.' }, 400);
   }
 
-  const expectedPassword = env.PAGES_CMS_PASSWORD || 'RCCdemain';
-  const passwordOk = payload.password && payload.password === expectedPassword;
+  const expectedPassword = env.PAGES_CMS_PASSWORD || '';
+  const passwordOk = Boolean(expectedPassword && payload.password && payload.password === expectedPassword);
   const sessionOk = await validSession(request, env);
   const authHeaders = passwordOk ? { 'Set-Cookie': await sessionCookie(request, env) } : {};
 

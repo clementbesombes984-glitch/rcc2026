@@ -22,11 +22,12 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })
       });
-      if (!response.ok) return password === 'RCCdemain';
+      if (!response.ok) return false;
       const data = await response.json();
       return Boolean(data.ok);
     } catch (error) {
-      return password === 'RCCdemain';
+      showError('Connexion impossible. Vérifie la configuration admin Cloudflare.');
+      return false;
     }
   }
 

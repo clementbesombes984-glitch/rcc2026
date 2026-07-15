@@ -1,5 +1,6 @@
 (function () {
   const dataCache = new Map();
+  const SITE_ORIGIN = 'https://rccubzaguais.fr';
 
   const escapeHtml = (value) =>
     String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -393,7 +394,7 @@
     ].filter((photo) => photo && (photo.image || photo.url || typeof photo === 'string'));
     const galleryPhotos = item.image ? photos.slice(1) : photos;
     const body = String(item.body || item.content || item.summary || '').split(/\n{2,}/).map((paragraph) => paragraph.trim()).filter(Boolean);
-    const permanent = new URL(newsUrl(item, item._index).replace('./', '/'), window.location.origin).href;
+    const permanent = new URL(newsUrl(item, item._index).replace('./', '/'), SITE_ORIGIN).href;
 
     document.title = `${item.title || 'Actualite'} - Racing Club Cubzaguais`;
     document.querySelector('meta[name="description"]')?.setAttribute('content', item.summary || item.body || 'Actualite du Racing Club Cubzaguais.');
@@ -401,7 +402,7 @@
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', `${item.title || 'Actualite'} - Racing Club Cubzaguais`);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', item.summary || 'Actualite du Racing Club Cubzaguais.');
     document.querySelector('meta[property="og:url"]')?.setAttribute('content', permanent);
-    if (item.image) document.querySelector('meta[property="og:image"]')?.setAttribute('content', new URL(item.image, window.location.origin).href);
+    if (item.image) document.querySelector('meta[property="og:image"]')?.setAttribute('content', new URL(item.image, SITE_ORIGIN).href);
 
     reader.innerHTML = `
       <a class="article-back" href="./actualites.html">Retour aux actualites</a>
