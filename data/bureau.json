@@ -1,5 +1,8 @@
 {
   "presidentMessage": {
     "role": "Président"
-  }
+  },
+  "members": [
+    {}
+  ]
 }
