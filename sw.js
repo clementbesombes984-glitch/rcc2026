@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v34';
+const CACHE_VERSION = 'rcc-pwa-v36';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -16,6 +16,7 @@ const STATIC_ASSETS = [
   '/cadettes.html',
   '/feminines.html',
   '/actualites.html',
+  '/actualite.html',
   '/histoire.html',
   '/partenaires.html',
   '/galerie.html',
@@ -53,6 +54,8 @@ const DATA_ASSETS = [
   '/data/shop.json',
   '/data/compositions.json',
   '/data/newsletters.json',
+  '/data/bureau.json',
+  '/data/media-library.json',
   '/data/settings.json'
 ];
 

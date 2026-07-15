@@ -21,6 +21,19 @@
     }).toUpperCase();
   };
 
+  const slugify = (value) =>
+    String(value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'article';
+
+  const newsId = (item, index = 0) =>
+    item.id || item.slug || slugify(`${item.date || index}-${item.title || 'actualite-rcc'}`);
+
+  const newsUrl = (item, index = 0) => `./actualite.html?id=${encodeURIComponent(newsId(item, index))}`;
+
   const dataPath = (name) => `/data/${name}.json?v=${Date.now()}`;
 
   const fetchData = async (name) => {
@@ -104,6 +117,7 @@
     if (!grid) return;
 
     const data = await fetchData('news');
+    const newsletterData = await fetchData('newsletters');
     const news = (Array.isArray(data) ? data : (data.news || []))
       .map((item, index) => ({ ...item, _index: index }))
       .sort((a, b) => {
@@ -145,8 +159,12 @@
       { label: 'Jeunes', value: 'jeunes' },
       { label: 'Cadettes', value: 'cadettes' },
       { label: 'Benevoles', value: 'benevoles' },
-      { label: 'Tournois', value: 'tournois' }
+      { label: 'Tournois', value: 'tournois' },
+      { label: 'Newsletters', value: 'newsletters' }
     ];
+    const newsletters = (Array.isArray(newsletterData) ? newsletterData : (newsletterData.newsletters || []))
+      .filter((item) => item.published !== false)
+      .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
 
     const normalize = (value) => String(value || '')
       .toLowerCase()
@@ -179,6 +197,7 @@
       ? `<div class="${className}"${imageStyle(item.image)}></div>`
       : `<div class="${className} journal-image-fallback"><strong>RCC</strong></div>`;
     const renderJournalCard = (item, className = '') => `
+      <a class="journal-card-link" href="${escapeHtml(newsUrl(item, item._index))}" aria-label="Lire ${escapeHtml(item.title || 'actualite RCC')}">
       <article class="journal-card ${className}" data-news-item data-news-tags="${escapeHtml([...itemTags(item)].join(' '))}">
         ${imageBlock(item)}
         <div class="journal-card-body">
@@ -188,6 +207,18 @@
           <p>${escapeHtml(item.summary || item.body || '')}</p>
         </div>
       </article>
+      </a>
+    `;
+    const renderNewsletterCard = (item) => `
+      <article class="newsletter-card">
+        ${item.cover ? `<div class="newsletter-cover"${imageStyle(item.cover)}></div>` : '<div class="newsletter-cover newsletter-cover-fallback"><strong>RCC</strong></div>'}
+        <div>
+          <span>${escapeHtml(item.date ? formatDate(item.date) : item.period || 'Newsletter')}</span>
+          <h3>${escapeHtml(item.title || 'Newsletter RCC')}</h3>
+          <p>${escapeHtml(item.description || 'Les informations et actualites du Racing Club Cubzaguais.')}</p>
+          ${item.pdf ? `<a class="button ghost newsletter-download" href="${escapeHtml(item.pdf)}" target="_blank" rel="noopener">Telecharger le PDF</a>` : '<em class="newsletter-missing">PDF bientot disponible</em>'}
+        </div>
+      </article>
     `;
 
     grid.innerHTML = `
@@ -195,6 +226,7 @@
         ${filters.map((filter, index) => `<button type="button" class="${index === 0 ? 'is-active' : ''}" data-news-filter="${filter.value}">${escapeHtml(filter.label)}</button>`).join('')}
       </div>
       <div class="journal-layout">
+        <a class="journal-feature-link" href="${escapeHtml(newsUrl(featured, featured._index))}" aria-label="Lire ${escapeHtml(featured.title || 'actualite RCC')}">
         <article class="journal-feature" data-news-item data-news-tags="${escapeHtml([...itemTags(featured)].join(' '))}">
           ${imageBlock(featured, 'journal-feature-image')}
           <div class="journal-feature-body">
@@ -204,6 +236,7 @@
             <p>${escapeHtml(featured.summary || featured.body || '')}</p>
           </div>
         </article>
+        </a>
         <div class="journal-side">
           ${secondary.length ? secondary.map((item) => renderJournalCard(item, 'journal-card-secondary')).join('') : '<article class="journal-card journal-card-secondary"><div class="journal-card-body"><span class="journal-badge">RCC</span><h3>Les prochaines infos arrivent</h3><p>Les nouvelles publiees via Pages CMS alimenteront automatiquement cette page.</p></div></article>'}
         </div>
@@ -216,18 +249,32 @@
         <h3>Aucune actualite dans cette rubrique</h3>
         <p>Essayez un autre filtre pour afficher les dernieres nouvelles du club.</p>
       </article>
+      <section class="newsletter-archive" data-newsletter-archive ${newsletters.length ? '' : 'hidden'}>
+        <div class="history-section-head">
+          <p class="section-kicker">Archives</p>
+          <h2>Newsletters</h2>
+        </div>
+        <div class="newsletter-grid">
+          ${newsletters.length ? newsletters.map(renderNewsletterCard).join('') : '<article class="newsletter-empty"><span>Archives</span><h3>Aucune newsletter publiee</h3><p>Les prochaines editions seront disponibles ici en telechargement.</p></article>'}
+        </div>
+      </section>
     `;
 
     const applyFilter = (filter) => {
       let visibleCount = 0;
+      const newsletterArchive = grid.querySelector('[data-newsletter-archive]');
+      const showNewsletters = filter === 'all' || filter === 'newsletters';
+      if (newsletterArchive) newsletterArchive.hidden = filter === 'newsletters' ? false : (!showNewsletters || !newsletters.length);
+      grid.querySelector('.journal-layout')?.toggleAttribute('hidden', filter === 'newsletters');
+      grid.querySelector('.journal-grid')?.toggleAttribute('hidden', filter === 'newsletters');
       grid.querySelectorAll('[data-news-item]').forEach((item) => {
         const tags = new Set((item.dataset.newsTags || '').split(' ').filter(Boolean));
-        const isVisible = filter === 'all' || tags.has(filter);
+        const isVisible = filter !== 'newsletters' && (filter === 'all' || tags.has(filter));
         item.hidden = !isVisible;
         if (isVisible) visibleCount += 1;
       });
       const empty = grid.querySelector('[data-news-empty]');
-      if (empty) empty.hidden = visibleCount > 0;
+      if (empty) empty.hidden = visibleCount > 0 || filter === 'newsletters';
     };
 
     grid.querySelector('[data-news-filters]')?.addEventListener('click', (event) => {
@@ -236,6 +283,81 @@
       grid.querySelectorAll('[data-news-filter]').forEach((item) => item.classList.remove('is-active'));
       button.classList.add('is-active');
       applyFilter(button.dataset.newsFilter);
+    });
+  }
+
+  async function renderArticlePage() {
+    const shell = document.querySelector('[data-article-page]');
+    if (!shell) return;
+    const reader = shell.querySelector('.article-reader') || shell;
+    const params = new URLSearchParams(window.location.search);
+    const requestedId = params.get('id') || '';
+    const data = await fetchData('news');
+    const news = (Array.isArray(data) ? data : (data.news || [])).map((item, index) => ({ ...item, _index: index }));
+    const item = news.find((entry) => newsId(entry, entry._index) === requestedId);
+
+    if (!item) {
+      reader.innerHTML = `
+        <a class="article-back" href="./actualites.html">Retour aux actualites</a>
+        <div class="article-not-found">
+          <span>Journal RCC</span>
+          <h1>Article introuvable</h1>
+          <p>L'actualite demandee n'existe pas ou n'est plus publiee.</p>
+          <a class="button primary" href="./actualites.html">Voir les actualites</a>
+        </div>
+      `;
+      return;
+    }
+
+    const photos = [
+      ...(item.image ? [{ image: item.image, alt: item.title || 'Actualite RCC' }] : []),
+      ...(Array.isArray(item.photos) ? item.photos : []),
+      ...(Array.isArray(item.gallery) ? item.gallery : [])
+    ].filter((photo) => photo && (photo.image || photo.url || typeof photo === 'string'));
+    const galleryPhotos = item.image ? photos.slice(1) : photos;
+    const body = String(item.body || item.content || item.summary || '').split(/\n{2,}/).map((paragraph) => paragraph.trim()).filter(Boolean);
+    const permanent = new URL(newsUrl(item, item._index).replace('./', '/'), window.location.origin).href;
+
+    document.title = `${item.title || 'Actualite'} - Racing Club Cubzaguais`;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', item.summary || item.body || 'Actualite du Racing Club Cubzaguais.');
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', permanent);
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', `${item.title || 'Actualite'} - Racing Club Cubzaguais`);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', item.summary || 'Actualite du Racing Club Cubzaguais.');
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', permanent);
+    if (item.image) document.querySelector('meta[property="og:image"]')?.setAttribute('content', new URL(item.image, window.location.origin).href);
+
+    reader.innerHTML = `
+      <a class="article-back" href="./actualites.html">Retour aux actualites</a>
+      <header class="article-header">
+        <div class="journal-meta">
+          <span>${escapeHtml(item.category || 'Club')}</span>
+          <time>${escapeHtml(item.date ? formatDate(item.date) : 'Publie recemment')}</time>
+        </div>
+        <h1>${escapeHtml(item.title || 'Actualite RCC')}</h1>
+        ${item.summary ? `<p>${escapeHtml(item.summary)}</p>` : ''}
+        <div class="article-actions">
+          <button class="button ghost" type="button" data-copy-article-link>Copier le lien</button>
+          <a class="button ghost" href="${escapeHtml(permanent)}">Lien permanent</a>
+        </div>
+      </header>
+      ${item.image ? `<figure class="article-main-image"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title || 'Actualite RCC')}" loading="eager" /></figure>` : '<div class="article-main-image article-image-fallback"><strong>RCC</strong></div>'}
+      <div class="article-body">
+        ${body.length ? body.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('') : '<p>Le contenu complet sera prochainement disponible.</p>'}
+      </div>
+      ${galleryPhotos.length ? `<section class="article-gallery"><h2>Photos</h2><div>${galleryPhotos.map((photo) => {
+        const src = typeof photo === 'string' ? photo : (photo.image || photo.url);
+        const alt = typeof photo === 'string' ? item.title : (photo.alt || item.title || 'Photo RCC');
+        return `<a href="${escapeHtml(src)}" target="_blank" rel="noopener"><img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" /></a>`;
+      }).join('')}</div></section>` : ''}
+    `;
+
+    reader.querySelector('[data-copy-article-link]')?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(permanent);
+        reader.querySelector('[data-copy-article-link]').textContent = 'Lien copie';
+      } catch (error) {
+        window.prompt('Copier le lien', permanent);
+      }
     });
   }
 
@@ -626,7 +748,45 @@
     `).join('');
   }
 
+  async function renderBureau() {
+    const messageNode = document.querySelector('[data-president-message]');
+    const membersNode = document.querySelector('[data-bureau-members]');
+    if (!messageNode && !membersNode) return;
+    const data = await fetchData('bureau');
+    const message = data.presidentMessage || {};
+    if (messageNode) {
+      messageNode.innerHTML = `
+        <div class="history-section-head">
+          <p class="section-kicker">Présidence</p>
+          <h2>Mot du Président</h2>
+        </div>
+        <article class="president-card">
+          ${message.photo ? `<img src="${escapeHtml(message.photo)}" alt="${escapeHtml(message.name || 'Président du RCC')}" loading="lazy" />` : '<div class="president-avatar">RCC</div>'}
+          <div>
+            <span>${escapeHtml(message.role || 'Président')}</span>
+            <h3>${escapeHtml(message.name || 'Président du Racing Club Cubzaguais')}</h3>
+            <p>${escapeHtml(message.text || 'Le message du président sera prochainement publié.')}</p>
+          </div>
+        </article>
+      `;
+    }
+    if (membersNode) {
+      const members = (data.members || []).slice().sort((a, b) => Number(a.order || 99) - Number(b.order || 99));
+      membersNode.innerHTML = members.length ? members.map((member) => `
+        <article class="bureau-card">
+          ${member.photo ? `<img src="${escapeHtml(member.photo)}" alt="${escapeHtml(`${member.firstName || ''} ${member.lastName || ''}`.trim())}" loading="lazy" />` : '<div class="bureau-avatar">RCC</div>'}
+          <div>
+            <span>${escapeHtml(member.commission || 'Bureau')}</span>
+            <h3>${escapeHtml(`${member.firstName || ''} ${member.lastName || ''}`.trim() || 'Membre du bureau')}</h3>
+            <p>${escapeHtml(member.role || '')}</p>
+          </div>
+        </article>
+      `).join('') : '<p class="empty-state">La composition du bureau sera prochainement publiée.</p>';
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
+    renderArticlePage().catch(console.error);
     renderMatches().catch(console.error);
     renderNews().catch(console.error);
     renderSettings().catch(console.error);
@@ -636,6 +796,7 @@
     renderCategories('feminines', 'Cadettes').catch(console.error);
     renderPartners().catch(console.error);
     renderProject().catch(console.error);
+    renderBureau().catch(console.error);
     renderImportantNews().catch(console.error);
     renderGallery().catch(console.error);
     renderShop().catch(console.error);

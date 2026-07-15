@@ -647,6 +647,29 @@ content:
               - name: photo
                 label: Photo du staff
                 type: image
+          - name: players
+            label: Joueurs de la categorie
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{position} - {firstName} {lastName}"
+            fields:
+              - name: firstName
+                label: Prenom
+                type: string
+              - name: lastName
+                label: Nom
+                type: string
+              - name: position
+                label: Poste principal
+                type: string
+              - name: secondaryPosition
+                label: Poste secondaire optionnel
+                type: string
+              - name: photo
+                label: Photo joueur
+                type: image
 
   - name: cadettes
     label: Cadettes
@@ -719,6 +742,29 @@ content:
                 type: string
               - name: photo
                 label: Photo du staff
+                type: image
+          - name: players
+            label: Joueurs cadettes
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{position} - {firstName} {lastName}"
+            fields:
+              - name: firstName
+                label: Prenom
+                type: string
+              - name: lastName
+                label: Nom
+                type: string
+              - name: position
+                label: Poste principal
+                type: string
+              - name: secondaryPosition
+                label: Poste secondaire optionnel
+                type: string
+              - name: photo
+                label: Photo joueuse
                 type: image
 
   - name: settings
@@ -833,6 +879,57 @@ content:
               - name: role
                 label: Poste
                 type: string
+              - name: photo
+                label: Photo
+                type: image
+          - name: substitutes
+            label: Remplacants
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{number} - {name}"
+            fields:
+              - name: number
+                label: Numero
+                type: number
+              - name: name
+                label: Nom du joueur
+                type: string
+              - name: role
+                label: Poste
+                type: string
+              - name: photo
+                label: Photo
+                type: image
+          - name: captain
+            label: Capitaine
+            type: string
+          - name: viceCaptain
+            label: Vice-capitaine
+            type: string
+          - name: coach
+            label: Coach
+            type: string
+          - name: comments
+            label: Commentaires
+            type: text
+          - name: channels
+            label: Publication
+            type: object
+            fields:
+              - name: site
+                label: Site
+                type: boolean
+              - name: facebook
+                label: Facebook
+                type: boolean
+              - name: instagram
+                label: Instagram
+                type: boolean
+              - name: push
+                label: Notification
+                type: boolean
 
   - name: newsletters
     label: Newsletters Studio RCC
@@ -848,12 +945,30 @@ content:
             collapsed: true
             summary: "{period} - {title}"
         fields:
+          - name: id
+            label: Identifiant
+            type: string
           - name: title
             label: Titre
             type: string
+          - name: date
+            label: Date de publication
+            type: date
           - name: period
             label: Periode
             type: string
+          - name: description
+            label: Description courte
+            type: text
+          - name: cover
+            label: Couverture
+            type: image
+          - name: pdf
+            label: PDF
+            type: file
+          - name: published
+            label: Publier sur le site
+            type: boolean
           - name: intro
             label: Introduction
             type: text
@@ -874,6 +989,132 @@ content:
               - name: url
                 label: Lien
                 type: string
+          - name: blocks
+            label: Blocs de newsletter
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{type} - {title}"
+            fields:
+              - name: type
+                label: Type de bloc
+                type: select
+                options:
+                  values:
+                    - editorial
+                    - news
+                    - result
+                    - calendar
+                    - interview
+                    - partner
+                    - photo
+                    - ranking
+                    - club
+                    - volunteer
+                    - quote
+                    - sponsors
+              - name: title
+                label: Titre
+                type: string
+              - name: text
+                label: Texte
+                type: text
+              - name: image
+                label: Image
+                type: image
+
+  - name: media_library
+    label: Mediatheque RCC
+    type: file
+    path: data/media-library.json
+    format: json
+    fields:
+      - name: assets
+        label: Images
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{category} - {title}"
+        fields:
+          - name: title
+            label: Titre
+            type: string
+          - name: category
+            label: Rubrique
+            type: select
+            options:
+              values:
+                - Matchs
+                - Ecole de rugby
+                - Seniors
+                - U18
+                - U16
+                - Cadettes
+                - Partenaires
+                - Club House
+                - Terrain
+                - Benevoles
+                - Historique
+          - name: image
+            label: Image
+            type: image
+          - name: alt
+            label: Texte alternatif
+            type: string
+
+  - name: bureau
+    label: Bureau RCC Demain
+    type: file
+    path: data/bureau.json
+    format: json
+    fields:
+      - name: presidentMessage
+        label: Mot du President
+        type: object
+        fields:
+          - name: name
+            label: Nom
+            type: string
+          - name: role
+            label: Fonction
+            type: string
+          - name: photo
+            label: Photo
+            type: image
+          - name: text
+            label: Texte
+            type: text
+      - name: members
+        label: Membres du bureau
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{order} - {role} - {firstName} {lastName}"
+        fields:
+          - name: id
+            label: Identifiant
+            type: string
+          - name: firstName
+            label: Prenom
+            type: string
+          - name: lastName
+            label: Nom
+            type: string
+          - name: role
+            label: Fonction
+            type: string
+          - name: commission
+            label: Commission / responsabilite
+            type: string
+          - name: photo
+            label: Photo
+            type: image
+          - name: order
+            label: Ordre d'affichage
+            type: number
 
 settings:
   hide: false

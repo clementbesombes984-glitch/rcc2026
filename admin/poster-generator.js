@@ -107,6 +107,11 @@
   const compositionMatchInfo = document.querySelector('[data-composition-match-info]');
   const compositionList = document.querySelector('[data-composition-list]');
   const compositionPreview = document.querySelector('[data-composition-preview]');
+  const compositionCaptain = document.querySelector('[data-composition-captain]');
+  const compositionVice = document.querySelector('[data-composition-vice]');
+  const compositionCoach = document.querySelector('[data-composition-coach]');
+  const compositionComments = document.querySelector('[data-composition-comments]');
+  const compositionHistory = document.querySelector('[data-composition-history]');
   const newsletterItems = document.querySelector('[data-newsletter-items]');
   const newsletterPreview = document.querySelector('[data-newsletter-preview]');
   const newsletterTitle = document.querySelector('[data-newsletter-title]');
@@ -114,6 +119,21 @@
   const newsletterIntro = document.querySelector('[data-newsletter-intro]');
   const newsletterPartner = document.querySelector('[data-newsletter-partner]');
   const newsletterReminder = document.querySelector('[data-newsletter-reminder]');
+  const newsletterTemplate = document.querySelector('[data-newsletter-template]');
+  const newsletterBlockType = document.querySelector('[data-newsletter-block-type]');
+  const newsletterBlocks = document.querySelector('[data-newsletter-blocks]');
+  const mediaLibrary = document.querySelector('[data-media-library]');
+
+  const RUGBY_POSITIONS = [
+    'Pilier gauche', 'Talonneur', 'Pilier droit',
+    'Deuxieme ligne', 'Deuxieme ligne',
+    'Troisieme ligne aile', 'Troisieme ligne centre', 'Troisieme ligne aile',
+    'Demi de melee', 'Demi d ouverture',
+    'Ailier gauche', 'Centre', 'Centre', 'Ailier droit',
+    'Arriere',
+    'Remplacant 1', 'Remplacant 2', 'Remplacant 3', 'Remplacant 4',
+    'Remplacant 5', 'Remplacant 6', 'Remplacant 7', 'Remplacant 8'
+  ];
 
   const state = {
     activeSource: 'blank',
@@ -130,11 +150,25 @@
       products: [],
       albums: [],
       teams: [],
+      media: [],
+      compositionEvents: [],
       settings: {}
     },
     composition: {
-      slots: Array.from({ length: 23 }, (_, index) => ({ number: index + 1, player: '' }))
-    }
+      slots: Array.from({ length: 23 }, (_, index) => ({
+        number: index + 1,
+        position: RUGBY_POSITIONS[index] || `Poste ${index + 1}`,
+        player: '',
+        playerKey: '',
+        photo: '',
+        role: ''
+      })),
+      captain: '',
+      viceCaptain: '',
+      coach: '',
+      comments: ''
+    },
+    newsletterBlocks: []
   };
 
   const logo = new Image();
@@ -189,6 +223,59 @@
     return clean(player.age || `${player.firstName || player.prenom || ''} ${player.lastName || player.nom || ''}` || player.name || player.title);
   }
 
+  function isMatchNews(item) {
+    const text = clean([item.template, item.type, item.category, item.title, item.audience].flat().join(' ')).toLowerCase();
+    return text.includes('match') || text.includes('tournoi') || text.includes('composition');
+  }
+
+  function buildCompositionEvents() {
+    const calendarEvents = state.data.events.map((item, index) => ({ ...item, _studioSource: 'calendar', _studioValue: `event-${index}` }));
+    const newsEvents = state.data.news
+      .filter(isMatchNews)
+      .map((item, index) => ({
+        ...item,
+        opponent: item.opponent || item.adversaire || item.subtitle,
+        location: item.location || item.lieu || '',
+        competition: item.competition || item.category || 'Actualite match',
+        _studioSource: 'news',
+        _studioValue: `news-${index}`
+      }));
+    state.data.compositionEvents = [...calendarEvents, ...newsEvents];
+  }
+
+  function compositionEventByValue(value) {
+    return state.data.compositionEvents.find((item) => item._studioValue === value)
+      || state.data.events[Number(value)]
+      || {};
+  }
+
+  function defaultCompositionSlots() {
+    return Array.from({ length: 23 }, (_, index) => ({
+      number: index + 1,
+      position: RUGBY_POSITIONS[index] || `Poste ${index + 1}`,
+      player: '',
+      playerKey: '',
+      photo: '',
+      role: ''
+    }));
+  }
+
+  function playerKey(player, index = 0) {
+    return slug(`${player.source || ''}-${player.name || player.age || ''}-${player.role || ''}-${index}`);
+  }
+
+  function teamPlayersFromCategory(category, source) {
+    const team = clean(category.age || category.label || source);
+    const players = Array.isArray(category.players) ? category.players : [];
+    return players.map((item) => ({
+      ...item,
+      age: `${item.firstName || item.prenom || item.name || ''} ${item.lastName || item.nom || ''}`,
+      label: item.position || item.primaryPosition || item.poste || team,
+      source: `${source} ${team}`,
+      teamPhoto: item.photo || item.image || category.teamPhoto
+    }));
+  }
+
   function playerPool(team = '') {
     const key = clean(team).toLowerCase();
     return state.data.teams
@@ -203,9 +290,21 @@
       .map((item) => ({
         name: playerName(item),
         role: clean(item.position || item.role || item.label || ''),
-        photo: clean(item.photo || item.teamPhoto || item.image || '')
+        photo: clean(item.photo || item.teamPhoto || item.image || ''),
+        secondaryRole: clean(item.secondaryPosition || item.positionSecondary || item.posteSecondaire || ''),
+        source: clean(item.source || ''),
+        raw: item
       }))
-      .filter((item) => item.name);
+      .filter((item) => item.name)
+      .map((item, index) => ({ ...item, key: playerKey(item, index) }));
+  }
+
+  function selectedPlayerByKey(key, team) {
+    return playerPool(team).find((player) => player.key === key);
+  }
+
+  function compositionSelectedNames() {
+    return state.composition.slots.map((slot) => slot.player).filter(Boolean);
   }
 
   function getStyleKey(style, template) {
@@ -256,6 +355,9 @@
   }
 
   function normalizeAssetPath(src) {
+    if (!src) return '';
+    if (typeof src === 'object') src = src.image || src.url || src.src || '';
+    src = String(src || '');
     if (!src) return '';
     if (/^https?:\/\//i.test(src) || src.startsWith('data:')) return src;
     return src.startsWith('/') ? '..' + src : src;
@@ -319,7 +421,7 @@
   async function loadSources() {
     setStatus('Chargement des donnees du CMS...');
     setSourceSelectLoading('Chargement...');
-    const [news, matches, partners, shop, gallery, senior, academy, youth, feminines, settings] = await Promise.all([
+    const [news, matches, partners, shop, gallery, senior, academy, youth, feminines, settings, media] = await Promise.all([
       fetchJson(['../data/news.json', '/data/news.json'], { news: [] }),
       fetchJson(['../data/matches.json', '/data/matches.json'], { matches: [] }),
       fetchJson(['../data/partners.json', '/data/partners.json'], { partners: [] }),
@@ -329,7 +431,8 @@
       fetchJson(['../data/academy.json', '/data/academy.json'], { categories: [] }),
       fetchJson(['../data/youth.json', '/data/youth.json'], { categories: [] }),
       fetchJson(['../data/feminines.json', '/data/feminines.json'], { categories: [] }),
-      fetchJson(['../data/settings.json', '/data/settings.json'], {})
+      fetchJson(['../data/settings.json', '/data/settings.json'], {}),
+      fetchJson(['../data/media-library.json', '/data/media-library.json'], { assets: [] })
     ]);
 
     state.data.news = collectionFrom(news.data, 'news');
@@ -337,13 +440,17 @@
     state.data.partners = collectionFrom(partners.data, 'partners');
     state.data.products = collectionFrom(shop.data, 'products');
     state.data.albums = collectionFrom(gallery.data, 'albums');
+    state.data.media = collectionFrom(media.data, 'assets');
     state.data.teams = [
       ...collectionFrom(academy.data, 'categories').map((item) => ({ ...item, source: 'Ecole de rugby' })),
       ...collectionFrom(youth.data, 'categories').map((item) => ({ ...item, source: 'Pole jeunes' })),
       ...collectionFrom(feminines.data, 'categories').map((item) => ({ ...item, source: 'Cadettes' })),
+      ...collectionFrom(youth.data, 'categories').flatMap((item) => teamPlayersFromCategory(item, 'Pole jeunes')),
+      ...collectionFrom(feminines.data, 'categories').flatMap((item) => teamPlayersFromCategory(item, 'Cadettes')),
       ...(senior.data?.players || []).map((item) => ({ ...item, age: `${item.firstName || ''} ${item.lastName || ''}`, label: item.position || item.group || 'Senior', source: 'Senior', teamPhoto: item.photo })),
       ...(senior.data?.staff || []).map((item) => ({ ...item, age: `${item.firstName || ''} ${item.lastName || ''}`, label: item.role || 'Staff senior', source: 'Staff', teamPhoto: item.photo }))
     ];
+    buildCompositionEvents();
     state.data.settings = settings.data || {};
     hydrateSourceSelect();
     const count = state.data.news.length + state.data.events.length + state.data.partners.length + state.data.products.length + state.data.albums.length + state.data.teams.length;
@@ -351,6 +458,7 @@
     hydrateCompositionMatches();
     hydrateCompositionPlayers();
     hydrateNewsletterSources();
+    hydrateMediaLibrary();
     render();
   }
 
@@ -405,10 +513,9 @@
   function hydrateCompositionMatches() {
     if (!compositionMatch) return;
     const team = compositionTeam?.value || 'Seniors';
-    const matches = state.data.events.filter((item) => matchesAudience(item, team));
+    const matches = state.data.compositionEvents.filter((item) => matchesAudience(item, team));
     compositionMatch.innerHTML = '<option value="">Choisir un match</option>' + matches.map((item, index) => {
-      const originalIndex = state.data.events.indexOf(item);
-      return `<option value="${originalIndex}">${escapeHtml(`${item.date ? formatDate(item.date) + ' - ' : ''}${eventTitle(item)}`)}</option>`;
+      return `<option value="${escapeHtml(item._studioValue || String(index))}">${escapeHtml(`${item.date ? formatDate(item.date) + ' - ' : ''}${eventTitle(item)}`)}</option>`;
     }).join('');
     updateCompositionMatchInfo();
   }
@@ -417,33 +524,99 @@
     if (!compositionList) return;
     const team = compositionTeam?.value || 'Seniors';
     const players = playerPool(team);
-    const options = players
-      .map((player) => `<option value="${escapeHtml(player.name)}">${player.role ? escapeHtml(player.role) : ''}</option>`)
-      .join('');
-    state.composition.slots = state.composition.slots.length
-      ? state.composition.slots
-      : Array.from({ length: 23 }, (_, index) => ({ number: index + 1, player: '' }));
-    compositionList.innerHTML = `<datalist id="composition-player-options">${options}</datalist>` + state.composition.slots.map((slot, index) => {
-      const label = index < 15 ? `Titulaire ${index + 1}` : `Remplacant ${index - 14}`;
+    state.composition.slots = normalizeCompositionSlots(state.composition.slots);
+    const options = players.map((player) => `<option value="${escapeHtml(player.key)}">${escapeHtml(player.name)}${player.role ? ` - ${escapeHtml(player.role)}` : ''}</option>`).join('');
+    compositionList.innerHTML = state.composition.slots.map((slot, index) => {
+      const label = index < 15 ? `Titulaire ${slot.number}` : `Banc ${index - 14}`;
+      const photo = normalizeAssetPath(slot.photo);
       return `
-        <label class="composition-slot">
-          <span>${label}</span>
-          <input list="composition-player-options" data-composition-player="${index}" value="${escapeHtml(slot.player || '')}" placeholder="Nom du joueur" />
-        </label>
+        <article class="composition-slot" data-slot-editor="${index}">
+          <button class="composition-slot-photo" type="button" data-focus-slot="${index}" aria-label="Modifier ${escapeHtml(slot.position)}">${photo ? `<img src="${escapeHtml(photo)}" alt="" loading="lazy" />` : `<b>${slot.number}</b>`}</button>
+          <div>
+            <span>${escapeHtml(label)} · ${escapeHtml(slot.position)}</span>
+            <select data-composition-player="${index}">
+              <option value="">A definir</option>
+              ${options}
+            </select>
+            <input data-composition-manual="${index}" type="text" value="${escapeHtml(slot.player || '')}" placeholder="Nom libre si joueur absent du CMS" />
+          </div>
+          <button class="composition-clear-slot" type="button" data-composition-clear-slot="${index}" aria-label="Retirer le joueur">×</button>
+        </article>
       `;
     }).join('');
-    compositionList.querySelectorAll('[data-composition-player]').forEach((input) => {
+    compositionList.querySelectorAll('[data-composition-player]').forEach((select) => {
+      const slot = state.composition.slots[Number(select.dataset.compositionPlayer)];
+      select.value = slot.playerKey || '';
+      select.addEventListener('change', () => {
+        setCompositionSlot(Number(select.dataset.compositionPlayer), select.value);
+      });
+    });
+    compositionList.querySelectorAll('[data-composition-manual]').forEach((input) => {
       input.addEventListener('input', () => {
-        state.composition.slots[Number(input.dataset.compositionPlayer)].player = input.value;
+        const slot = state.composition.slots[Number(input.dataset.compositionManual)];
+        slot.player = input.value;
+        slot.playerKey = '';
+        slot.photo = '';
+        slot.role = '';
         renderComposition();
       });
     });
+    compositionList.querySelectorAll('[data-composition-clear-slot]').forEach((button) => {
+      button.addEventListener('click', () => {
+        clearCompositionSlot(Number(button.dataset.compositionClearSlot));
+      });
+    });
+    hydrateCaptainSelectors();
     renderComposition();
+  }
+
+  function normalizeCompositionSlots(slots) {
+    const current = Array.isArray(slots) && slots.length ? slots : defaultCompositionSlots();
+    return defaultCompositionSlots().map((base, index) => ({ ...base, ...(current[index] || {}) }));
+  }
+
+  function setCompositionSlot(index, key) {
+    const team = compositionTeam?.value || 'Seniors';
+    const slot = state.composition.slots[index];
+    const player = selectedPlayerByKey(key, team);
+    if (!slot) return;
+    if (!player) {
+      slot.player = '';
+      slot.playerKey = '';
+      slot.photo = '';
+      slot.role = '';
+    } else {
+      slot.player = player.name;
+      slot.playerKey = player.key;
+      slot.photo = player.photo;
+      slot.role = [player.role, player.secondaryRole].filter(Boolean).join(' / ');
+    }
+    hydrateCaptainSelectors();
+    renderComposition();
+    hydrateCompositionPlayers();
+  }
+
+  function clearCompositionSlot(index) {
+    const base = defaultCompositionSlots()[index];
+    if (!base) return;
+    state.composition.slots[index] = base;
+    hydrateCompositionPlayers();
+  }
+
+  function hydrateCaptainSelectors() {
+    const names = compositionSelectedNames();
+    const optionHtml = '<option value="">Choisir</option>' + names.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+    [compositionCaptain, compositionVice].forEach((select) => {
+      if (!select) return;
+      const previous = select.value;
+      select.innerHTML = optionHtml;
+      select.value = names.includes(previous) ? previous : '';
+    });
   }
 
   function updateCompositionMatchInfo() {
     if (!compositionMatchInfo) return;
-    const item = state.data.events[Number(compositionMatch?.value)];
+    const item = compositionEventByValue(compositionMatch?.value || '');
     compositionMatchInfo.innerHTML = item
       ? `<strong>${escapeHtml(eventTitle(item))}</strong><span>${escapeHtml(eventDetails(item))}</span>`
       : 'Selectionne une equipe puis un match du calendrier.';
@@ -453,8 +626,14 @@
     updateCompositionMatchInfo();
     if (!compositionPreview) return;
     const team = compositionTeam?.value || 'Seniors';
-    const item = state.data.events[Number(compositionMatch?.value)] || {};
+    const item = compositionEventByValue(compositionMatch?.value || '');
     const filled = state.composition.slots.filter((slot) => clean(slot.player));
+    const captain = compositionCaptain?.value || state.composition.captain || '';
+    const vice = compositionVice?.value || state.composition.viceCaptain || '';
+    state.composition.captain = captain;
+    state.composition.viceCaptain = vice;
+    state.composition.coach = compositionCoach?.value || '';
+    state.composition.comments = compositionComments?.value || '';
     compositionPreview.innerHTML = `
       <div class="composition-card">
         <header>
@@ -465,21 +644,138 @@
             <small>${escapeHtml(eventDetails(item))}</small>
           </div>
         </header>
-        <div class="composition-board">
+        <div class="composition-board composition-field">
           ${state.composition.slots.map((slot, index) => `
-            <article class="${index < 15 ? 'starter' : 'bench'}">
+            <article class="${index < 15 ? 'starter' : 'bench'}" data-composition-preview-slot="${index}">
               <b>${slot.number}</b>
+              ${slot.photo ? `<img src="${escapeHtml(normalizeAssetPath(slot.photo))}" alt="" loading="lazy" />` : ''}
               <span>${escapeHtml(slot.player || 'A definir')}</span>
+              <small>${escapeHtml(slot.position)}${slot.player === captain ? ' · C' : ''}${slot.player === vice ? ' · VC' : ''}</small>
             </article>
           `).join('')}
         </div>
-        <footer>${filled.length}/23 joueurs renseignes</footer>
+        <footer>
+          <span>${filled.length}/23 joueurs renseignes</span>
+          ${state.composition.coach ? `<span>Coach : ${escapeHtml(state.composition.coach)}</span>` : ''}
+        </footer>
       </div>
     `;
+    compositionPreview.querySelectorAll('[data-composition-preview-slot]').forEach((node) => {
+      node.addEventListener('click', () => {
+        const editor = compositionList?.querySelector(`[data-slot-editor="${node.dataset.compositionPreviewSlot}"] select`);
+        editor?.focus();
+        editor?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      });
+    });
+    renderCompositionHistory();
   }
 
   function compositionStorageKey() {
     return `rcc_composition_${slug(compositionTeam?.value || 'seniors')}`;
+  }
+
+  function compositionHistoryKey() {
+    return 'rcc_composition_history_v3';
+  }
+
+  function readCompositionHistory() {
+    try {
+      const items = JSON.parse(localStorage.getItem(compositionHistoryKey()) || '[]');
+      return Array.isArray(items) ? items : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function currentCompositionRecord(status = 'Brouillon') {
+    const item = compositionEventByValue(compositionMatch?.value || '');
+    return {
+      id: `composition-${Date.now()}`,
+      status,
+      title: eventTitle(item) || `Composition ${compositionTeam?.value || 'RCC'}`,
+      team: compositionTeam?.value || 'Seniors',
+      match: compositionMatch?.value || '',
+      eventTitle: eventTitle(item),
+      eventDetails: eventDetails(item),
+      date: item.date || new Date().toISOString().slice(0, 10),
+      players: state.composition.slots.map((slot) => ({
+        number: slot.number,
+        position: slot.position,
+        name: slot.player,
+        role: slot.role,
+        photo: slot.photo
+      })),
+      captain: compositionCaptain?.value || '',
+      viceCaptain: compositionVice?.value || '',
+      coach: compositionCoach?.value || '',
+      comments: compositionComments?.value || '',
+      channels: {
+        site: Boolean(document.querySelector('[data-composition-publish-site]')?.checked),
+        facebook: Boolean(document.querySelector('[data-composition-publish-facebook]')?.checked),
+        instagram: Boolean(document.querySelector('[data-composition-publish-instagram]')?.checked),
+        push: Boolean(document.querySelector('[data-composition-publish-push]')?.checked)
+      },
+      savedAt: new Date().toISOString()
+    };
+  }
+
+  function saveCompositionHistory(status = 'Brouillon') {
+    const history = readCompositionHistory();
+    history.unshift(currentCompositionRecord(status));
+    localStorage.setItem(compositionHistoryKey(), JSON.stringify(history.slice(0, 20)));
+    renderCompositionHistory();
+  }
+
+  function renderCompositionHistory() {
+    if (!compositionHistory) return;
+    const history = readCompositionHistory().slice(0, 5);
+    compositionHistory.innerHTML = history.length ? `
+      <strong>Historique</strong>
+      ${history.map((item) => `
+        <button type="button" data-load-composition-history="${escapeHtml(item.id)}">
+          <span>${escapeHtml(item.team)} · ${escapeHtml(item.status)}</span>
+          <b>${escapeHtml(item.title || 'Composition RCC')}</b>
+        </button>
+      `).join('')}
+    ` : '<p class="poster-help">Aucune composition enregistree.</p>';
+    compositionHistory.querySelectorAll('[data-load-composition-history]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const item = readCompositionHistory().find((entry) => entry.id === button.dataset.loadCompositionHistory);
+        if (item) loadCompositionRecord(item);
+      });
+    });
+  }
+
+  function loadCompositionRecord(record) {
+    if (compositionTeam) compositionTeam.value = record.team || 'Seniors';
+    hydrateCompositionMatches();
+    if (compositionMatch) compositionMatch.value = record.match || '';
+    state.composition.slots = normalizeCompositionSlots((record.players || []).map((player, index) => ({
+      number: player.number || index + 1,
+      position: player.position || RUGBY_POSITIONS[index],
+      player: player.name || '',
+      role: player.role || '',
+      photo: player.photo || ''
+    })));
+    if (compositionCoach) compositionCoach.value = record.coach || '';
+    if (compositionComments) compositionComments.value = record.comments || '';
+    hydrateCompositionPlayers();
+    if (compositionCaptain) compositionCaptain.value = record.captain || '';
+    if (compositionVice) compositionVice.value = record.viceCaptain || '';
+    setStatus('Composition chargee depuis l historique.');
+  }
+
+  function duplicateComposition() {
+    saveCompositionHistory('Copie');
+    setStatus('Composition dupliquee dans l historique.');
+  }
+
+  function publishComposition() {
+    saveCompositionHistory('Publiee');
+    const record = currentCompositionRecord('Publiee');
+    const channels = Object.entries(record.channels).filter(([, active]) => active).map(([key]) => key).join(', ') || 'aucun canal coche';
+    setStatus(`Composition prete pour publication : ${channels}.`);
+    recordPublication('Composition publiee', `${record.team} - ${record.title} (${channels})`);
   }
 
   function saveCompositionDraft() {
@@ -487,8 +783,13 @@
       team: compositionTeam?.value || 'Seniors',
       match: compositionMatch?.value || '',
       slots: state.composition.slots,
+      captain: compositionCaptain?.value || '',
+      viceCaptain: compositionVice?.value || '',
+      coach: compositionCoach?.value || '',
+      comments: compositionComments?.value || '',
       savedAt: new Date().toISOString()
     }));
+    saveCompositionHistory('Brouillon');
     setStatus('Brouillon de composition enregistre.');
   }
 
@@ -499,25 +800,35 @@
       return;
     }
     if (compositionMatch) compositionMatch.value = draft.match || '';
-    state.composition.slots = Array.isArray(draft.slots) ? draft.slots : state.composition.slots;
+    state.composition.slots = normalizeCompositionSlots(draft.slots);
+    if (compositionCoach) compositionCoach.value = draft.coach || '';
+    if (compositionComments) compositionComments.value = draft.comments || '';
     hydrateCompositionPlayers();
+    if (compositionCaptain) compositionCaptain.value = draft.captain || '';
+    if (compositionVice) compositionVice.value = draft.viceCaptain || '';
     setStatus('Brouillon de composition charge.');
   }
 
   function clearCompositionDraft() {
-    state.composition.slots = Array.from({ length: 23 }, (_, index) => ({ number: index + 1, player: '' }));
+    state.composition.slots = defaultCompositionSlots();
+    if (compositionCaptain) compositionCaptain.value = '';
+    if (compositionVice) compositionVice.value = '';
+    if (compositionCoach) compositionCoach.value = '';
+    if (compositionComments) compositionComments.value = '';
     hydrateCompositionPlayers();
     setStatus('Composition videe.');
   }
 
   function compositionText(channel = 'facebook') {
     const team = compositionTeam?.value || 'Seniors';
-    const item = state.data.events[Number(compositionMatch?.value)] || {};
-    const players = state.composition.slots.filter((slot) => clean(slot.player)).map((slot) => `${slot.number}. ${slot.player}`);
+    const item = compositionEventByValue(compositionMatch?.value || '');
+    const players = state.composition.slots.filter((slot) => clean(slot.player)).map((slot) => `${slot.number}. ${slot.player}${slot.role ? ` (${slot.role})` : ''}`);
     return [
       `Composition ${team} - ${eventTitle(item)}`,
       eventDetails(item),
+      compositionCoach?.value ? `Coach : ${compositionCoach.value}` : '',
       players.join('\n'),
+      compositionComments?.value || '',
       channel === 'instagram' ? '#RCCubzaguais #Rugby' : 'https://rccubzaguais.fr'
     ].filter(Boolean).join('\n\n');
   }
@@ -525,8 +836,10 @@
   function hydrateNewsletterSources() {
     if (!newsletterItems) return;
     const items = [
-      ...state.data.news.slice(0, 8).map((item, index) => ({ type: 'Actu', title: item.title, detail: item.summary || item.category, value: `news-${index}` })),
-      ...state.data.events.slice(0, 8).map((item, index) => ({ type: 'Calendrier', title: eventTitle(item), detail: eventDetails(item), value: `event-${index}` }))
+      ...state.data.news.slice(0, 10).map((item, index) => ({ type: 'Actu', title: item.title, detail: item.summary || item.category, value: `news-${index}` })),
+      ...state.data.events.slice(0, 10).map((item, index) => ({ type: 'Calendrier', title: eventTitle(item), detail: eventDetails(item), value: `event-${index}` })),
+      ...state.data.partners.slice(0, 6).map((item, index) => ({ type: 'Partenaire', title: item.name, detail: item.category || item.description, value: `partner-${index}` })),
+      ...state.data.albums.slice(0, 6).map((item, index) => ({ type: 'Galerie', title: item.title, detail: item.category || item.description, value: `gallery-${index}` }))
     ];
     newsletterItems.innerHTML = items.length ? items.map((item, index) => `
       <label class="newsletter-item">
@@ -538,36 +851,126 @@
       newsletterPartner.innerHTML = '<option value="">Choisir un partenaire</option>' + state.data.partners.map((item, index) => `<option value="${index}">${escapeHtml(item.name || 'Partenaire RCC')}</option>`).join('');
     }
     newsletterItems.querySelectorAll('[data-newsletter-check]').forEach((checkbox) => checkbox.addEventListener('change', renderNewsletter));
-    [newsletterTitle, newsletterPeriod, newsletterIntro, newsletterPartner, newsletterReminder].forEach((node) => node?.addEventListener('input', renderNewsletter));
+    [newsletterTitle, newsletterPeriod, newsletterIntro, newsletterPartner, newsletterReminder, newsletterTemplate].forEach((node) => node?.addEventListener('input', renderNewsletter));
+    renderNewsletterBlocks();
     renderNewsletter();
   }
 
   function selectedNewsletterItems() {
     return [...(newsletterItems?.querySelectorAll('[data-newsletter-check]:checked') || [])].map((checkbox) => {
       const [type, index] = checkbox.value.split('-');
-      return type === 'news'
-        ? { type: 'Actualite', item: state.data.news[Number(index)] }
-        : { type: 'Calendrier', item: state.data.events[Number(index)] };
+      if (type === 'news') return { type: 'Actualite', item: state.data.news[Number(index)] };
+      if (type === 'event') return { type: 'Calendrier', item: state.data.events[Number(index)] };
+      if (type === 'partner') return { type: 'Partenaire', item: state.data.partners[Number(index)] };
+      if (type === 'gallery') return { type: 'Photo', item: state.data.albums[Number(index)] };
+      return null;
     }).filter((entry) => entry.item);
+  }
+
+  function newsletterBlockLabel(type) {
+    const labels = {
+      editorial: 'Editorial',
+      news: 'Actualite',
+      result: 'Resultat',
+      calendar: 'Calendrier',
+      interview: 'Interview',
+      partner: 'Zoom partenaire',
+      photo: 'Photo',
+      ranking: 'Classement',
+      club: 'Vie du club',
+      volunteer: 'Benevole du mois',
+      quote: 'Citation',
+      sponsors: 'Sponsors'
+    };
+    return labels[type] || 'Bloc';
+  }
+
+  function addNewsletterBlock() {
+    const type = newsletterBlockType?.value || 'news';
+    const source = selectedNewsletterItems()[0];
+    state.newsletterBlocks.push({
+      id: `block-${Date.now()}`,
+      type,
+      title: source?.item?.title || eventTitle(source?.item || {}) || newsletterBlockLabel(type),
+      text: source?.item?.summary || eventDetails(source?.item || {}) || 'Texte a completer.',
+      image: source?.item?.image || source?.item?.cover || ''
+    });
+    renderNewsletterBlocks();
+    renderNewsletter();
+  }
+
+  function renderNewsletterBlocks() {
+    if (!newsletterBlocks) return;
+    newsletterBlocks.innerHTML = state.newsletterBlocks.length ? state.newsletterBlocks.map((block, index) => `
+      <article class="newsletter-block-editor">
+        <span>${escapeHtml(newsletterBlockLabel(block.type))}</span>
+        <input data-newsletter-block-title="${index}" value="${escapeHtml(block.title)}" />
+        <textarea data-newsletter-block-text="${index}" rows="2">${escapeHtml(block.text)}</textarea>
+        <button type="button" data-newsletter-remove-block="${index}">Retirer</button>
+      </article>
+    `).join('') : '<p class="poster-help">Ajoute des blocs pour construire une newsletter type journal.</p>';
+    newsletterBlocks.querySelectorAll('[data-newsletter-block-title]').forEach((input) => input.addEventListener('input', () => {
+      state.newsletterBlocks[Number(input.dataset.newsletterBlockTitle)].title = input.value;
+      renderNewsletter();
+    }));
+    newsletterBlocks.querySelectorAll('[data-newsletter-block-text]').forEach((input) => input.addEventListener('input', () => {
+      state.newsletterBlocks[Number(input.dataset.newsletterBlockText)].text = input.value;
+      renderNewsletter();
+    }));
+    newsletterBlocks.querySelectorAll('[data-newsletter-remove-block]').forEach((button) => button.addEventListener('click', () => {
+      state.newsletterBlocks.splice(Number(button.dataset.newsletterRemoveBlock), 1);
+      renderNewsletterBlocks();
+      renderNewsletter();
+    }));
+  }
+
+  function hydrateMediaLibrary() {
+    if (!mediaLibrary) return;
+    const fromAlbums = state.data.albums.flatMap((album) => asList(album.photos).map((photo) => ({
+      title: photo.alt || album.title || 'Photo RCC',
+      category: album.category || 'Galerie',
+      image: typeof photo === 'string' ? photo : (photo.image || photo.url || photo.src || '')
+    })));
+    const fromMedia = state.data.media.map((item) => ({
+      title: item.title || item.alt || 'Image RCC',
+      category: item.category || 'Mediatheque',
+      image: item.image || item.url
+    }));
+    const assets = [...fromMedia, ...fromAlbums].filter((item) => item.image).slice(0, 12);
+    mediaLibrary.innerHTML = assets.length ? assets.map((item) => `
+      <button type="button" data-media-src="${escapeHtml(item.image)}" title="${escapeHtml(item.title)}">
+        <img src="${escapeHtml(normalizeAssetPath(item.image))}" alt="" loading="lazy" />
+        <span>${escapeHtml(item.category)}</span>
+      </button>
+    `).join('') : '<p class="poster-help">Ajoute des images dans Pages CMS pour alimenter la mediatheque.</p>';
+    mediaLibrary.querySelectorAll('[data-media-src]').forEach((button) => button.addEventListener('click', () => {
+      loadRemoteImage(button.dataset.mediaSrc, 'image');
+      setStatus('Image chargee depuis la mediatheque.');
+    }));
   }
 
   function renderNewsletter() {
     if (!newsletterPreview) return;
     const selected = selectedNewsletterItems();
     const partner = state.data.partners[Number(newsletterPartner?.value)];
+    const blocks = state.newsletterBlocks.length ? state.newsletterBlocks : selected.slice(0, 6).map(({ type, item }) => ({
+      type,
+      title: item.title || eventTitle(item),
+      text: item.summary || eventDetails(item) || item.category || ''
+    }));
     newsletterPreview.innerHTML = `
-      <article class="newsletter-page">
+      <article class="newsletter-page newsletter-template-${escapeHtml(newsletterTemplate?.value || 'monthly')}">
         <header>
           <img src="../assets/logo-rcc.png" alt="" />
           <div><strong>${escapeHtml(newsletterTitle?.value || 'Newsletter RCC')}</strong><span>${escapeHtml(newsletterPeriod?.value || CURRENT_SEASON)}</span></div>
         </header>
         <p>${escapeHtml(newsletterIntro?.value || '')}</p>
         <section>
-          ${selected.slice(0, 6).map(({ type, item }) => `
+          ${blocks.slice(0, 10).map((block) => `
             <div>
-              <b>${escapeHtml(type)}</b>
-              <strong>${escapeHtml(item.title || eventTitle(item))}</strong>
-              <span>${escapeHtml(item.summary || eventDetails(item) || item.category || '')}</span>
+              <b>${escapeHtml(newsletterBlockLabel(block.type) || block.type)}</b>
+              <strong>${escapeHtml(block.title || 'Info RCC')}</strong>
+              <span>${escapeHtml(block.text || '')}</span>
             </div>
           `).join('')}
         </section>
@@ -1832,13 +2235,19 @@
     link.click();
   }
 
-  function drawCompositionExport() {
+  function drawCompositionExport(format = 'portrait') {
+    const size = format === 'story'
+      ? { width: 1080, height: 1920 }
+      : format === 'print'
+        ? { width: 1748, height: 2480 }
+        : { width: 1080, height: 1350 };
+    const scale = size.width / 1080;
     const exportCanvas = document.createElement('canvas');
-    exportCanvas.width = 1080;
-    exportCanvas.height = 1350;
+    exportCanvas.width = size.width;
+    exportCanvas.height = size.height;
     const c = exportCanvas.getContext('2d');
     const team = compositionTeam?.value || 'Seniors';
-    const item = state.data.events[Number(compositionMatch?.value)] || {};
+    const item = compositionEventByValue(compositionMatch?.value || '');
     c.fillStyle = COLORS.black;
     c.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
     const gradient = c.createLinearGradient(0, 0, exportCanvas.width, exportCanvas.height);
@@ -1849,48 +2258,50 @@
     c.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
     c.strokeStyle = COLORS.red;
     c.lineWidth = 5;
-    c.strokeRect(54, 54, exportCanvas.width - 108, exportCanvas.height - 108);
+    c.strokeRect(54 * scale, 54 * scale, exportCanvas.width - 108 * scale, exportCanvas.height - 108 * scale);
     c.fillStyle = COLORS.redBright;
-    c.font = `44px ${BODY_FONT}`;
-    c.fillText(team.toUpperCase(), 80, 118);
+    c.font = `${44 * scale}px ${BODY_FONT}`;
+    c.fillText(team.toUpperCase(), 80 * scale, 118 * scale);
     c.fillStyle = COLORS.white;
-    c.font = `116px ${TITLE_FONT}`;
-    c.fillText('COMPOSITION', 80, 235);
-    c.font = `42px ${BODY_FONT}`;
-    c.fillText(eventTitle(item).toUpperCase().slice(0, 34), 80, 298);
+    c.font = `${116 * scale}px ${TITLE_FONT}`;
+    c.fillText('COMPOSITION', 80 * scale, 235 * scale);
+    c.font = `${42 * scale}px ${BODY_FONT}`;
+    c.fillText(eventTitle(item).toUpperCase().slice(0, 34), 80 * scale, 298 * scale);
     c.fillStyle = COLORS.muted;
-    c.font = `30px ${BODY_FONT}`;
-    c.fillText(eventDetails(item).slice(0, 70), 80, 342);
+    c.font = `${30 * scale}px ${BODY_FONT}`;
+    c.fillText(eventDetails(item).slice(0, 70), 80 * scale, 342 * scale);
     c.fillStyle = 'rgba(255,255,255,.08)';
-    c.fillRect(80, 390, 920, 760);
+    c.fillRect(80 * scale, 390 * scale, 920 * scale, Math.min(1120 * scale, exportCanvas.height - 600 * scale));
     c.fillStyle = COLORS.white;
-    c.font = `30px ${BODY_FONT}`;
+    c.font = `${30 * scale}px ${BODY_FONT}`;
     state.composition.slots.forEach((slot, index) => {
       const col = index < 12 ? 0 : 1;
       const row = col === 0 ? index : index - 12;
-      const x = col === 0 ? 116 : 590;
-      const y = 442 + row * 56;
+      const x = (col === 0 ? 116 : 590) * scale;
+      const y = (442 + row * 56) * scale;
       c.fillStyle = index < 15 ? COLORS.redBright : COLORS.navyBright;
-      c.fillRect(x, y - 30, 46, 38);
+      c.fillRect(x, y - 30 * scale, 46 * scale, 38 * scale);
       c.fillStyle = COLORS.white;
       c.textAlign = 'center';
-      c.fillText(String(slot.number), x + 23, y);
+      c.fillText(String(slot.number), x + 23 * scale, y);
       c.textAlign = 'left';
-      c.fillText((slot.player || 'A definir').toUpperCase().slice(0, 22), x + 66, y);
+      c.fillText((slot.player || 'A definir').toUpperCase().slice(0, 22), x + 66 * scale, y);
     });
     c.fillStyle = COLORS.redBright;
-    c.font = `32px ${BODY_FONT}`;
-    c.fillText('RCCUBZAGUAIS.FR', 80, 1265);
+    c.font = `${32 * scale}px ${BODY_FONT}`;
+    c.fillText('RCCUBZAGUAIS.FR', 80 * scale, exportCanvas.height - 85 * scale);
     return exportCanvas;
   }
 
-  function exportCompositionPng() {
-    downloadCanvasImage(drawCompositionExport(), `composition-rcc-${slug(compositionTeam?.value || 'equipe')}.png`);
+  function exportCompositionPng(format = 'portrait') {
+    downloadCanvasImage(drawCompositionExport(format), `composition-rcc-${slug(compositionTeam?.value || 'equipe')}-${format}.png`);
     setStatus('Composition exportee en PNG.');
   }
 
   function newsletterText(channel = 'facebook') {
-    const selected = selectedNewsletterItems().map(({ type, item }) => `- ${type} : ${item.title || eventTitle(item)}`);
+    const selected = state.newsletterBlocks.length
+      ? state.newsletterBlocks.map((block) => `- ${newsletterBlockLabel(block.type)} : ${block.title}`)
+      : selectedNewsletterItems().map(({ type, item }) => `- ${type} : ${item.title || eventTitle(item)}`);
     return [
       newsletterTitle?.value || 'Newsletter RCC',
       newsletterIntro?.value || '',
@@ -1937,18 +2348,23 @@
     c.fillStyle = COLORS.muted;
     wrapCanvasText(c, newsletterIntro?.value || '', 120, 430, 1480, 54, 3);
     let y = 650;
-    selectedNewsletterItems().slice(0, 8).forEach(({ type, item }) => {
+    const blocks = state.newsletterBlocks.length ? state.newsletterBlocks : selectedNewsletterItems().map(({ type, item }) => ({
+      type,
+      title: item.title || eventTitle(item),
+      text: item.summary || eventDetails(item) || item.category || ''
+    }));
+    blocks.slice(0, 8).forEach((block) => {
       c.fillStyle = 'rgba(255,255,255,.075)';
       c.fillRect(120, y - 54, 1500, 170);
       c.fillStyle = COLORS.redBright;
       c.font = `36px ${BODY_FONT}`;
-      c.fillText(type.toUpperCase(), 160, y);
+      c.fillText(newsletterBlockLabel(block.type).toUpperCase(), 160, y);
       c.fillStyle = COLORS.white;
       c.font = `56px ${IMPACT_FONT}`;
-      c.fillText((item.title || eventTitle(item) || 'Info RCC').toUpperCase().slice(0, 42), 160, y + 58);
+      c.fillText((block.title || 'Info RCC').toUpperCase().slice(0, 42), 160, y + 58);
       c.fillStyle = COLORS.muted;
       c.font = `34px ${BODY_FONT}`;
-      c.fillText(clean(item.summary || eventDetails(item) || item.category || '').slice(0, 92), 160, y + 110);
+      c.fillText(clean(block.text || '').slice(0, 92), 160, y + 110);
       y += 205;
     });
     c.fillStyle = COLORS.redBright;
@@ -2011,6 +2427,16 @@
     setStatus('Newsletter exportee en PDF.');
   }
 
+  function exportNewsletterImage(type = 'png') {
+    const sourceCanvas = drawNewsletterCanvas();
+    const link = document.createElement('a');
+    const mime = type === 'jpeg' ? 'image/jpeg' : 'image/png';
+    link.href = sourceCanvas.toDataURL(mime, 0.94);
+    link.download = `newsletter-rcc-${slug(newsletterTitle?.value || 'newsletter')}.${type === 'jpeg' ? 'jpg' : 'png'}`;
+    link.click();
+    setStatus(`Newsletter exportee en ${type.toUpperCase()}.`);
+  }
+
   async function prepareDistribution() {
     if (!await prepareExport()) return;
     const data = readForm();
@@ -2046,13 +2472,26 @@
     hydrateCompositionPlayers();
   });
   compositionMatch?.addEventListener('change', renderComposition);
+  [compositionCaptain, compositionVice, compositionCoach, compositionComments].forEach((node) => node?.addEventListener('input', renderComposition));
   document.querySelector('[data-composition-load-last]')?.addEventListener('click', loadCompositionDraft);
   document.querySelector('[data-composition-clear]')?.addEventListener('click', clearCompositionDraft);
   document.querySelector('[data-composition-save]')?.addEventListener('click', saveCompositionDraft);
-  document.querySelector('[data-composition-export]')?.addEventListener('click', exportCompositionPng);
+  document.querySelector('[data-composition-duplicate]')?.addEventListener('click', duplicateComposition);
+  document.querySelector('[data-composition-export]')?.addEventListener('click', () => exportCompositionPng('portrait'));
+  document.querySelector('[data-composition-export-story]')?.addEventListener('click', () => exportCompositionPng('story'));
+  document.querySelector('[data-composition-export-print]')?.addEventListener('click', () => exportCompositionPng('print'));
+  document.querySelector('[data-composition-publish]')?.addEventListener('click', publishComposition);
   document.querySelector('[data-composition-copy-facebook]')?.addEventListener('click', () => copyText(compositionText('facebook'), captionOutput, 'Texte composition Facebook copie.'));
   document.querySelector('[data-composition-copy-instagram]')?.addEventListener('click', () => copyText(compositionText('instagram'), captionOutput, 'Texte composition Instagram copie.'));
+  document.querySelector('[data-newsletter-add-block]')?.addEventListener('click', addNewsletterBlock);
+  document.querySelector('[data-newsletter-clear-blocks]')?.addEventListener('click', () => {
+    state.newsletterBlocks = [];
+    renderNewsletterBlocks();
+    renderNewsletter();
+  });
   document.querySelector('[data-newsletter-export-pdf]')?.addEventListener('click', exportNewsletterPdf);
+  document.querySelector('[data-newsletter-export-png]')?.addEventListener('click', () => exportNewsletterImage('png'));
+  document.querySelector('[data-newsletter-export-jpeg]')?.addEventListener('click', () => exportNewsletterImage('jpeg'));
   document.querySelector('[data-newsletter-copy-facebook]')?.addEventListener('click', () => copyText(newsletterText('facebook'), captionOutput, 'Texte newsletter Facebook copie.'));
   document.querySelector('[data-newsletter-copy-instagram]')?.addEventListener('click', () => copyText(newsletterText('instagram'), captionOutput, 'Texte newsletter Instagram copie.'));
 

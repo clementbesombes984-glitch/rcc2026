@@ -14,6 +14,7 @@ const mobileNavLabels = [
   ['./actualites.html', 'Actualités'],
   ['./galerie.html', 'Galerie'],
   ['./histoire.html', 'Le Club'],
+  ['./rcc-demain.html', 'Le Club'],
   ['./partenaires.html', 'Partenaires'],
   ['./boutique.html', 'Boutique'],
   ['./nous-rejoindre.html', 'Contact'],
@@ -22,6 +23,24 @@ const mobileNavLabels = [
 ];
 
 if (nav) {
+  const clubLink = nav.querySelector('a.nav-text-link[href="./club.html"]:not([data-nav-dropdown-main])');
+  if (clubLink && !clubLink.closest('[data-nav-dropdown]')) {
+    const dropdown = document.createElement('div');
+    dropdown.className = 'nav-dropdown';
+    dropdown.dataset.navDropdown = '';
+    dropdown.innerHTML = `
+      <a class="nav-text-link nav-dropdown-main" href="./club.html" data-nav-dropdown-main aria-haspopup="true" aria-expanded="false">Le Club</a>
+      <div class="nav-submenu" data-nav-submenu>
+        <div class="nav-submenu-panel">
+          <a href="./club.html">Le Club</a>
+          <a href="./histoire.html">Histoire</a>
+          <a href="./rcc-demain.html">RCC Demain</a>
+        </div>
+      </div>
+    `;
+    clubLink.replaceWith(dropdown);
+  }
+
   if (!nav.querySelector('.mobile-home-link') && !nav.querySelector('a[href="./index.html#accueil"]')) {
     const home = document.createElement('a');
     home.className = 'mobile-home-link';
@@ -56,6 +75,7 @@ if (nav) {
     'calendrier.html': 'calendrier.html',
     'matchs.html': 'calendrier.html',
     'actualites.html': 'actualites.html',
+    'actualite.html': 'actualites.html',
     'galerie.html': 'galerie.html',
     'partenaires.html': 'partenaires.html',
     'boutique.html': 'boutique.html',
@@ -82,6 +102,7 @@ if (nav) {
     mainLink.addEventListener('click', (event) => {
       const dropdown = mainLink.closest('[data-nav-dropdown]');
       if (!dropdown) return;
+      if (window.matchMedia('(min-width: 1121px)').matches) return;
       event.preventDefault();
       const isOpen = dropdown.classList.toggle('is-submenu-open');
       mainLink.setAttribute('aria-expanded', String(isOpen));

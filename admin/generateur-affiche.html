@@ -405,10 +405,35 @@
             <div class="studio-mini-card" data-composition-match-info>
               Selectionne une equipe puis un match du calendrier.
             </div>
+            <div class="poster-field-grid">
+              <label>Capitaine
+                <select data-composition-captain>
+                  <option value="">Choisir</option>
+                </select>
+              </label>
+              <label>Vice-capitaine
+                <select data-composition-vice>
+                  <option value="">Choisir</option>
+                </select>
+              </label>
+            </div>
+            <label>Coach / responsable
+              <input data-composition-coach type="text" placeholder="Nom du coach" />
+            </label>
+            <label>Commentaires
+              <textarea data-composition-comments rows="2" placeholder="Consignes, infos de groupe, rendez-vous..."></textarea>
+            </label>
+            <div class="studio-distribution composition-distribution">
+              <label class="poster-check"><input type="checkbox" data-composition-publish-site /> Site</label>
+              <label class="poster-check"><input type="checkbox" data-composition-publish-facebook /> Facebook</label>
+              <label class="poster-check"><input type="checkbox" data-composition-publish-instagram /> Instagram</label>
+              <label class="poster-check"><input type="checkbox" data-composition-publish-push /> Notification</label>
+            </div>
             <div class="poster-actions compact-actions">
               <button class="button ghost" type="button" data-composition-load-last>Charger dernier brouillon</button>
               <button class="button ghost" type="button" data-composition-clear>Vider</button>
               <button class="button ghost" type="button" data-composition-save>Enregistrer brouillon</button>
+              <button class="button ghost" type="button" data-composition-duplicate>Dupliquer</button>
             </div>
           </aside>
           <section class="studio-preview-panel">
@@ -424,10 +449,14 @@
               <strong>Feuille</strong>
             </div>
             <div class="composition-list" data-composition-list></div>
+            <div class="composition-history" data-composition-history></div>
             <div class="poster-actions studio-actions">
-              <button class="button primary" type="button" data-composition-export>Telecharger PNG</button>
+              <button class="button primary" type="button" data-composition-export>PNG HD</button>
+              <button class="button ghost" type="button" data-composition-export-story>Story</button>
+              <button class="button ghost" type="button" data-composition-export-print>Impression</button>
               <button class="button ghost" type="button" data-composition-copy-facebook>Copier Facebook</button>
               <button class="button ghost" type="button" data-composition-copy-instagram>Copier Instagram</button>
+              <button class="button primary" type="button" data-composition-publish>Publier composition</button>
             </div>
           </aside>
         </div>
@@ -449,7 +478,38 @@
             <label>Mot du club
               <textarea data-newsletter-intro rows="3">Les dernieres nouvelles du RC Cubzaguais.</textarea>
             </label>
+            <div class="poster-field-grid">
+              <label>Modele
+                <select data-newsletter-template>
+                  <option value="monthly">Newsletter mensuelle</option>
+                  <option value="ag">Speciale AG</option>
+                  <option value="recruitment">Recrutement</option>
+                  <option value="partner">Partenaire</option>
+                </select>
+              </label>
+              <label>Bloc
+                <select data-newsletter-block-type>
+                  <option value="editorial">Editorial</option>
+                  <option value="news">Actualite</option>
+                  <option value="result">Resultat</option>
+                  <option value="calendar">Calendrier</option>
+                  <option value="interview">Interview</option>
+                  <option value="partner">Zoom partenaire</option>
+                  <option value="photo">Photo</option>
+                  <option value="ranking">Classement</option>
+                  <option value="club">Vie du club</option>
+                  <option value="volunteer">Benevole du mois</option>
+                  <option value="quote">Citation</option>
+                  <option value="sponsors">Sponsors</option>
+                </select>
+              </label>
+            </div>
+            <div class="poster-actions compact-actions">
+              <button class="button ghost" type="button" data-newsletter-add-block>Ajouter le bloc</button>
+              <button class="button ghost" type="button" data-newsletter-clear-blocks>Vider les blocs</button>
+            </div>
             <div class="newsletter-source-list" data-newsletter-items></div>
+            <div class="newsletter-block-list" data-newsletter-blocks></div>
           </aside>
           <section class="studio-preview-panel">
             <div class="poster-preview-toolbar">
@@ -473,16 +533,23 @@
             </label>
             <div class="poster-actions studio-actions">
               <button class="button primary" type="button" data-newsletter-export-pdf>Telecharger PDF</button>
+              <button class="button ghost" type="button" data-newsletter-export-png>PNG</button>
+              <button class="button ghost" type="button" data-newsletter-export-jpeg>JPEG</button>
               <button class="button ghost" type="button" data-newsletter-copy-facebook>Copier Facebook</button>
               <button class="button ghost" type="button" data-newsletter-copy-instagram>Copier Instagram</button>
             </div>
+            <div class="poster-panel-head compact">
+              <span>Mediatheque</span>
+              <strong>Images RCC</strong>
+            </div>
+            <div class="media-library" data-media-library></div>
           </aside>
         </div>
       </section>
     </main>
 
-    <script src="./poster-auth.js?v=studio-rcc-7"></script>
+    <script src="./poster-auth.js?v=studio-rcc-8"></script>
     <script src="../script.js"></script>
-    <script src="./poster-generator.js?v=studio-rcc-7"></script>
+    <script src="./poster-generator.js?v=studio-rcc-8"></script>
   </body>
 </html>
