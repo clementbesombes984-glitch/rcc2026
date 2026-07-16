@@ -1,5 +1,17 @@
 {
   "presidentMessage": {
     "role": "Président"
-  }
+  },
+  "members": [
+    {
+      "firstName": "Pascal",
+      "lastName": "Clauzure",
+      "role": "Président"
+    },
+    {
+      "firstName": "Arnaud",
+      "lastName": "Lafourcade",
+      "role": "Vice-Président"
+    }
+  ]
 }
