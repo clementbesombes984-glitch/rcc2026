@@ -5712,6 +5712,11 @@ body{
   width:100%!important;
 }
 
+.studio-page [data-studio-tab-panel][hidden],
+.studio-page [data-studio-tab-panel]:not(.is-active){
+  display:none!important;
+}
+
 .studio-page .composition-steps{
   display:flex!important;
   grid-template-columns:none!important;
@@ -5893,12 +5898,12 @@ body{
     font-size:13px!important;
   }
 
-  .studio-page .studio-main-modules button[data-studio-tab="compositions"]{
+  .studio-page .studio-main-modules button[data-studio-tab="composition"]{
     min-width:132px!important;
     font-size:0!important;
   }
 
-  .studio-page .studio-main-modules button[data-studio-tab="compositions"]::after{
+  .studio-page .studio-main-modules button[data-studio-tab="composition"]::after{
     content:"Composition";
     font-size:13px;
   }

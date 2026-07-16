@@ -56,13 +56,13 @@
         </details>
       </header>
 
-      <nav class="studio-tabs studio-main-modules" aria-label="Modules Studio RCC">
-        <button class="is-active" type="button" data-studio-tab="posters">Publications</button>
-        <button type="button" data-studio-tab="compositions">Composition d'équipe</button>
-        <button type="button" data-studio-tab="newsletters">Newsletter</button>
+      <nav class="studio-tabs studio-main-modules" aria-label="Modules Studio RCC" role="tablist">
+        <button class="is-active" id="studio-tab-publications" type="button" role="tab" aria-selected="true" aria-controls="studio-panel-publications" data-studio-tab="publications">Publications</button>
+        <button id="studio-tab-composition" type="button" role="tab" aria-selected="false" aria-controls="studio-panel-composition" data-studio-tab="composition">Composition d'équipe</button>
+        <button id="studio-tab-newsletter" type="button" role="tab" aria-selected="false" aria-controls="studio-panel-newsletter" data-studio-tab="newsletter">Newsletter</button>
       </nav>
 
-      <section class="studio-layout studio-tab-panel is-active" data-studio-tab-panel="posters">
+      <section class="studio-layout studio-tab-panel is-active" id="studio-panel-publications" role="tabpanel" aria-labelledby="studio-tab-publications" data-studio-tab-panel="publications">
         <aside class="studio-sidebar studio-left">
           <div class="poster-panel-head">
             <span>Modèle</span>
@@ -380,7 +380,7 @@
         </form>
       </section>
 
-      <section class="studio-tab-panel studio-tool-panel" data-studio-tab-panel="compositions" hidden>
+      <section class="studio-tab-panel studio-tool-panel" id="studio-panel-composition" role="tabpanel" aria-labelledby="studio-tab-composition" data-studio-tab-panel="composition" hidden>
         <div class="composition-workflow" data-composition-workflow>
           <nav class="composition-steps" aria-label="Etapes composition">
             <button class="is-active" type="button" data-composition-step="match"><span>1.</span> Match</button>
@@ -503,7 +503,7 @@
         </div>
       </section>
 
-      <section class="studio-tab-panel studio-tool-panel" data-studio-tab-panel="newsletters" hidden>
+      <section class="studio-tab-panel studio-tool-panel" id="studio-panel-newsletter" role="tabpanel" aria-labelledby="studio-tab-newsletter" data-studio-tab-panel="newsletter" hidden>
         <div class="studio-tool-grid">
           <aside class="studio-sidebar">
             <div class="poster-panel-head">

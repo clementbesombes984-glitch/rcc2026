@@ -585,13 +585,26 @@
     sourceSelect.innerHTML = '<option value="">Choisir dans le CMS</option>' + items.map((item, index) => `<option value="${index}">${labelForItem(item)}</option>`).join('');
   }
 
+  function normalizeStudioTab(tab) {
+    const key = clean(tab).toLowerCase().replace(/^#/, '');
+    const aliases = {
+      posters: 'publications',
+      publication: 'publications',
+      publications: 'publications',
+      compositions: 'composition',
+      composition: 'composition',
+      newsletters: 'newsletter',
+      newsletter: 'newsletter'
+    };
+    return aliases[key] || 'publications';
+  }
+
   function switchStudioTab(tab, options = {}) {
-    const availableTabs = [...studioTabButtons].map((button) => button.dataset.studioTab);
-    const activeTab = availableTabs.includes(tab) ? tab : 'posters';
+    const activeTab = normalizeStudioTab(tab);
     const labels = {
-      posters: 'Publications',
-      compositions: 'Composition d’équipe',
-      newsletters: 'Newsletter'
+      publications: 'Publications',
+      composition: 'Composition d’équipe',
+      newsletter: 'Newsletter'
     };
     studioTabButtons.forEach((button) => {
       const active = button.dataset.studioTab === activeTab;
@@ -609,11 +622,11 @@
     if (!options.silentHash) {
       history.replaceState(null, '', `#${activeTab}`);
     }
-    if (activeTab === 'compositions') {
+    if (activeTab === 'composition') {
       setCompositionStep(state.activeCompositionStep || 'match');
       renderComposition();
     }
-    if (activeTab === 'newsletters') renderNewsletter();
+    if (activeTab === 'newsletter') renderNewsletter();
   }
 
   function hydrateCompositionMatches() {
