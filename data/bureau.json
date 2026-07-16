@@ -12,6 +12,11 @@
       "firstName": "Arnaud",
       "lastName": "Lafourcade",
       "role": "Vice-Président"
+    },
+    {
+      "firstName": "Michel",
+      "lastName": "Arnaud",
+      "role": "Vice-Président"
     }
   ]
 }
