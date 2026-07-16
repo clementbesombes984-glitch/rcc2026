@@ -3833,3 +3833,242 @@ body{
 .player-info .player-secondary-position+p{
   margin-top:2px;
 }
+
+/* Global public typography refinement: calmer hierarchy, better readability */
+:root{
+  --type-page-title:clamp(38px,5.2vw,76px);
+  --type-section-title:clamp(30px,3.8vw,54px);
+  --type-group-title:clamp(24px,2.7vw,38px);
+  --type-card-title:clamp(21px,2vw,30px);
+}
+
+.hero-signature .club-signature-text h1{
+  font-size:clamp(42px,5.6vw,84px)!important;
+  font-weight:800!important;
+  line-height:1.05!important;
+  letter-spacing:.01em!important;
+}
+
+.senior-hero h1,
+.academy-hero h1,
+.history-hero h1,
+.article-header h1{
+  font-size:var(--type-page-title)!important;
+  font-weight:800!important;
+  line-height:1.1!important;
+  letter-spacing:.01em!important;
+}
+
+.section h2,
+.split-section h2,
+.cards-section h2,
+.news h2,
+.join h2,
+.home-match-preview .section-head h2,
+.history-redesign .history-intro-premium h2,
+.history-section-head h2,
+.history-next-chapter h2,
+.history-intro h2,
+.project-lead h2,
+.contact-panel h2,
+.partners-page h2,
+.shop-content h2,
+.team-hub-content h2,
+.club-identity-grid h2,
+.academy-content h2{
+  font-size:var(--type-section-title)!important;
+  font-weight:750!important;
+  line-height:1.14!important;
+  letter-spacing:.01em!important;
+}
+
+.roster-title h2,
+.history-timeline h3,
+.history-timeline-modern h3,
+.timeline h3,
+.history-project-lead h3,
+.academy-content h3,
+.notification-group h3,
+.footer-columns h3{
+  font-size:var(--type-group-title)!important;
+  font-weight:750!important;
+  line-height:1.18!important;
+  letter-spacing:.02em!important;
+  text-transform:none!important;
+}
+
+.roster-title h2{
+  font-family:Arial,Helvetica,sans-serif!important;
+}
+
+.player-info h3,
+.journal-card h3,
+.news-empty-journal h3,
+.gallery-info h3,
+.shop-content h2,
+.partner-card h3,
+.project-card h3,
+.staff-card strong,
+.bureau-card h3,
+.president-card h3,
+.team-hub-content h2{
+  font-size:var(--type-card-title)!important;
+  font-weight:750!important;
+  line-height:1.16!important;
+  letter-spacing:.015em!important;
+}
+
+.journal-feature h2{
+  font-size:clamp(32px,4.1vw,58px)!important;
+  font-weight:800!important;
+  line-height:1.12!important;
+  letter-spacing:.01em!important;
+}
+
+.important-news strong,
+.countdown-card h3,
+.last-result-card h3,
+.gallery-cover strong,
+.footer-brand strong{
+  font-size:clamp(24px,2.8vw,40px)!important;
+  font-weight:800!important;
+  line-height:1.12!important;
+  letter-spacing:.01em!important;
+}
+
+.team-photo strong{
+  font-size:clamp(46px,4.8vw,66px)!important;
+  font-weight:800!important;
+  line-height:1.04!important;
+}
+
+.training-strip{
+  align-items:center!important;
+  gap:14px!important;
+  padding:18px 22px!important;
+}
+
+.training-strip strong,
+.training-strip b,
+.academy-meta span,
+.team-hub-content dd,
+.calendar-card,
+.match-date strong,
+.venue,
+.competition{
+  font-family:Arial,Helvetica,sans-serif!important;
+  line-height:1.45!important;
+}
+
+.training-strip strong,
+.training-strip b{
+  font-size:clamp(20px,2.1vw,28px)!important;
+  font-weight:750!important;
+  letter-spacing:.04em!important;
+  text-transform:none!important;
+}
+
+.academy-meta span,
+.team-hub-content dt,
+.calendar-badge,
+.journal-badge,
+.badge,
+.section-kicker,
+.eyebrow,
+.competition,
+.player-info span,
+.staff-card span,
+.senior-staff-card small{
+  font-weight:700!important;
+  letter-spacing:.08em!important;
+  line-height:1.35!important;
+}
+
+.academy-meta span{
+  text-transform:none!important;
+  white-space:normal!important;
+}
+
+.hero-copy,
+.inner-hero-copy,
+.article-body,
+.article-body p,
+.journal-feature p,
+.journal-card p,
+.news-empty-journal p,
+.card p,
+.news p,
+.shop-content p,
+.partner-card p,
+.project-card p,
+.team-hub-content p,
+.club-identity-grid p,
+.history-card-content p,
+.history-values-grid p,
+.history-next-chapter p:not(.section-kicker),
+.timeline p,
+.values-band span,
+.split-section p,
+.join p,
+.academy-content p,
+.player-info p,
+.staff-card small,
+.bureau-card p,
+.president-card p{
+  line-height:1.6!important;
+}
+
+.site-nav.v1-nav,
+.site-nav{
+  font-weight:700!important;
+}
+
+.site-nav.v1-nav .nav-text-link,
+.site-nav a:not(.nav-cta):not(.settings-link):not(.notification-link):not(.shop-link):not(.nav-icon-link){
+  font-weight:750!important;
+  letter-spacing:.07em!important;
+}
+
+@media(max-width:900px){
+  :root{
+    --type-page-title:clamp(34px,8.5vw,56px);
+    --type-section-title:clamp(28px,7.4vw,44px);
+    --type-group-title:clamp(23px,6vw,32px);
+    --type-card-title:clamp(20px,5.8vw,27px);
+  }
+
+  .hero-signature .club-signature-text h1{
+    font-size:clamp(31px,9vw,46px)!important;
+    line-height:1.08!important;
+  }
+
+  .training-strip{
+    gap:8px!important;
+    padding:16px 18px!important;
+  }
+}
+
+@media(max-width:560px){
+  :root{
+    --type-page-title:clamp(31px,10vw,46px);
+    --type-section-title:clamp(26px,8.6vw,38px);
+    --type-group-title:clamp(22px,7vw,29px);
+    --type-card-title:clamp(20px,6.8vw,25px);
+  }
+
+  .section-head,
+  .roster-title{
+    gap:10px!important;
+  }
+
+  .roster-title{
+    padding-bottom:16px!important;
+    margin-bottom:20px!important;
+  }
+
+  .academy-meta span,
+  .badge,
+  .journal-badge{
+    letter-spacing:.055em!important;
+  }
+}
