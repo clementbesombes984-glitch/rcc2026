@@ -5635,6 +5635,127 @@ body{
   }
 }
 
+/* Correction finale Studio RCC : navigation horizontale, aucune colonne laterale */
+.studio-page .studio-shell{
+  display:block!important;
+  width:min(calc(100% - 20px),1840px)!important;
+  padding-top:10px!important;
+}
+
+.studio-page .studio-main-modules{
+  position:static!important;
+  top:auto!important;
+  z-index:auto!important;
+  display:flex!important;
+  flex-direction:row!important;
+  grid-template-columns:none!important;
+  grid-area:auto!important;
+  gap:8px!important;
+  width:100%!important;
+  height:auto!important;
+  margin:0 0 10px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:10px!important;
+  background:#0d0d0d!important;
+  padding:8px!important;
+  box-shadow:none!important;
+}
+
+.studio-page .studio-main-modules button{
+  flex:0 0 auto!important;
+  justify-content:center!important;
+  min-width:150px!important;
+  min-height:38px!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+  border-left:1px solid rgba(255,255,255,.1)!important;
+  border-bottom:1px solid rgba(255,255,255,.1)!important;
+  border-radius:8px!important;
+  background:rgba(255,255,255,.04)!important;
+  color:#d8d0c6!important;
+  padding:0 14px!important;
+  font-size:14px!important;
+  font-weight:750!important;
+  letter-spacing:0!important;
+  text-align:center!important;
+  text-transform:none!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+}
+
+.studio-page .studio-main-modules button:hover,
+.studio-page .studio-main-modules button:focus-visible,
+.studio-page .studio-main-modules button.is-active{
+  border-color:rgba(211,26,82,.72)!important;
+  background:rgba(177,24,69,.2)!important;
+  color:#fff!important;
+  outline:0!important;
+  transform:none!important;
+}
+
+.studio-page .studio-tab-panel{
+  grid-area:auto!important;
+  width:100%!important;
+}
+
+.studio-page .composition-steps{
+  display:flex!important;
+  grid-template-columns:none!important;
+  gap:8px!important;
+  width:100%!important;
+  overflow-x:auto!important;
+  padding:8px!important;
+}
+
+.studio-page .composition-steps button{
+  flex:1 0 160px!important;
+  min-height:40px!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+  border-radius:8px!important;
+  background:rgba(255,255,255,.035)!important;
+  color:#d8d0c6!important;
+  padding:0 14px!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  cursor:pointer!important;
+}
+
+.studio-page .composition-steps button span{
+  width:auto!important;
+  height:auto!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:inherit!important;
+  font-size:inherit!important;
+}
+
+.studio-page .composition-steps button:hover,
+.studio-page .composition-steps button:focus-visible,
+.studio-page .composition-steps button.is-active{
+  border-color:rgba(211,26,82,.72)!important;
+  background:rgba(177,24,69,.22)!important;
+  color:#fff!important;
+  outline:0!important;
+}
+
+.studio-page .composition-steps button.is-complete{
+  border-color:rgba(211,26,82,.35)!important;
+}
+
+@media(max-width:680px){
+  .studio-page .studio-main-modules button{
+    min-width:165px!important;
+  }
+
+  .studio-page .composition-steps button{
+    flex-basis:150px!important;
+  }
+}
+
 /* Studio RCC duplicate cleanup: denser desktop controls */
 @media(min-width:901px){
   .studio-page .studio-layout{

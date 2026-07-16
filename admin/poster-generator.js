@@ -2773,9 +2773,18 @@
   compositionSearch?.addEventListener('input', hydrateCompositionPlayers);
   compositionMatch?.addEventListener('change', renderComposition);
   [compositionCaptain, compositionVice, compositionCoach, compositionComments].forEach((node) => node?.addEventListener('input', renderComposition));
-  compositionStepButtons.forEach((button) => button.addEventListener('click', () => setCompositionStep(button.dataset.compositionStep)));
-  document.querySelectorAll('[data-composition-next]').forEach((button) => button.addEventListener('click', () => moveCompositionStep(1)));
-  document.querySelectorAll('[data-composition-prev]').forEach((button) => button.addEventListener('click', () => moveCompositionStep(-1)));
+  compositionStepButtons.forEach((button) => button.addEventListener('click', (event) => {
+    event.preventDefault();
+    setCompositionStep(button.dataset.compositionStep);
+  }));
+  document.querySelectorAll('[data-composition-next]').forEach((button) => button.addEventListener('click', (event) => {
+    event.preventDefault();
+    moveCompositionStep(1);
+  }));
+  document.querySelectorAll('[data-composition-prev]').forEach((button) => button.addEventListener('click', (event) => {
+    event.preventDefault();
+    moveCompositionStep(-1);
+  }));
   document.querySelector('[data-composition-load-last]')?.addEventListener('click', loadCompositionDraft);
   document.querySelector('[data-composition-clear]')?.addEventListener('click', clearCompositionDraft);
   document.querySelector('[data-composition-save]')?.addEventListener('click', saveCompositionDraft);
