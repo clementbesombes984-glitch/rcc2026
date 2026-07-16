@@ -5694,6 +5694,19 @@ body{
   transform:none!important;
 }
 
+.studio-mobile-actions{
+  display:none;
+}
+
+.studio-current-module{
+  display:block;
+  margin-top:2px;
+  color:#fff;
+  font-size:13px;
+  font-weight:800;
+  line-height:1.2;
+}
+
 .studio-page .studio-tab-panel{
   grid-area:auto!important;
   width:100%!important;
@@ -5753,6 +5766,181 @@ body{
 
   .studio-page .composition-steps button{
     flex-basis:150px!important;
+  }
+}
+
+@media(max-width:768px){
+  .studio-page .studio-topbar{
+    position:sticky!important;
+    top:0!important;
+    z-index:40!important;
+    display:grid!important;
+    grid-template-columns:auto minmax(0,1fr) auto!important;
+    gap:8px!important;
+    align-items:center!important;
+    min-height:52px!important;
+    margin-bottom:8px!important;
+    padding:7px 9px!important;
+    border-radius:8px!important;
+  }
+
+  .studio-page .poster-admin-brand{
+    display:flex!important;
+    gap:8px!important;
+    align-items:center!important;
+    min-width:0!important;
+  }
+
+  .studio-page .poster-admin-brand img{
+    width:34px!important;
+    height:34px!important;
+  }
+
+  .studio-page .poster-admin-brand span{
+    font-size:16px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+
+  .studio-page .studio-topbar-title{
+    min-width:0!important;
+    text-align:left!important;
+  }
+
+  .studio-page .studio-topbar-title h1{
+    display:none!important;
+  }
+
+  .studio-page .studio-doc-status{
+    display:inline-block!important;
+    margin-top:2px!important;
+    padding:2px 7px!important;
+    font-size:11px!important;
+    line-height:1.4!important;
+  }
+
+  .studio-current-module{
+    max-width:100%;
+    overflow:hidden;
+    color:#fff;
+    font-size:12px!important;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .studio-page .studio-topbar-actions{
+    display:none!important;
+  }
+
+  .studio-mobile-actions{
+    position:relative;
+    display:block!important;
+    justify-self:end;
+  }
+
+  .studio-mobile-actions summary{
+    display:grid;
+    width:38px;
+    height:38px;
+    place-items:center;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:9px;
+    background:#171717;
+    color:#fff;
+    font-size:24px;
+    font-weight:900;
+    line-height:1;
+    list-style:none;
+    cursor:pointer;
+  }
+
+  .studio-mobile-actions summary::-webkit-details-marker{
+    display:none;
+  }
+
+  .studio-mobile-actions div{
+    position:absolute;
+    top:44px;
+    right:0;
+    z-index:60;
+    display:grid;
+    gap:7px;
+    width:min(230px,80vw);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:10px;
+    background:#0d0d0d;
+    padding:9px;
+    box-shadow:0 16px 42px rgba(0,0,0,.45);
+  }
+
+  .studio-mobile-actions .button{
+    width:100%!important;
+    min-height:36px!important;
+    padding:0 10px!important;
+    font-size:12px!important;
+  }
+
+  .studio-page .studio-main-modules{
+    flex-wrap:nowrap!important;
+    margin-bottom:8px!important;
+    padding:6px!important;
+    scrollbar-width:thin;
+  }
+
+  .studio-page .studio-main-modules button{
+    min-width:auto!important;
+    padding:0 12px!important;
+    font-size:13px!important;
+  }
+
+  .studio-page .studio-main-modules button[data-studio-tab="compositions"]{
+    min-width:132px!important;
+    font-size:0!important;
+  }
+
+  .studio-page .studio-main-modules button[data-studio-tab="compositions"]::after{
+    content:"Composition";
+    font-size:13px;
+  }
+
+  .studio-page .studio-layout{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+
+  .studio-page .studio-preview-panel{
+    order:1!important;
+  }
+
+  .studio-page .studio-left{
+    order:2!important;
+  }
+
+  .studio-page .studio-right{
+    order:3!important;
+  }
+
+  .studio-page .studio-preview-tools{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    gap:6px!important;
+    overflow-x:auto!important;
+    margin-bottom:8px!important;
+    padding-bottom:2px!important;
+  }
+
+  .studio-page .studio-preview-tools button{
+    flex:0 0 auto!important;
+    min-height:32px!important;
+    padding:0 10px!important;
+    border-radius:7px!important;
+    font-size:11px!important;
+    white-space:nowrap!important;
+  }
+
+  .studio-page .studio-canvas-wrap{
+    min-height:260px!important;
   }
 }
 

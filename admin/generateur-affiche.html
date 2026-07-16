@@ -36,6 +36,7 @@
         </a>
         <div class="studio-topbar-title">
           <h1>Studio RCC</h1>
+          <strong class="studio-current-module" data-studio-current-module>Publications</strong>
           <span class="studio-doc-status" data-studio-document-status>Brouillon</span>
         </div>
         <div class="studio-topbar-actions">
@@ -44,6 +45,15 @@
           <a class="button ghost" href="/cms-login">Administration</a>
           <a class="button ghost" href="../index.html">Retour au site</a>
         </div>
+        <details class="studio-mobile-actions">
+          <summary aria-label="Actions Studio">⋮</summary>
+          <div>
+            <button class="button ghost" type="button" data-studio-save>Enregistrer</button>
+            <button class="button primary" type="button" data-publish-dialog-open>Publier</button>
+            <a class="button ghost" href="/cms-login">Administration</a>
+            <a class="button ghost" href="../index.html">Retour au site</a>
+          </div>
+        </details>
       </header>
 
       <nav class="studio-tabs studio-main-modules" aria-label="Modules Studio RCC">

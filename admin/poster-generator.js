@@ -102,6 +102,7 @@
   const resetPhotoButton = document.querySelector('[data-reset-photo]');
   const studioTabButtons = document.querySelectorAll('[data-studio-tab]');
   const studioTabPanels = document.querySelectorAll('[data-studio-tab-panel]');
+  const studioCurrentModule = document.querySelector('[data-studio-current-module]');
   const publishDialog = document.querySelector('[data-publish-dialog]');
   const publishDialogOpenButtons = document.querySelectorAll('[data-publish-dialog-open]');
   const publishDialogConfirm = document.querySelector('[data-publish-dialog-confirm]');
@@ -584,15 +585,35 @@
     sourceSelect.innerHTML = '<option value="">Choisir dans le CMS</option>' + items.map((item, index) => `<option value="${index}">${labelForItem(item)}</option>`).join('');
   }
 
-  function switchStudioTab(tab) {
-    studioTabButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.studioTab === tab));
+  function switchStudioTab(tab, options = {}) {
+    const availableTabs = [...studioTabButtons].map((button) => button.dataset.studioTab);
+    const activeTab = availableTabs.includes(tab) ? tab : 'posters';
+    const labels = {
+      posters: 'Publications',
+      compositions: 'Composition d’équipe',
+      newsletters: 'Newsletter'
+    };
+    studioTabButtons.forEach((button) => {
+      const active = button.dataset.studioTab === activeTab;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
     studioTabPanels.forEach((panel) => {
-      const active = panel.dataset.studioTabPanel === tab;
+      const active = panel.dataset.studioTabPanel === activeTab;
       panel.classList.toggle('is-active', active);
       panel.hidden = !active;
+      panel.style.display = active ? '' : 'none';
     });
-    if (tab === 'compositions') renderComposition();
-    if (tab === 'newsletters') renderNewsletter();
+    if (studioCurrentModule) studioCurrentModule.textContent = labels[activeTab] || 'Studio';
+    sessionStorage.setItem('rcc-studio-active-module', activeTab);
+    if (!options.silentHash) {
+      history.replaceState(null, '', `#${activeTab}`);
+    }
+    if (activeTab === 'compositions') {
+      setCompositionStep(state.activeCompositionStep || 'match');
+      renderComposition();
+    }
+    if (activeTab === 'newsletters') renderNewsletter();
   }
 
   function hydrateCompositionMatches() {
@@ -2765,7 +2786,10 @@
     recordPublication('Diffusion préparée', message);
   }
 
-  studioTabButtons.forEach((button) => button.addEventListener('click', () => switchStudioTab(button.dataset.studioTab)));
+  studioTabButtons.forEach((button) => button.addEventListener('click', (event) => {
+    event.preventDefault();
+    switchStudioTab(button.dataset.studioTab);
+  }));
   compositionTeam?.addEventListener('change', () => {
     hydrateCompositionMatches();
     hydrateCompositionPlayers();
@@ -2883,5 +2907,6 @@
   loadFonts();
   loadSources();
   setCompositionStep('match');
+  switchStudioTab((location.hash || '').replace('#', '') || sessionStorage.getItem('rcc-studio-active-module') || 'posters', { silentHash: true });
   render();
 })();
