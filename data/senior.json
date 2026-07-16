@@ -2,22 +2,22 @@
   "players": [
     {
       "id": "dylan-lesbarreres",
+      "category": "Seniors",
       "firstName": "Dylan",
       "lastName": "Lesbarreres",
-      "category": "Seniors",
       "primaryPosition": "Arrière",
-      "secondaryPosition": "",
       "position": "Arrière",
       "active": true
     },
     {
       "id": "lenny-bernard",
+      "category": "Seniors",
       "firstName": "Lenny",
       "lastName": "Bernard",
-      "category": "Seniors",
       "primaryPosition": "Demi de mêlée",
-      "secondaryPosition": "",
+      "secondaryPosition": "Demi d'ouverture",
       "position": "Demi de mêlée",
+      "photo": "/assets/uploads/lenny-bernard-2.jpg",
       "active": true
     }
   ]
