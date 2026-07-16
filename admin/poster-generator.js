@@ -77,9 +77,7 @@
   const form = document.querySelector('[data-poster-form]');
   const sizeNode = document.querySelector('[data-poster-size]');
   const statusNode = document.querySelector('[data-poster-status]');
-  const sourceButtons = document.querySelector('[data-source-buttons]');
   const sourceSelect = document.querySelector('[data-source-select]');
-  const templateButtons = document.querySelector('[data-template-buttons]');
   const compactTemplateSelect = document.querySelector('[data-compact-template]');
   const compactSourceSelect = document.querySelector('[data-compact-source]');
   const captionOutput = document.querySelector('[data-caption-output]');
@@ -418,9 +416,6 @@
   }
 
   function syncTemplateButtons(template) {
-    templateButtons?.querySelectorAll('[data-template-preset]').forEach((button) => {
-      button.classList.toggle('is-active', button.dataset.templatePreset === template);
-    });
     if (compactTemplateSelect && compactTemplateSelect.value !== template) compactTemplateSelect.value = template;
   }
 
@@ -2624,30 +2619,10 @@
   });
   compactSourceSelect?.addEventListener('change', (event) => {
     const value = event.target.value || 'blank';
-    const button = sourceButtons?.querySelector(`[data-source-kind="${value}"]`);
-    if (button) {
-      button.click();
-    } else {
-      state.activeSource = value;
-      hydrateSourceSelect();
-    }
-  });
-  sourceSelect?.addEventListener('change', (event) => applySource(event.target.value));
-  sourceButtons?.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-source-kind]');
-    if (!button) return;
-    sourceButtons.querySelectorAll('button').forEach((item) => item.classList.remove('is-active'));
-    button.classList.add('is-active');
-    state.activeSource = button.dataset.sourceKind;
-    if (compactSourceSelect && compactSourceSelect.value !== state.activeSource) compactSourceSelect.value = state.activeSource;
+    state.activeSource = value;
     hydrateSourceSelect();
   });
-  templateButtons?.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-template-preset]');
-    if (!button) return;
-    setTemplate(button.dataset.templatePreset);
-    render();
-  });
+  sourceSelect?.addEventListener('change', (event) => applySource(event.target.value));
   zoomInButton?.addEventListener('click', () => {
     const field = form.elements.photoZoom;
     field.value = String(clamp(Number(field.value || 112) + 8, 100, 170));

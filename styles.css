@@ -4335,10 +4335,6 @@ body{
   text-transform:none!important;
 }
 
-.studio-page .studio-hidden-controls{
-  display:none!important;
-}
-
 .studio-page .studio-compact-select,
 .studio-page .studio-source-select,
 .studio-page .poster-form label,
@@ -4635,5 +4631,75 @@ body{
   .studio-page .poster-actions .button,
   .studio-page .studio-actions .button{
     flex:1 1 calc(50% - 8px)!important;
+  }
+}
+
+/* Studio RCC duplicate cleanup: denser desktop controls */
+@media(min-width:901px){
+  .studio-page .studio-layout{
+    grid-template-columns:250px minmax(360px,470px) minmax(0,1fr)!important;
+    gap:8px!important;
+    padding:8px!important;
+  }
+
+  .studio-page .studio-sidebar,
+  .studio-page .studio-preview-panel,
+  .studio-page .studio-tool-panel,
+  .studio-page .studio-simple-panel,
+  .studio-page .publication-history-panel{
+    border-color:rgba(255,255,255,.075)!important;
+    border-radius:5px!important;
+    padding:10px!important;
+  }
+
+  .studio-page .poster-panel-head,
+  .studio-page .poster-preview-toolbar{
+    margin-bottom:8px!important;
+    padding-bottom:6px!important;
+  }
+
+  .studio-page .poster-panel-head.compact{
+    margin-top:12px!important;
+  }
+
+  .studio-page .button,
+  .studio-page .poster-actions .button,
+  .studio-page .studio-actions .button,
+  .studio-page .studio-preview-tools button{
+    min-height:32px!important;
+    border-radius:5px!important;
+    padding:0 10px!important;
+    font-size:12.5px!important;
+  }
+
+  .studio-page .button.ghost,
+  .studio-page .studio-preview-tools button,
+  .studio-page .studio-channel-previews article,
+  .studio-page .poster-check,
+  .studio-page .studio-distribution .poster-check{
+    background:#141414!important;
+    border-color:rgba(255,255,255,.08)!important;
+  }
+
+  .studio-page .studio-preview-tools{
+    gap:5px!important;
+    margin-bottom:6px!important;
+  }
+
+  .studio-page input,
+  .studio-page select,
+  .studio-page textarea,
+  .studio-page .studio-caption,
+  .studio-page .studio-hashtags{
+    min-height:34px!important;
+    border-radius:5px!important;
+    padding:7px 9px!important;
+    font-size:13.5px!important;
+  }
+
+  .studio-page .poster-form label,
+  .studio-page .studio-compact-select,
+  .studio-page .studio-source-select{
+    margin-bottom:8px!important;
   }
 }
