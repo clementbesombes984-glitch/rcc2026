@@ -46,12 +46,10 @@
         </div>
       </header>
 
-      <nav class="studio-tabs" aria-label="Modules Studio RCC">
-        <button class="is-active" type="button" data-studio-tab="posters">Affiches & Publications</button>
-        <button type="button" data-studio-tab="compositions">Compositions</button>
-        <button type="button" data-studio-tab="newsletters">Newsletters</button>
-        <button type="button" data-studio-tab="history">Historique</button>
-        <button type="button" data-studio-tab="settings">Paramètres</button>
+      <nav class="studio-tabs studio-main-modules" aria-label="Modules Studio RCC">
+        <button class="is-active" type="button" data-studio-tab="posters">Publications</button>
+        <button type="button" data-studio-tab="compositions">Composition d'équipe</button>
+        <button type="button" data-studio-tab="newsletters">Newsletter</button>
       </nav>
 
       <section class="studio-layout studio-tab-panel is-active" data-studio-tab-panel="posters">
@@ -63,15 +61,8 @@
           <label class="studio-compact-select">Type d'affiche
             <select data-compact-template>
               <option value="upcoming">Match</option>
-              <option value="result">Resultat</option>
-              <option value="tournament">Tournoi</option>
-              <option value="training">Entrainement</option>
-              <option value="club">Vie du club</option>
               <option value="news">Actualite</option>
-              <option value="partner">Partenaire</option>
-              <option value="recruitment">Recrutement</option>
-              <option value="weekend">Calendrier</option>
-              <option value="newsletter">Newsletter</option>
+              <option value="club">Evenement</option>
             </select>
           </label>
           <div class="poster-panel-head compact">
@@ -83,10 +74,6 @@
               <option value="blank">Nouvelle affiche</option>
               <option value="news">Actualite existante</option>
               <option value="event">Calendrier</option>
-              <option value="partner">Partenaire</option>
-              <option value="shop">Boutique</option>
-              <option value="gallery">Galerie</option>
-              <option value="team">Equipe / staff</option>
             </select>
           </label>
           <label class="studio-source-select">Element a charger
@@ -122,28 +109,20 @@
 
           <label>Format
             <select name="format" data-poster-input>
-              <option value="square">Instagram carre - 1080x1080</option>
               <option value="portrait">Instagram portrait - 1080x1350</option>
+              <option value="facebook">Facebook paysage - 1200x630</option>
               <option value="story">Story - 1080x1920</option>
-              <option value="facebook">Facebook - 1200x630</option>
-              <option value="linkedin">LinkedIn - 1200x627</option>
-              <option value="a4">Affiche A4 - 1748x2480</option>
+              <option value="a4">Impression A4</option>
+              <option value="a3">Impression A3</option>
             </select>
           </label>
 
           <div class="poster-field-grid">
             <label>Type
               <select name="template" data-poster-input>
-                <option value="upcoming">Match a venir</option>
+                <option value="upcoming">Match</option>
                 <option value="news">Actualite</option>
-                <option value="result">Resultat</option>
-                <option value="tournament">Tournoi</option>
-                <option value="training">Entrainement</option>
-                <option value="club">Vie du club</option>
-                <option value="recruitment">Recrutement</option>
-                <option value="partner">Partenaire</option>
-                <option value="weekend">Calendrier week-end</option>
-                <option value="newsletter">Newsletter</option>
+                <option value="club">Evenement</option>
               </select>
             </label>
             <label>Style
@@ -151,9 +130,6 @@
                 <option value="match">Top 14</option>
                 <option value="magazine">Magazine</option>
                 <option value="club">Vie du club</option>
-                <option value="partner">Partenaire</option>
-                <option value="recruitment">Recrutement</option>
-                <option value="tournament">Tournoi</option>
               </select>
             </label>
           </div>
@@ -460,6 +436,9 @@
               <span>Joueurs</span>
               <strong>Feuille</strong>
             </div>
+            <label class="composition-search-label">Recherche joueur
+              <input type="search" data-composition-search placeholder="Nom, poste..." />
+            </label>
             <div class="composition-list" data-composition-list></div>
             <div class="composition-history" data-composition-history></div>
             <div class="poster-actions studio-actions">

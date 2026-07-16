@@ -1,11 +1,12 @@
-(() => {
+﻿(() => {
   const FORMATS = {
     square: { width: 1080, height: 1080 },
     portrait: { width: 1080, height: 1350 },
     story: { width: 1080, height: 1920 },
     facebook: { width: 1200, height: 630 },
     linkedin: { width: 1200, height: 627 },
-    a4: { width: 1748, height: 2480 }
+    a4: { width: 1748, height: 2480 },
+    a3: { width: 2480, height: 3508 }
   };
 
   const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=League+Spartan:wght@700;800;900&family=Montserrat:wght@800;900&family=Oswald:wght@500;600;700&family=Rajdhani:wght@600;700&display=swap';
@@ -117,6 +118,7 @@
   const compositionCoach = document.querySelector('[data-composition-coach]');
   const compositionComments = document.querySelector('[data-composition-comments]');
   const compositionHistory = document.querySelector('[data-composition-history]');
+  const compositionSearch = document.querySelector('[data-composition-search]');
   const newsletterItems = document.querySelector('[data-newsletter-items]');
   const newsletterPreview = document.querySelector('[data-newsletter-preview]');
   const newsletterTitle = document.querySelector('[data-newsletter-title]');
@@ -416,7 +418,8 @@
   }
 
   function syncTemplateButtons(template) {
-    if (compactTemplateSelect && compactTemplateSelect.value !== template) compactTemplateSelect.value = template;
+    const simpleTemplate = ['upcoming', 'news', 'club'].includes(template) ? template : 'club';
+    if (compactTemplateSelect && compactTemplateSelect.value !== simpleTemplate) compactTemplateSelect.value = simpleTemplate;
   }
 
   function formatDate(value) {
@@ -601,7 +604,11 @@
   function hydrateCompositionPlayers() {
     if (!compositionList) return;
     const team = compositionTeam?.value || 'Seniors';
-    const players = playerPool(team);
+    const query = clean(compositionSearch?.value || '').toLowerCase();
+    const players = playerPool(team).filter((player) => {
+      if (!query) return true;
+      return `${player.name} ${player.role} ${player.secondaryRole}`.toLowerCase().includes(query);
+    });
     state.composition.slots = normalizeCompositionSlots(state.composition.slots);
     compositionList.innerHTML = state.composition.slots.map((slot, index) => {
       const label = index < 15 ? `Titulaire ${slot.number}` : `Banc ${index - 14}`;
@@ -666,6 +673,11 @@
       slot.photo = '';
       slot.role = '';
     } else {
+      const duplicate = state.composition.slots.find((item, itemIndex) => itemIndex !== index && item.playerKey && item.playerKey === player.key);
+      if (duplicate && !window.confirm(`${player.name} est déjà présent dans la composition. Confirmer le doublon ?`)) {
+        hydrateCompositionPlayers();
+        return;
+      }
       slot.player = player.name;
       slot.playerKey = player.key;
       slot.photo = player.photo;
@@ -702,6 +714,37 @@
       : 'Selectionne une equipe puis un match du calendrier.';
   }
 
+  function initials(name) {
+    return clean(name).split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'RCC';
+  }
+
+  function compositionPhoto(slot) {
+    const photo = normalizeAssetPath(slot.photo);
+    return photo
+      ? `<img src="${escapeHtml(photo)}" alt="" loading="lazy" />`
+      : `<span>${escapeHtml(initials(slot.player))}</span>`;
+  }
+
+  function slotBadges(slot, captain, vice) {
+    return [
+      slot.player === captain ? '<i>CAP</i>' : '',
+      slot.player === vice ? '<i>VC</i>' : ''
+    ].filter(Boolean).join('');
+  }
+
+  function slotCard(slot, index, captain, vice) {
+    const missing = clean(slot.player) ? '' : ' is-missing';
+    return `
+      <button class="composition-player-card${missing}" type="button" data-composition-preview-slot="${index}">
+        <b>${slot.number}</b>
+        <span class="composition-player-photo">${compositionPhoto(slot)}</span>
+        <strong>${escapeHtml(slot.player || 'A définir')}</strong>
+        <small>${escapeHtml(slot.position)}</small>
+        ${slotBadges(slot, captain, vice)}
+      </button>
+    `;
+  }
+
   function renderComposition() {
     updateCompositionMatchInfo();
     if (!compositionPreview) return;
@@ -714,29 +757,56 @@
     state.composition.viceCaptain = vice;
     state.composition.coach = compositionCoach?.value || '';
     state.composition.comments = compositionComments?.value || '';
+    const duplicateCounts = new Map();
+    filled.forEach((slot) => duplicateCounts.set(slot.player, (duplicateCounts.get(slot.player) || 0) + 1));
+    const duplicateNames = [...duplicateCounts.entries()].filter(([, count]) => count > 1).map(([name]) => name);
+    const groups = [
+      ['Première ligne', [0, 1, 2]],
+      ['Deuxième ligne', [3, 4]],
+      ['Troisième ligne', [5, 7, 6]],
+      ['Charnière', [8, 9]],
+      ['Trois-quarts', [10, 11, 12, 13]],
+      ['Arrière', [14]]
+    ];
+    const bench = state.composition.slots.slice(15);
     compositionPreview.innerHTML = `
-      <div class="composition-card">
-        <header>
+      <div class="composition-card composition-card-official">
+        <header class="composition-official-header">
           <img src="../assets/logo-rcc.png" alt="" />
           <div>
             <span>${escapeHtml(team)}</span>
             <strong>${escapeHtml(eventTitle(item) || 'Composition RCC')}</strong>
             <small>${escapeHtml(eventDetails(item))}</small>
           </div>
+          <em>XV de départ</em>
         </header>
-        <div class="composition-board composition-field">
-          ${state.composition.slots.map((slot, index) => `
-            <article class="${index < 15 ? 'starter' : 'bench'}" data-composition-preview-slot="${index}">
-              <b>${slot.number}</b>
-              ${slot.photo ? `<img src="${escapeHtml(normalizeAssetPath(slot.photo))}" alt="" loading="lazy" />` : ''}
-              <span>${escapeHtml(slot.player || 'A definir')}</span>
-              <small>${escapeHtml(slot.position)}${slot.player === captain ? ' · C' : ''}${slot.player === vice ? ' · VC' : ''}</small>
-            </article>
-          `).join('')}
+        <div class="composition-official-layout">
+          <section class="composition-rugby-field">
+            ${groups.map(([label, indexes]) => `
+              <div class="composition-line composition-line-${slug(label)}">
+                <span>${escapeHtml(label)}</span>
+                <div>${indexes.map((slotIndex) => slotCard(state.composition.slots[slotIndex], slotIndex, captain, vice)).join('')}</div>
+              </div>
+            `).join('')}
+          </section>
+          <aside class="composition-bench-panel">
+            <strong>Remplaçants</strong>
+            <div>
+              ${bench.map((slot, offset) => `
+                <button type="button" data-composition-preview-slot="${offset + 15}">
+                  <b>${slot.number}</b>
+                  <span>${escapeHtml(slot.player || 'A définir')}</span>
+                </button>
+              `).join('')}
+            </div>
+            <strong>Staff</strong>
+            <p>${escapeHtml(state.composition.coach || 'Staff à compléter')}</p>
+            ${state.composition.comments ? `<small>${escapeHtml(state.composition.comments)}</small>` : ''}
+          </aside>
         </div>
-        <footer>
-          <span>${filled.length}/23 joueurs renseignes</span>
-          ${state.composition.coach ? `<span>Coach : ${escapeHtml(state.composition.coach)}</span>` : ''}
+        <footer class="composition-official-footer">
+          <span>${filled.length}/23 joueurs renseignés</span>
+          <span>${duplicateNames.length ? `Doublons : ${escapeHtml(duplicateNames.join(', '))}` : 'Aucun doublon détecté'}</span>
         </footer>
       </div>
     `;
@@ -749,7 +819,6 @@
     });
     renderCompositionHistory();
   }
-
   function compositionStorageKey() {
     return `rcc_composition_${slug(compositionTeam?.value || 'seniors')}`;
   }
@@ -1096,7 +1165,7 @@
   }
 
   function applyNews(item) {
-    setTemplate(item.category === 'Partenaires' ? 'partner' : 'news');
+    setTemplate('news');
     setField('title', item.title || '');
     setField('subtitle', item.category || 'Actualite RCC');
     setField('category', item.category || 'Club');
@@ -1114,10 +1183,10 @@
     const isTournament = eventType === 'tournoi';
     const isTraining = eventType === 'entrainement' || eventType === 'training';
     const isResult = Boolean(item.result) || item.status === 'win' || item.status === 'loss';
-    const template = isTournament ? 'tournament' : isTraining ? 'training' : isResult ? 'result' : 'upcoming';
+    const template = eventType === 'match' || isResult ? 'upcoming' : 'club';
     const teams = asList(item.teams).length ? asList(item.teams).join(' / ') : item.team || item.category || '';
     setTemplate(template);
-    setField('title', isTournament ? (item.tournamentName || item.title || 'Tournoi RCC') : item.title || (template === 'training' ? 'Entrainement RCC' : 'RC CUBZAGUAIS'));
+    setField('title', isTournament ? (item.tournamentName || item.title || 'Tournoi RCC') : item.title || (isTraining ? 'Entrainement RCC' : 'RC CUBZAGUAIS'));
     setField('subtitle', teams || item.competition || '');
     setField('category', item.competition || teams || (isTournament ? 'Tournoi' : 'Match'));
     setField('opponent', item.opponent || item.away || '');
@@ -1131,7 +1200,7 @@
   }
 
   function applyPartner(item) {
-    setTemplate('partner');
+    setTemplate('club');
     setField('title', 'Merci');
     setField('subtitle', item.name || 'Partenaire RCC');
     setField('category', item.category || 'Partenaire');
@@ -1141,7 +1210,7 @@
   }
 
   function applyShop(item) {
-    setTemplate('partner');
+    setTemplate('club');
     setField('title', item.name || 'Boutique RCC');
     setField('subtitle', item.category || 'Boutique officielle');
     setField('category', item.price || 'Boutique');
@@ -1173,9 +1242,12 @@
   }
 
   function setTemplate(template) {
-    setField('template', template);
-    setField('style', STYLE_DEFAULTS[template] || 'match');
-    syncTemplateButtons(template);
+    const simpleTemplate = ['upcoming', 'news', 'club'].includes(template)
+      ? template
+      : (template === 'result' ? 'upcoming' : 'club');
+    setField('template', simpleTemplate);
+    setField('style', STYLE_DEFAULTS[simpleTemplate] || 'match');
+    syncTemplateButtons(simpleTemplate);
   }
 
   function loadImageFromFile(file, key) {
@@ -2328,51 +2400,113 @@
     const c = exportCanvas.getContext('2d');
     const team = compositionTeam?.value || 'Seniors';
     const item = compositionEventByValue(compositionMatch?.value || '');
+    const captain = compositionCaptain?.value || '';
+    const vice = compositionVice?.value || '';
     c.fillStyle = COLORS.black;
     c.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
     const gradient = c.createLinearGradient(0, 0, exportCanvas.width, exportCanvas.height);
-    gradient.addColorStop(0, 'rgba(177,24,69,.42)');
-    gradient.addColorStop(.55, 'rgba(6,27,56,.20)');
-    gradient.addColorStop(1, 'rgba(0,0,0,.85)');
+    gradient.addColorStop(0, 'rgba(177,24,69,.48)');
+    gradient.addColorStop(.5, 'rgba(6,27,56,.22)');
+    gradient.addColorStop(1, 'rgba(0,0,0,.92)');
     c.fillStyle = gradient;
     c.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
     c.strokeStyle = COLORS.red;
-    c.lineWidth = 5;
-    c.strokeRect(54 * scale, 54 * scale, exportCanvas.width - 108 * scale, exportCanvas.height - 108 * scale);
+    c.lineWidth = 5 * scale;
+    c.strokeRect(46 * scale, 46 * scale, exportCanvas.width - 92 * scale, exportCanvas.height - 92 * scale);
     c.fillStyle = COLORS.redBright;
-    c.font = `${44 * scale}px ${BODY_FONT}`;
-    c.fillText(team.toUpperCase(), 80 * scale, 118 * scale);
+    c.font = `${40 * scale}px ${BODY_FONT}`;
+    c.fillText(team.toUpperCase(), 74 * scale, 108 * scale);
     c.fillStyle = COLORS.white;
-    c.font = `${116 * scale}px ${TITLE_FONT}`;
-    c.fillText('COMPOSITION', 80 * scale, 235 * scale);
-    c.font = `${42 * scale}px ${BODY_FONT}`;
-    c.fillText(eventTitle(item).toUpperCase().slice(0, 34), 80 * scale, 298 * scale);
+    c.font = `${92 * scale}px ${TITLE_FONT}`;
+    c.fillText('COMPOSITION', 74 * scale, 205 * scale);
+    c.font = `${34 * scale}px ${BODY_FONT}`;
+    c.fillText(eventTitle(item).toUpperCase().slice(0, 36), 74 * scale, 260 * scale);
     c.fillStyle = COLORS.muted;
-    c.font = `${30 * scale}px ${BODY_FONT}`;
-    c.fillText(eventDetails(item).slice(0, 70), 80 * scale, 342 * scale);
-    c.fillStyle = 'rgba(255,255,255,.08)';
-    c.fillRect(80 * scale, 390 * scale, 920 * scale, Math.min(1120 * scale, exportCanvas.height - 600 * scale));
-    c.fillStyle = COLORS.white;
-    c.font = `${30 * scale}px ${BODY_FONT}`;
-    state.composition.slots.forEach((slot, index) => {
-      const col = index < 12 ? 0 : 1;
-      const row = col === 0 ? index : index - 12;
-      const x = (col === 0 ? 116 : 590) * scale;
-      const y = (442 + row * 56) * scale;
-      c.fillStyle = index < 15 ? COLORS.redBright : COLORS.navyBright;
-      c.fillRect(x, y - 30 * scale, 46 * scale, 38 * scale);
+    c.font = `${26 * scale}px ${BODY_FONT}`;
+    c.fillText(eventDetails(item).slice(0, 72), 74 * scale, 300 * scale);
+
+    const fieldX = 74 * scale;
+    const fieldY = 350 * scale;
+    const fieldW = 700 * scale;
+    const fieldH = Math.min(760 * scale, exportCanvas.height - 520 * scale);
+    const benchX = 810 * scale;
+    c.fillStyle = 'rgba(255,255,255,.93)';
+    c.fillRect(fieldX, fieldY, fieldW, fieldH);
+    c.strokeStyle = COLORS.navy;
+    c.lineWidth = 3 * scale;
+    c.strokeRect(fieldX, fieldY, fieldW, fieldH);
+    for (let i = 1; i < 6; i += 1) {
+      const y = fieldY + (fieldH / 6) * i;
+      c.setLineDash(i % 2 ? [14 * scale, 14 * scale] : []);
+      c.beginPath();
+      c.moveTo(fieldX + 35 * scale, y);
+      c.lineTo(fieldX + fieldW - 35 * scale, y);
+      c.stroke();
+    }
+    c.setLineDash([]);
+
+    const layout = [
+      [0, .22, .08], [1, .50, .08], [2, .78, .08],
+      [3, .38, .23], [4, .62, .23],
+      [5, .25, .38], [7, .50, .38], [6, .75, .38],
+      [8, .42, .55], [9, .58, .55],
+      [10, .10, .70], [11, .35, .72], [12, .65, .72], [13, .90, .70],
+      [14, .50, .88]
+    ];
+    c.textAlign = 'center';
+    layout.forEach(([slotIndex, px, py]) => {
+      const slot = state.composition.slots[slotIndex];
+      const x = fieldX + fieldW * px;
+      const y = fieldY + fieldH * py;
+      c.fillStyle = COLORS.navy;
+      c.beginPath();
+      c.arc(x, y, 34 * scale, 0, Math.PI * 2);
+      c.fill();
+      c.fillStyle = COLORS.redBright;
+      c.font = `${24 * scale}px ${IMPACT_FONT}`;
+      c.fillText(String(slot.number), x - 34 * scale, y + 7 * scale);
       c.fillStyle = COLORS.white;
-      c.textAlign = 'center';
-      c.fillText(String(slot.number), x + 23 * scale, y);
-      c.textAlign = 'left';
-      c.fillText((slot.player || 'A definir').toUpperCase().slice(0, 22), x + 66 * scale, y);
+      c.font = `${20 * scale}px ${IMPACT_FONT}`;
+      c.fillText(initials(slot.player), x, y + 7 * scale);
+      if (slot.player === captain || slot.player === vice) {
+        c.fillStyle = COLORS.red;
+        c.beginPath();
+        c.arc(x + 34 * scale, y - 26 * scale, 15 * scale, 0, Math.PI * 2);
+        c.fill();
+        c.fillStyle = COLORS.white;
+        c.font = `${11 * scale}px ${BODY_FONT}`;
+        c.fillText(slot.player === captain ? 'CAP' : 'VC', x + 34 * scale, y - 22 * scale);
+      }
+      c.fillStyle = COLORS.navy;
+      c.font = `${21 * scale}px ${BODY_FONT}`;
+      c.fillText((slot.player || 'A DEFINIR').toUpperCase().slice(0, 17), x, y + 62 * scale);
+    });
+
+    c.textAlign = 'left';
+    c.fillStyle = COLORS.red;
+    c.fillRect(benchX, fieldY, 220 * scale, 50 * scale);
+    c.fillStyle = COLORS.white;
+    c.font = `${28 * scale}px ${IMPACT_FONT}`;
+    c.fillText('REMPLACANTS', benchX + 18 * scale, fieldY + 34 * scale);
+    c.font = `${24 * scale}px ${BODY_FONT}`;
+    state.composition.slots.slice(15).forEach((slot, index) => {
+      const y = fieldY + (84 + index * 48) * scale;
+      c.fillStyle = COLORS.redBright;
+      c.fillText(String(slot.number).padStart(2, '0'), benchX, y);
+      c.fillStyle = COLORS.white;
+      c.fillText((slot.player || 'A définir').toUpperCase().slice(0, 18), benchX + 48 * scale, y);
     });
     c.fillStyle = COLORS.redBright;
-    c.font = `${32 * scale}px ${BODY_FONT}`;
-    c.fillText('RCCUBZAGUAIS.FR', 80 * scale, exportCanvas.height - 85 * scale);
+    c.font = `${28 * scale}px ${IMPACT_FONT}`;
+    c.fillText('STAFF', benchX, fieldY + 520 * scale);
+    c.fillStyle = COLORS.white;
+    c.font = `${24 * scale}px ${BODY_FONT}`;
+    c.fillText((compositionCoach?.value || 'Staff à compléter').slice(0, 28), benchX, fieldY + 560 * scale);
+    c.fillStyle = COLORS.redBright;
+    c.font = `${30 * scale}px ${BODY_FONT}`;
+    c.fillText('RCCUBZAGUAIS.FR', 74 * scale, exportCanvas.height - 78 * scale);
     return exportCanvas;
   }
-
   function exportCompositionPng(format = 'portrait') {
     downloadCanvasImage(drawCompositionExport(format), `composition-rcc-${slug(compositionTeam?.value || 'equipe')}-${format}.png`);
     setStatus('Composition exportee en PNG.');
@@ -2551,6 +2685,7 @@
     hydrateCompositionMatches();
     hydrateCompositionPlayers();
   });
+  compositionSearch?.addEventListener('input', hydrateCompositionPlayers);
   compositionMatch?.addEventListener('change', renderComposition);
   [compositionCaptain, compositionVice, compositionCoach, compositionComments].forEach((node) => node?.addEventListener('input', renderComposition));
   document.querySelector('[data-composition-load-last]')?.addEventListener('click', loadCompositionDraft);

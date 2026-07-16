@@ -5041,6 +5041,300 @@ body{
   }
 }
 
+/* Studio RCC simplifie : trois modules, publications, composition, newsletter */
+.studio-page .studio-main-modules{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+  padding:0 0 10px!important;
+}
+
+.studio-page .studio-main-modules button{
+  min-height:42px!important;
+  border-radius:7px!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:14px!important;
+  font-weight:750!important;
+  letter-spacing:.02em!important;
+  text-transform:none!important;
+}
+
+.studio-page .studio-topbar{
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+}
+
+.studio-page .studio-topbar h1{
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:clamp(22px,2.4vw,34px)!important;
+  font-weight:800!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+}
+
+.studio-page .studio-tool-grid{
+  grid-template-columns:minmax(260px,340px) minmax(420px,1fr) minmax(280px,360px)!important;
+}
+
+.composition-search-label{
+  margin-bottom:10px;
+}
+
+.composition-card-official{
+  overflow:hidden;
+  border-radius:10px;
+  background:linear-gradient(135deg,#061b38,#060606 44%,rgba(177,24,69,.22));
+  color:#fff;
+}
+
+.composition-official-header{
+  display:grid!important;
+  grid-template-columns:58px minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  padding:14px!important;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+.composition-official-header img{
+  width:58px!important;
+  height:58px!important;
+  object-fit:contain;
+}
+
+.composition-official-header strong{
+  display:block;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:22px!important;
+  line-height:1.05!important;
+  text-transform:none!important;
+}
+
+.composition-official-header em{
+  padding:8px 10px;
+  border-radius:6px;
+  background:var(--red);
+  font-style:normal;
+  font-weight:800;
+}
+
+.composition-official-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 210px;
+  gap:12px;
+  padding:12px;
+}
+
+.composition-rugby-field{
+  display:grid;
+  gap:8px;
+  min-height:620px;
+  padding:14px;
+  border:1px solid rgba(6,27,56,.28);
+  border-radius:10px;
+  background:linear-gradient(90deg,rgba(255,255,255,.94),rgba(255,255,255,.9)),repeating-linear-gradient(0deg,transparent 0 86px,rgba(6,27,56,.2) 87px,transparent 90px);
+  color:#061b38;
+}
+
+.composition-line{
+  display:grid;
+  align-content:center;
+  gap:5px;
+}
+
+.composition-line>span{
+  color:#b11845;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.composition-line>div{
+  display:flex;
+  justify-content:center;
+  gap:clamp(6px,1vw,16px);
+}
+
+.composition-line-trois-quarts>div{
+  justify-content:space-between;
+}
+
+.composition-player-card{
+  position:relative;
+  display:grid;
+  justify-items:center;
+  gap:3px;
+  width:112px;
+  border:0;
+  background:transparent;
+  color:#061b38;
+  cursor:pointer;
+}
+
+.composition-player-card b{
+  position:absolute;
+  top:6px;
+  left:7px;
+  z-index:2;
+  display:grid;
+  width:24px;
+  height:24px;
+  place-items:center;
+  border-radius:50%;
+  background:#b11845;
+  color:#fff;
+  font-size:12px;
+}
+
+.composition-player-photo{
+  display:grid;
+  width:58px;
+  height:58px;
+  place-items:center;
+  overflow:hidden;
+  border:3px solid #061b38;
+  border-radius:50%;
+  background:#061b38;
+  color:#fff;
+  font-weight:900;
+}
+
+.composition-player-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.composition-player-card strong{
+  max-width:108px;
+  color:#061b38;
+  font-size:13px;
+  line-height:1.05;
+  text-align:center;
+}
+
+.composition-player-card small{
+  max-width:108px;
+  color:#5d6470;
+  font-size:10px;
+  line-height:1.1;
+  text-align:center;
+}
+
+.composition-player-card i{
+  position:absolute;
+  top:3px;
+  right:4px;
+  padding:3px 5px;
+  border-radius:999px;
+  background:#b11845;
+  color:#fff;
+  font-size:9px;
+  font-style:normal;
+  font-weight:900;
+}
+
+.composition-player-card.is-missing{
+  opacity:.64;
+}
+
+.composition-bench-panel{
+  display:grid;
+  align-content:start;
+  gap:10px;
+  padding:12px;
+  border-radius:10px;
+  background:rgba(0,0,0,.32);
+}
+
+.composition-bench-panel>strong{
+  display:block;
+  padding:8px 10px;
+  border-radius:6px;
+  background:#b11845;
+  color:#fff;
+  font-size:13px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+
+.composition-bench-panel button{
+  display:grid;
+  grid-template-columns:32px minmax(0,1fr);
+  gap:8px;
+  align-items:center;
+  width:100%;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:6px;
+  background:rgba(255,255,255,.04);
+  color:#fff;
+  padding:7px;
+  text-align:left;
+}
+
+.composition-bench-panel button b{
+  color:#d31a52;
+}
+
+.composition-bench-panel p,
+.composition-bench-panel small{
+  margin:0;
+  color:#d8d0c6;
+  line-height:1.4;
+}
+
+.composition-official-footer{
+  display:flex!important;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 14px!important;
+  border-top:1px solid rgba(255,255,255,.12);
+  color:#d8d0c6;
+}
+
+@media(max-width:1180px){
+  .studio-page .studio-tool-grid{
+    grid-template-columns:1fr!important;
+  }
+
+  .composition-official-layout{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:680px){
+  .studio-page .studio-main-modules{
+    grid-template-columns:1fr!important;
+  }
+
+  .composition-rugby-field{
+    min-height:auto;
+  }
+
+  .composition-line>div,
+  .composition-line-trois-quarts>div{
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .composition-player-card{
+    width:92px;
+  }
+
+  .composition-official-header{
+    grid-template-columns:48px minmax(0,1fr);
+  }
+
+  .composition-official-header em{
+    grid-column:1/-1;
+    justify-self:start;
+  }
+
+  .composition-official-footer{
+    display:grid!important;
+  }
+}
+
 /* Studio RCC duplicate cleanup: denser desktop controls */
 @media(min-width:901px){
   .studio-page .studio-layout{
