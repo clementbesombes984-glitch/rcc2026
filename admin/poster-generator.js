@@ -80,6 +80,8 @@
   const sourceButtons = document.querySelector('[data-source-buttons]');
   const sourceSelect = document.querySelector('[data-source-select]');
   const templateButtons = document.querySelector('[data-template-buttons]');
+  const compactTemplateSelect = document.querySelector('[data-compact-template]');
+  const compactSourceSelect = document.querySelector('[data-compact-source]');
   const captionOutput = document.querySelector('[data-caption-output]');
   const downloadButton = document.querySelector('[data-download-poster]');
   const downloadPdfButton = document.querySelector('[data-download-pdf]');
@@ -101,6 +103,11 @@
   const resetPhotoButton = document.querySelector('[data-reset-photo]');
   const studioTabButtons = document.querySelectorAll('[data-studio-tab]');
   const studioTabPanels = document.querySelectorAll('[data-studio-tab-panel]');
+  const publishDialog = document.querySelector('[data-publish-dialog]');
+  const publishDialogOpenButtons = document.querySelectorAll('[data-publish-dialog-open]');
+  const publishDialogConfirm = document.querySelector('[data-publish-dialog-confirm]');
+  const publishDialogCancel = document.querySelector('[data-publish-dialog-cancel]');
+  const studioSaveButtons = document.querySelectorAll('[data-studio-save]');
   const pushSettings = document.querySelector('[data-push-settings]');
   const compositionTeam = document.querySelector('[data-composition-team]');
   const compositionMatch = document.querySelector('[data-composition-match]');
@@ -414,6 +421,7 @@
     templateButtons?.querySelectorAll('[data-template-preset]').forEach((button) => {
       button.classList.toggle('is-active', button.dataset.templatePreset === template);
     });
+    if (compactTemplateSelect && compactTemplateSelect.value !== template) compactTemplateSelect.value = template;
   }
 
   function formatDate(value) {
@@ -2592,8 +2600,38 @@
   copyInstagramButton?.addEventListener('click', copyInstagram);
   copyHashtagsButton?.addEventListener('click', copyHashtags);
   publishStudioButton?.addEventListener('click', publishStudio);
+  publishDialogOpenButtons.forEach((button) => button.addEventListener('click', () => {
+    if (publishDialog && typeof publishDialog.showModal === 'function') {
+      publishDialog.showModal();
+    } else {
+      publishStudio();
+    }
+  }));
+  publishDialogConfirm?.addEventListener('click', () => {
+    publishDialog?.close();
+    publishStudio();
+  });
+  publishDialogCancel?.addEventListener('click', () => publishDialog?.close());
+  studioSaveButtons.forEach((button) => button.addEventListener('click', () => {
+    recordPublication('Brouillon enregistre');
+    setStatus('Brouillon enregistre localement.');
+  }));
   prepareDistributionButton?.addEventListener('click', prepareDistribution);
   checkMetaButton?.addEventListener('click', checkMetaStatus);
+  compactTemplateSelect?.addEventListener('change', (event) => {
+    setTemplate(event.target.value);
+    render();
+  });
+  compactSourceSelect?.addEventListener('change', (event) => {
+    const value = event.target.value || 'blank';
+    const button = sourceButtons?.querySelector(`[data-source-kind="${value}"]`);
+    if (button) {
+      button.click();
+    } else {
+      state.activeSource = value;
+      hydrateSourceSelect();
+    }
+  });
   sourceSelect?.addEventListener('change', (event) => applySource(event.target.value));
   sourceButtons?.addEventListener('click', (event) => {
     const button = event.target.closest('[data-source-kind]');
@@ -2601,6 +2639,7 @@
     sourceButtons.querySelectorAll('button').forEach((item) => item.classList.remove('is-active'));
     button.classList.add('is-active');
     state.activeSource = button.dataset.sourceKind;
+    if (compactSourceSelect && compactSourceSelect.value !== state.activeSource) compactSourceSelect.value = state.activeSource;
     hydrateSourceSelect();
   });
   templateButtons?.addEventListener('click', (event) => {

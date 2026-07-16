@@ -34,30 +34,47 @@
           <img src="../assets/logo-rcc.png" alt="RC Cubzaguais" />
           <span>Studio RCC</span>
         </a>
-        <div>
-          <p class="section-kicker">Communication officielle</p>
+        <div class="studio-topbar-title">
           <h1>Studio RCC</h1>
-          <p>Une seule interface pour creer les visuels, textes et supports de communication du club.</p>
+          <span class="studio-doc-status" data-studio-document-status>Brouillon</span>
         </div>
         <div class="studio-topbar-actions">
-          <a class="button ghost" href="./publications.html">Publications</a>
+          <button class="button ghost" type="button" data-studio-save>Enregistrer</button>
+          <button class="button primary" type="button" data-publish-dialog-open>Publier</button>
           <a class="button ghost" href="/cms-login">Administration</a>
+          <a class="button ghost" href="../index.html">Retour au site</a>
         </div>
       </header>
 
       <nav class="studio-tabs" aria-label="Modules Studio RCC">
         <button class="is-active" type="button" data-studio-tab="posters">Affiches & Publications</button>
-        <button type="button" data-studio-tab="compositions">Compositions d'equipe</button>
+        <button type="button" data-studio-tab="compositions">Compositions</button>
         <button type="button" data-studio-tab="newsletters">Newsletters</button>
+        <button type="button" data-studio-tab="history">Historique</button>
+        <button type="button" data-studio-tab="settings">Paramètres</button>
       </nav>
 
       <section class="studio-layout studio-tab-panel is-active" data-studio-tab-panel="posters">
         <aside class="studio-sidebar studio-left">
           <div class="poster-panel-head">
-            <span>Etape 1</span>
-            <strong>Choisir un modele</strong>
+            <span>Modèle</span>
+            <strong>Affiche</strong>
           </div>
-          <div class="studio-template-grid" data-template-buttons>
+          <label class="studio-compact-select">Type d'affiche
+            <select data-compact-template>
+              <option value="upcoming">Match</option>
+              <option value="result">Resultat</option>
+              <option value="tournament">Tournoi</option>
+              <option value="training">Entrainement</option>
+              <option value="club">Vie du club</option>
+              <option value="news">Actualite</option>
+              <option value="partner">Partenaire</option>
+              <option value="recruitment">Recrutement</option>
+              <option value="weekend">Calendrier</option>
+              <option value="newsletter">Newsletter</option>
+            </select>
+          </label>
+          <div class="studio-template-grid studio-hidden-controls" data-template-buttons aria-hidden="true">
             <button type="button" class="is-active" data-template-preset="upcoming">Match</button>
             <button type="button" data-template-preset="result">Resultat</button>
             <button type="button" data-template-preset="tournament">Tournoi</button>
@@ -71,10 +88,21 @@
           </div>
 
           <div class="poster-panel-head compact">
-            <span>Etape 2</span>
-            <strong>Charger une source</strong>
+            <span>Source</span>
+            <strong>CMS</strong>
           </div>
-          <div class="studio-source-list" data-source-buttons>
+          <label class="studio-compact-select">Source
+            <select data-compact-source>
+              <option value="blank">Nouvelle affiche</option>
+              <option value="news">Actualite existante</option>
+              <option value="event">Calendrier</option>
+              <option value="partner">Partenaire</option>
+              <option value="shop">Boutique</option>
+              <option value="gallery">Galerie</option>
+              <option value="team">Equipe / staff</option>
+            </select>
+          </label>
+          <div class="studio-source-list studio-hidden-controls" data-source-buttons aria-hidden="true">
             <button type="button" class="is-active" data-source-kind="blank">Nouvelle affiche</button>
             <button type="button" data-source-kind="news">Actualite existante</button>
             <button type="button" data-source-kind="event">Calendrier</button>
@@ -365,17 +393,24 @@
           <textarea class="studio-hashtags" rows="3" data-hashtag-output readonly></textarea>
 
           <div class="poster-panel-head compact">
-            <span>Mode manuel</span>
-            <strong>Exports</strong>
+            <span>Actions</span>
+            <strong>Export et publication</strong>
           </div>
           <div class="poster-actions studio-actions">
-            <button class="button primary" type="button" data-download-poster>Telecharger PNG HD</button>
-            <button class="button ghost" type="button" data-download-pdf>Telecharger PDF</button>
-            <button class="button ghost" type="button" data-copy-caption>Copier le texte</button>
-            <button class="button ghost" type="button" data-copy-facebook>Copier Facebook</button>
-            <button class="button ghost" type="button" data-copy-instagram>Copier Instagram</button>
-            <button class="button ghost" type="button" data-copy-hashtags>Copier hashtags</button>
-            <button class="button primary" type="button" data-publish-studio>🚀 Publier</button>
+            <button class="button primary" type="button" data-studio-save>Enregistrer</button>
+            <button class="button ghost" type="button" data-download-poster>PNG</button>
+            <button class="button ghost" type="button" data-download-pdf>PDF</button>
+            <details class="studio-copy-menu">
+              <summary class="button ghost">Copier</summary>
+              <div>
+                <button class="button ghost" type="button" data-copy-caption>Texte</button>
+                <button class="button ghost" type="button" data-copy-facebook>Facebook</button>
+                <button class="button ghost" type="button" data-copy-instagram>Instagram</button>
+                <button class="button ghost" type="button" data-copy-hashtags>Hashtags</button>
+              </div>
+            </details>
+            <button class="button primary" type="button" data-publish-dialog-open>Publier</button>
+            <button class="button primary studio-real-publish" type="button" data-publish-studio hidden>Publier maintenant</button>
             <button class="button ghost" type="button" data-prepare-distribution>Preparer diffusion</button>
             <button class="button ghost" type="button" data-check-meta>Verifier Meta</button>
           </div>
@@ -546,6 +581,54 @@
           </aside>
         </div>
       </section>
+
+      <section class="studio-tab-panel studio-tool-panel" data-studio-tab-panel="history" hidden>
+        <div class="studio-simple-panel">
+          <div class="poster-panel-head">
+            <span>Historique</span>
+            <strong>Dernieres actions</strong>
+          </div>
+          <p class="poster-help">L'historique local des exports, publications et compositions reste disponible dans ce navigateur.</p>
+          <div class="publication-history-panel">
+            <a class="button ghost" href="./publications.html">Ouvrir l'historique complet</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="studio-tab-panel studio-tool-panel" data-studio-tab-panel="settings" hidden>
+        <div class="studio-simple-panel">
+          <div class="poster-panel-head">
+            <span>Parametres</span>
+            <strong>Acces rapides</strong>
+          </div>
+          <p class="poster-help">Les reglages sensibles restent geres dans Cloudflare Pages et Pages CMS. Cette page garde uniquement les raccourcis utiles.</p>
+          <div class="poster-actions studio-actions">
+            <a class="button ghost" href="/cms-login">Pages CMS</a>
+            <a class="button ghost" href="../notifications.html">Notifications</a>
+            <a class="button ghost" href="../index.html">Retour au site</a>
+          </div>
+        </div>
+      </section>
+
+      <dialog class="studio-publish-dialog" data-publish-dialog>
+        <form method="dialog">
+          <div class="poster-panel-head">
+            <span>Publication</span>
+            <strong>Canaux</strong>
+          </div>
+          <p class="poster-help">Verifie les canaux coches dans la section Diffusion avant de publier.</p>
+          <div class="studio-distribution compact-dialog-options">
+            <span>Site</span>
+            <span>Facebook</span>
+            <span>Instagram</span>
+            <span>Notification push</span>
+          </div>
+          <div class="poster-actions studio-actions">
+            <button class="button ghost" value="cancel" type="button" data-publish-dialog-cancel>Annuler</button>
+            <button class="button primary" value="default" type="button" data-publish-dialog-confirm>Publier</button>
+          </div>
+        </form>
+      </dialog>
     </main>
 
     <script src="./poster-auth.js?v=studio-rcc-8"></script>
