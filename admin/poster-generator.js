@@ -119,6 +119,9 @@
   const compositionComments = document.querySelector('[data-composition-comments]');
   const compositionHistory = document.querySelector('[data-composition-history]');
   const compositionSearch = document.querySelector('[data-composition-search]');
+  const compositionStepButtons = document.querySelectorAll('[data-composition-step]');
+  const compositionStepPanels = document.querySelectorAll('[data-composition-step-panel]');
+  const compositionPublishSummary = document.querySelector('[data-composition-publish-summary]');
   const newsletterItems = document.querySelector('[data-newsletter-items]');
   const newsletterPreview = document.querySelector('[data-newsletter-preview]');
   const newsletterTitle = document.querySelector('[data-newsletter-title]');
@@ -195,6 +198,7 @@
       coach: '',
       comments: ''
     },
+    activeCompositionStep: 'match',
     newsletterBlocks: []
   };
 
@@ -610,27 +614,41 @@
       return `${player.name} ${player.role} ${player.secondaryRole}`.toLowerCase().includes(query);
     });
     state.composition.slots = normalizeCompositionSlots(state.composition.slots);
-    compositionList.innerHTML = state.composition.slots.map((slot, index) => {
-      const label = index < 15 ? `Titulaire ${slot.number}` : `Banc ${index - 14}`;
-      const photo = normalizeAssetPath(slot.photo);
+    const groups = [
+      ['Première ligne', [0, 1, 2]],
+      ['Deuxième ligne', [3, 4]],
+      ['Troisième ligne', [5, 7, 6]],
+      ['Charnière', [8, 9]],
+      ['Trois-quarts', [10, 11, 12, 13]],
+      ['Arrière', [14]],
+      ['Remplaçants', [15, 16, 17, 18, 19, 20, 21, 22]]
+    ];
+    const row = (slotIndex) => {
+      const slot = state.composition.slots[slotIndex];
       const options = playersForSlot(slot, players)
         .map((player) => `<option value="${escapeHtml(player.key)}">${escapeHtml(player.name)}${player.role ? ` - ${escapeHtml(player.role)}` : ''}${player.secondaryRole ? ` / ${escapeHtml(player.secondaryRole)}` : ''}</option>`)
         .join('');
+      const filled = clean(slot.player) ? 'Renseigné' : 'A compléter';
       return `
-        <article class="composition-slot" data-slot-editor="${index}">
-          <button class="composition-slot-photo" type="button" data-focus-slot="${index}" aria-label="Modifier ${escapeHtml(slot.position)}">${photo ? `<img src="${escapeHtml(photo)}" alt="" loading="lazy" />` : `<b>${slot.number}</b>`}</button>
-          <div>
-            <span>${escapeHtml(label)} · ${escapeHtml(slot.position)}</span>
-            <select data-composition-player="${index}">
-              <option value="">A definir</option>
-              ${options}
-            </select>
-            <input data-composition-manual="${index}" type="text" value="${escapeHtml(slot.player || '')}" placeholder="Nom libre si joueur absent du CMS" />
-          </div>
-          <button class="composition-clear-slot" type="button" data-composition-clear-slot="${index}" aria-label="Retirer le joueur">×</button>
-        </article>
+        <div class="composition-player-row${clean(slot.player) ? ' is-filled' : ''}" data-slot-editor="${slotIndex}">
+          <b>${slot.number}</b>
+          <span>${escapeHtml(slot.position)}</span>
+          <select data-composition-player="${slotIndex}">
+            <option value="">Sélectionner un joueur</option>
+            ${options}
+          </select>
+          <input data-composition-manual="${slotIndex}" type="text" value="${escapeHtml(slot.player || '')}" placeholder="Nom libre" />
+          <small>${escapeHtml(filled)}</small>
+          <button class="composition-clear-slot" type="button" data-composition-clear-slot="${slotIndex}" aria-label="Vider la ligne ${slot.number}">×</button>
+        </div>
       `;
-    }).join('');
+    };
+    compositionList.innerHTML = groups.map(([label, indexes]) => `
+      <section class="composition-player-group">
+        <h3>${escapeHtml(label)}</h3>
+        <div>${indexes.map(row).join('')}</div>
+      </section>
+    `).join('');
     compositionList.querySelectorAll('[data-composition-player]').forEach((select) => {
       const slot = state.composition.slots[Number(select.dataset.compositionPlayer)];
       select.value = slot.playerKey || '';
@@ -655,6 +673,7 @@
     });
     hydrateCaptainSelectors();
     renderComposition();
+    renderCompositionSummary();
   }
 
   function normalizeCompositionSlots(slots) {
@@ -712,6 +731,70 @@
     compositionMatchInfo.innerHTML = item
       ? `<strong>${escapeHtml(eventTitle(item))}</strong><span>${escapeHtml(eventDetails(item))}</span>`
       : 'Selectionne une equipe puis un match du calendrier.';
+  }
+
+  function compositionCounts() {
+    const starters = state.composition.slots.slice(0, 15).filter((slot) => clean(slot.player)).length;
+    const bench = state.composition.slots.slice(15).filter((slot) => clean(slot.player)).length;
+    const duplicates = new Map();
+    state.composition.slots.filter((slot) => clean(slot.player)).forEach((slot) => duplicates.set(slot.player, (duplicates.get(slot.player) || 0) + 1));
+    return {
+      starters,
+      bench,
+      total: starters + bench,
+      duplicateNames: [...duplicates.entries()].filter(([, count]) => count > 1).map(([name]) => name)
+    };
+  }
+
+  function renderCompositionSummary() {
+    if (!compositionPublishSummary) return;
+    const item = compositionEventByValue(compositionMatch?.value || '');
+    const counts = compositionCounts();
+    const warnings = [
+      counts.starters < 15 ? `${15 - counts.starters} titulaire(s) à compléter` : '',
+      counts.duplicateNames.length ? `Doublons : ${counts.duplicateNames.join(', ')}` : '',
+      !compositionCoach?.value ? 'Coach non renseigné' : ''
+    ].filter(Boolean);
+    compositionPublishSummary.innerHTML = `
+      <strong>${escapeHtml(eventTitle(item) || `Composition ${compositionTeam?.value || 'RCC'}`)}</strong>
+      <span>${escapeHtml(eventDetails(item) || 'Aucun match sélectionné')}</span>
+      <div class="composition-summary-grid">
+        <b>${counts.starters}/15 titulaires</b>
+        <b>${counts.bench}/8 remplaçants</b>
+        <b>${warnings.length ? `${warnings.length} alerte(s)` : 'Prêt'}</b>
+      </div>
+      ${warnings.length ? `<p>${escapeHtml(warnings.join(' · '))}</p>` : '<p>La composition est prête à être enregistrée ou publiée.</p>'}
+    `;
+  }
+
+  function setCompositionStep(step) {
+    const steps = ['match', 'players', 'preview', 'publish'];
+    const nextStep = steps.includes(step) ? step : 'match';
+    state.activeCompositionStep = nextStep;
+    compositionStepButtons.forEach((button) => {
+      const active = button.dataset.compositionStep === nextStep;
+      const completed = steps.indexOf(button.dataset.compositionStep) < steps.indexOf(nextStep);
+      button.classList.toggle('is-active', active);
+      button.classList.toggle('is-complete', completed);
+    });
+    compositionStepPanels.forEach((panel) => {
+      const active = panel.dataset.compositionStepPanel === nextStep;
+      panel.classList.toggle('is-active', active);
+      panel.hidden = !active;
+    });
+    renderComposition();
+    renderCompositionSummary();
+  }
+
+  function moveCompositionStep(direction) {
+    const steps = ['match', 'players', 'preview', 'publish'];
+    const current = Math.max(0, steps.indexOf(state.activeCompositionStep));
+    const target = clamp(current + direction, 0, steps.length - 1);
+    if (steps[target] === 'preview' && !compositionTeam?.value) {
+      setStatus('Choisis une équipe avant de passer à l’aperçu.');
+      return;
+    }
+    setCompositionStep(steps[target]);
   }
 
   function initials(name) {
@@ -812,12 +895,14 @@
     `;
     compositionPreview.querySelectorAll('[data-composition-preview-slot]').forEach((node) => {
       node.addEventListener('click', () => {
+        setCompositionStep('players');
         const editor = compositionList?.querySelector(`[data-slot-editor="${node.dataset.compositionPreviewSlot}"] select`);
         editor?.focus();
         editor?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       });
     });
     renderCompositionHistory();
+    renderCompositionSummary();
   }
   function compositionStorageKey() {
     return `rcc_composition_${slug(compositionTeam?.value || 'seniors')}`;
@@ -2688,6 +2773,9 @@
   compositionSearch?.addEventListener('input', hydrateCompositionPlayers);
   compositionMatch?.addEventListener('change', renderComposition);
   [compositionCaptain, compositionVice, compositionCoach, compositionComments].forEach((node) => node?.addEventListener('input', renderComposition));
+  compositionStepButtons.forEach((button) => button.addEventListener('click', () => setCompositionStep(button.dataset.compositionStep)));
+  document.querySelectorAll('[data-composition-next]').forEach((button) => button.addEventListener('click', () => moveCompositionStep(1)));
+  document.querySelectorAll('[data-composition-prev]').forEach((button) => button.addEventListener('click', () => moveCompositionStep(-1)));
   document.querySelector('[data-composition-load-last]')?.addEventListener('click', loadCompositionDraft);
   document.querySelector('[data-composition-clear]')?.addEventListener('click', clearCompositionDraft);
   document.querySelector('[data-composition-save]')?.addEventListener('click', saveCompositionDraft);
@@ -2785,5 +2873,6 @@
   syncPushSettings(readForm());
   loadFonts();
   loadSources();
+  setCompositionStep('match');
   render();
 })();

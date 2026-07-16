@@ -5335,6 +5335,306 @@ body{
   }
 }
 
+/* Studio RCC composition wizard */
+.studio-page .studio-topbar{
+  min-height:64px!important;
+  margin-bottom:10px!important;
+  border-radius:10px!important;
+  padding:10px 14px!important;
+}
+
+.studio-page .studio-topbar h1{
+  font-size:clamp(20px,2vw,28px)!important;
+}
+
+.studio-page .studio-topbar p,
+.studio-page .studio-topbar-title .section-kicker{
+  display:none!important;
+}
+
+.studio-page .studio-topbar-actions{
+  gap:8px!important;
+}
+
+.studio-page .studio-topbar-actions .button{
+  min-height:36px!important;
+  padding:0 12px!important;
+  border-radius:7px!important;
+  font-size:13px!important;
+}
+
+.studio-page .studio-tabs{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(150px,1fr))!important;
+  gap:10px!important;
+  margin-bottom:10px!important;
+}
+
+.studio-page .studio-tabs button{
+  white-space:normal!important;
+}
+
+.composition-workflow{
+  display:grid;
+  gap:12px;
+}
+
+.composition-steps{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;
+  background:rgba(15,15,15,.92);
+  padding:8px;
+}
+
+.composition-steps button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:40px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;
+  background:rgba(255,255,255,.035);
+  color:#d8d0c6;
+  font-size:14px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.composition-steps button span{
+  display:grid;
+  width:22px;
+  height:22px;
+  place-items:center;
+  border-radius:50%;
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  font-size:12px;
+}
+
+.composition-steps button.is-active{
+  border-color:rgba(211,26,82,.72);
+  background:rgba(177,24,69,.18);
+  color:#fff;
+}
+
+.composition-steps button.is-complete span{
+  background:var(--red);
+}
+
+.composition-step-panel{
+  min-width:0;
+}
+
+.composition-card-panel,
+.composition-preview-panel{
+  position:static!important;
+  width:min(100%,1180px);
+  max-height:none!important;
+  margin-inline:auto;
+  overflow:visible!important;
+}
+
+.composition-players-panel{
+  width:min(100%,1280px);
+}
+
+.composition-step-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:14px;
+}
+
+.composition-player-group{
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;
+  overflow:hidden;
+  background:rgba(255,255,255,.025);
+}
+
+.composition-player-group h3{
+  margin:0;
+  padding:8px 12px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  color:var(--red-bright);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.03em;
+  text-transform:none;
+}
+
+.composition-player-row{
+  display:grid;
+  grid-template-columns:44px minmax(145px,1fr) minmax(210px,1.35fr) minmax(160px,1fr) 90px 36px;
+  gap:8px;
+  align-items:center;
+  padding:8px 10px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.composition-player-row:last-child{
+  border-bottom:0;
+}
+
+.composition-player-row>b{
+  display:grid;
+  width:34px;
+  height:34px;
+  place-items:center;
+  border:1px solid rgba(211,26,82,.7);
+  border-radius:9px;
+  background:rgba(177,24,69,.18);
+  color:#fff;
+}
+
+.composition-player-row>span{
+  color:#f7f4ef;
+  font-size:14px;
+  font-weight:700;
+}
+
+.composition-player-row select,
+.composition-player-row input{
+  width:100%;
+  min-height:36px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:7px;
+  background:#060606;
+  color:#fff;
+  padding:0 10px;
+}
+
+.composition-player-row small{
+  color:#9e9992;
+  font-size:12px;
+}
+
+.composition-player-row.is-filled small{
+  color:#fff;
+}
+
+.composition-clear-slot{
+  display:grid;
+  width:34px;
+  height:34px;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+}
+
+.composition-preview-panel{
+  width:min(100%,1320px);
+}
+
+.composition-preview{
+  display:grid;
+  place-items:center;
+}
+
+.composition-card-official{
+  width:min(100%,1120px);
+  margin-inline:auto;
+}
+
+.composition-official-layout{
+  grid-template-columns:minmax(0,1fr) minmax(230px,280px)!important;
+  align-items:stretch;
+}
+
+.composition-rugby-field{
+  min-height:640px!important;
+  gap:10px!important;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 86px,rgba(6,27,56,.16) 87px,transparent 90px),
+    linear-gradient(90deg,rgba(255,255,255,.96),rgba(255,255,255,.91))!important;
+}
+
+.composition-bench-panel{
+  overflow:hidden;
+}
+
+.composition-bench-panel button{
+  min-height:34px;
+}
+
+.composition-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin:12px 0;
+}
+
+.composition-summary-grid b{
+  display:block;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;
+  background:rgba(255,255,255,.04);
+  padding:10px;
+  color:#fff;
+}
+
+.composition-final-actions{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+
+.studio-more-actions{
+  grid-column:1/-1;
+}
+
+.studio-more-actions summary{
+  cursor:pointer;
+  color:#fff;
+  font-weight:800;
+}
+
+.studio-more-actions .button{
+  width:100%;
+  margin-top:8px;
+}
+
+@media(max-width:900px){
+  .studio-page .studio-tabs,
+  .composition-steps{
+    grid-template-columns:1fr!important;
+  }
+
+  .composition-player-row{
+    grid-template-columns:38px minmax(0,1fr) 34px;
+  }
+
+  .composition-player-row select,
+  .composition-player-row input,
+  .composition-player-row small{
+    grid-column:2 / -1;
+  }
+
+  .composition-player-row>span{
+    grid-column:2;
+  }
+
+  .composition-clear-slot{
+    grid-column:3;
+    grid-row:1;
+  }
+
+  .composition-official-layout{
+    grid-template-columns:1fr!important;
+  }
+
+  .composition-summary-grid,
+  .composition-final-actions{
+    grid-template-columns:1fr!important;
+  }
+}
+
 /* Studio RCC duplicate cleanup: denser desktop controls */
 @media(min-width:901px){
   .studio-page .studio-layout{

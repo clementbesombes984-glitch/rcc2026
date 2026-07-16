@@ -371,8 +371,16 @@
       </section>
 
       <section class="studio-tab-panel studio-tool-panel" data-studio-tab-panel="compositions" hidden>
-        <div class="studio-tool-grid">
-          <aside class="studio-sidebar">
+        <div class="composition-workflow" data-composition-workflow>
+          <nav class="composition-steps" aria-label="Etapes composition">
+            <button class="is-active" type="button" data-composition-step="match"><span>1</span>Match</button>
+            <button type="button" data-composition-step="players"><span>2</span>Joueurs</button>
+            <button type="button" data-composition-step="preview"><span>3</span>Apercu</button>
+            <button type="button" data-composition-step="publish"><span>4</span>Publication</button>
+          </nav>
+
+          <section class="composition-step-panel is-active" data-composition-step-panel="match">
+            <aside class="studio-sidebar composition-card-panel">
             <div class="poster-panel-head">
               <span>Composition</span>
               <strong>Infos match</strong>
@@ -411,45 +419,77 @@
             <label>Commentaires
               <textarea data-composition-comments rows="2" placeholder="Consignes, infos de groupe, rendez-vous..."></textarea>
             </label>
-            <div class="studio-distribution composition-distribution">
-              <label class="poster-check"><input type="checkbox" data-composition-publish-site /> Site</label>
-              <label class="poster-check"><input type="checkbox" data-composition-publish-facebook /> Facebook</label>
-              <label class="poster-check"><input type="checkbox" data-composition-publish-instagram /> Instagram</label>
-              <label class="poster-check"><input type="checkbox" data-composition-publish-push /> Notification</label>
-            </div>
-            <div class="poster-actions compact-actions">
+            <div class="composition-step-actions">
               <button class="button ghost" type="button" data-composition-load-last>Charger dernier brouillon</button>
-              <button class="button ghost" type="button" data-composition-clear>Vider</button>
-              <button class="button ghost" type="button" data-composition-save>Enregistrer brouillon</button>
-              <button class="button ghost" type="button" data-composition-duplicate>Dupliquer</button>
+              <button class="button primary" type="button" data-composition-next>Suivant</button>
             </div>
-          </aside>
-          <section class="studio-preview-panel">
+            </aside>
+          </section>
+
+          <section class="composition-step-panel" data-composition-step-panel="players" hidden>
+            <aside class="studio-sidebar composition-card-panel composition-players-panel">
+              <div class="poster-panel-head">
+                <span>Joueurs</span>
+                <strong>Feuille compacte</strong>
+              </div>
+              <label class="composition-search-label">Recherche joueur
+                <input type="search" data-composition-search placeholder="Nom, poste..." />
+              </label>
+              <div class="composition-list" data-composition-list></div>
+              <div class="composition-step-actions">
+                <button class="button ghost" type="button" data-composition-prev>Precedent</button>
+                <button class="button primary" type="button" data-composition-next>Suivant</button>
+              </div>
+            </aside>
+          </section>
+
+          <section class="composition-step-panel" data-composition-step-panel="preview" hidden>
+            <section class="studio-preview-panel composition-preview-panel">
             <div class="poster-preview-toolbar">
               <span>Apercu composition</span>
               <strong>15 + banc</strong>
             </div>
             <div class="composition-preview" data-composition-preview></div>
+            <div class="composition-step-actions">
+              <button class="button ghost" type="button" data-composition-prev>Precedent</button>
+              <button class="button ghost" type="button" data-composition-export>PNG HD</button>
+              <button class="button primary" type="button" data-composition-next>Suivant</button>
+            </div>
+            </section>
           </section>
-          <aside class="studio-sidebar studio-right">
-            <div class="poster-panel-head">
-              <span>Joueurs</span>
-              <strong>Feuille</strong>
-            </div>
-            <label class="composition-search-label">Recherche joueur
-              <input type="search" data-composition-search placeholder="Nom, poste..." />
-            </label>
-            <div class="composition-list" data-composition-list></div>
-            <div class="composition-history" data-composition-history></div>
-            <div class="poster-actions studio-actions">
-              <button class="button primary" type="button" data-composition-export>PNG HD</button>
-              <button class="button ghost" type="button" data-composition-export-story>Story</button>
-              <button class="button ghost" type="button" data-composition-export-print>Impression</button>
-              <button class="button ghost" type="button" data-composition-copy-facebook>Copier Facebook</button>
-              <button class="button ghost" type="button" data-composition-copy-instagram>Copier Instagram</button>
-              <button class="button primary" type="button" data-composition-publish>Publier composition</button>
-            </div>
-          </aside>
+
+          <section class="composition-step-panel" data-composition-step-panel="publish" hidden>
+            <aside class="studio-sidebar composition-card-panel composition-publish-panel">
+              <div class="poster-panel-head">
+                <span>Publication</span>
+                <strong>Diffusion</strong>
+              </div>
+              <div class="studio-mini-card" data-composition-publish-summary></div>
+              <div class="studio-distribution composition-distribution">
+                <label class="poster-check"><input type="checkbox" data-composition-publish-site /> Site</label>
+                <label class="poster-check"><input type="checkbox" data-composition-publish-facebook /> Facebook</label>
+                <label class="poster-check"><input type="checkbox" data-composition-publish-instagram /> Instagram</label>
+                <label class="poster-check"><input type="checkbox" data-composition-publish-push /> Notification</label>
+              </div>
+              <div class="composition-history" data-composition-history></div>
+              <div class="poster-actions studio-actions composition-final-actions">
+                <button class="button primary" type="button" data-composition-save>Enregistrer</button>
+                <button class="button primary" type="button" data-composition-publish>Publier</button>
+                <details class="studio-more-actions">
+                  <summary>Plus</summary>
+                  <button class="button ghost" type="button" data-composition-export-story>Export Story</button>
+                  <button class="button ghost" type="button" data-composition-export-print>Export impression</button>
+                  <button class="button ghost" type="button" data-composition-copy-facebook>Copier Facebook</button>
+                  <button class="button ghost" type="button" data-composition-copy-instagram>Copier Instagram</button>
+                  <button class="button ghost" type="button" data-composition-duplicate>Dupliquer</button>
+                  <button class="button ghost" type="button" data-composition-clear>Vider</button>
+                </details>
+              </div>
+              <div class="composition-step-actions">
+                <button class="button ghost" type="button" data-composition-prev>Precedent</button>
+              </div>
+            </aside>
+          </section>
         </div>
       </section>
 
