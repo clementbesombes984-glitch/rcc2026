@@ -17,6 +17,11 @@
       "firstName": "Michel",
       "lastName": "Arnaud",
       "role": "Vice-Président"
+    },
+    {
+      "firstName": "Clémentine",
+      "lastName": "Bouillard",
+      "role": "Trésorière"
     }
   ]
 }
