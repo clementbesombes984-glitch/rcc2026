@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v37';
+const CACHE_VERSION = 'rcc-pwa-v38';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -22,8 +22,10 @@ const STATIC_ASSETS = [
   '/galerie.html',
   '/rcc-demain.html',
   '/notifications.html',
+  '/vote-logo.html',
   '/admin/generateur-affiche.html',
   '/admin/publications.html',
+  '/admin/logo-vote-results.html',
   '/nous-rejoindre.html',
   '/contact.html',
   '/styles.css',
@@ -32,6 +34,8 @@ const STATIC_ASSETS = [
   '/data-loader.js',
   '/matches-view.js',
   '/notifications.js',
+  '/vote-logo.js',
+  '/admin/logo-vote-results.js',
   '/admin/poster-generator.js',
   '/admin/poster-auth.js',
   '/admin/publications.js',
@@ -58,6 +62,7 @@ const DATA_ASSETS = [
   '/data/bureau.json',
   '/data/media-library.json',
   '/data/settings.json',
+  '/data/logo-vote.json',
   '/data/rugby-positions.json'
 ];
 

@@ -33,6 +33,7 @@ function page(error = "") {
       </form>
       ${errorHtml}
       <a class="tool" href="/admin/generateur-affiche.html">Studio RCC</a>
+      <a class="tool" href="/admin/logo-vote-results.html">Resultats vote logo</a>
       <a class="back" href="/">Retour au site</a>
     </main>
   </body>

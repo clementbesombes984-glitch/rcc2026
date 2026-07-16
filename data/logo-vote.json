@@ -1,0 +1,20 @@
+{
+  "settings": {
+    "voteEnabled": false,
+    "startDate": "",
+    "endDate": "",
+    "showInMenu": false,
+    "showPublicResults": false,
+    "allowOneVotePerEmail": true
+  },
+  "logos": [
+    {
+      "id": "logo-1",
+      "title": "Proposition 1",
+      "image": "",
+      "description": "",
+      "active": true,
+      "order": 1
+    }
+  ]
+}

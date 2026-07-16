@@ -17,6 +17,7 @@ const mobileNavLabels = [
   ['./rcc-demain.html', 'Le Club'],
   ['./partenaires.html', 'Partenaires'],
   ['./boutique.html', 'Boutique'],
+  ['./vote-logo.html', 'Vote logo'],
   ['./nous-rejoindre.html', 'Contact'],
   ['./notifications.html', 'Notifications'],
   ['/cms-login', 'Administration']
@@ -79,6 +80,7 @@ if (nav) {
     'galerie.html': 'galerie.html',
     'partenaires.html': 'partenaires.html',
     'boutique.html': 'boutique.html',
+    'vote-logo.html': 'vote-logo.html',
     'notifications.html': 'notifications.html',
     'nous-rejoindre.html': 'nous-rejoindre.html',
     'contact.html': 'nous-rejoindre.html'
@@ -91,6 +93,44 @@ if (nav) {
   nav.querySelectorAll('[data-nav-dropdown]').forEach((dropdown) => {
     dropdown.classList.toggle('is-active', Boolean(dropdown.querySelector('a.is-active')));
   });
+
+  function logoVoteIsOpen(settings = {}) {
+    if (!settings.voteEnabled || !settings.showInMenu) return false;
+    const now = new Date();
+    const start = settings.startDate ? new Date(settings.startDate + 'T00:00:00') : null;
+    const end = settings.endDate ? new Date(settings.endDate + 'T23:59:59') : null;
+    if (start && !Number.isNaN(start.getTime()) && now < start) return false;
+    if (end && !Number.isNaN(end.getTime()) && now > end) return false;
+    return true;
+  }
+
+  fetch('./data/logo-vote.json', { cache: 'no-store' })
+    .then((response) => response.ok ? response.json() : null)
+    .then((config) => {
+      if (!config || !logoVoteIsOpen(config.settings || {})) return;
+      if (nav.querySelector('a[href="./vote-logo.html"]')) return;
+      const link = document.createElement('a');
+      link.className = 'nav-text-link logo-vote-nav-link';
+      link.href = './vote-logo.html';
+      link.textContent = 'Vote logo';
+      link.dataset.mobileLabel = 'Vote logo';
+      const clubDropdown = nav.querySelector('[data-nav-dropdown-main][href="./club.html"]')?.closest('[data-nav-dropdown]');
+      const clubSubmenu = clubDropdown?.querySelector('.nav-submenu-panel');
+      if (clubSubmenu && clubSubmenu.querySelector('a[href="./histoire.html"]')) {
+        const subLink = document.createElement('a');
+        subLink.href = './vote-logo.html';
+        subLink.textContent = 'Vote nouveau logo';
+        subLink.dataset.mobileLabel = 'Vote nouveau logo';
+        clubSubmenu.appendChild(subLink);
+      } else {
+        const contact = nav.querySelector('.nav-cta');
+        if (contact) contact.before(link);
+        else nav.appendChild(link);
+      }
+      if (currentPage === 'vote-logo.html') link.classList.add('is-active');
+    })
+    .catch(() => {});
+
   const closeAllSubmenus = (except) => {
     nav.querySelectorAll('[data-nav-dropdown]').forEach((dropdown) => {
       if (dropdown === except) return;

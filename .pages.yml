@@ -887,6 +887,61 @@ content:
             label: Adresse du lien
             type: string
 
+  - name: logoVote
+    label: Vote nouveau logo
+    type: file
+    path: data/logo-vote.json
+    format: json
+    fields:
+      - name: settings
+        label: Reglages du vote
+        type: object
+        fields:
+          - name: voteEnabled
+            label: Activer le vote
+            type: boolean
+          - name: startDate
+            label: Date de debut
+            type: date
+          - name: endDate
+            label: Date de fin
+            type: date
+          - name: showInMenu
+            label: Afficher le lien dans le menu
+            type: boolean
+          - name: showPublicResults
+            label: Afficher les resultats publiquement
+            type: boolean
+          - name: allowOneVotePerEmail
+            label: Limiter a un vote par email
+            type: boolean
+      - name: logos
+        label: Propositions de logo
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{order} - {title}"
+        fields:
+          - name: id
+            label: Identifiant unique
+            type: string
+          - name: title
+            label: Titre de la proposition
+            type: string
+          - name: image
+            label: Image du logo
+            type: image
+          - name: description
+            label: Description courte
+            type: text
+          - name: active
+            label: Proposition active
+            type: boolean
+          - name: order
+            label: Ordre d'affichage
+            type: number
+
   - name: compositions
     label: Compositions Studio RCC
     type: file

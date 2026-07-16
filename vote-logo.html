@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vote pour le futur logo du Racing Club Cubzaguais</title>
+    <meta name="description" content="Page de vote des membres du Racing Club Cubzaguais pour choisir une proposition de futur logo." />
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="canonical" href="https://rccubzaguais.fr/vote-logo.html" />
+    <meta name="theme-color" content="#b11845" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="RCC" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./assets/pwa-icon-192.png" />
+    <link rel="stylesheet" href="./styles.css" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Vote pour le futur logo du Racing Club Cubzaguais" />
+    <meta property="og:description" content="Page de vote des membres du Racing Club Cubzaguais." />
+    <meta property="og:url" content="https://rccubzaguais.fr/vote-logo.html" />
+    <meta property="og:site_name" content="Racing Club Cubzaguais" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:image" content="https://rccubzaguais.fr/assets/og-image.jpg.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand brand-logo-only" href="./index.html#accueil" aria-label="RC Cubzaguais accueil"><img src="./assets/logo-rcc.png" alt="RC Cubzaguais" decoding="async" fetchpriority="high" /></a>
+      <button class="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-menu-toggle><span></span><span></span></button>
+      <nav class="site-nav v1-nav" aria-label="Navigation principale" data-nav>
+        <div class="nav-dropdown" data-nav-dropdown>
+          <a class="nav-text-link nav-dropdown-main" href="./index.html#accueil" data-nav-dropdown-main aria-haspopup="true" aria-expanded="false">Accueil</a>
+          <div class="nav-submenu" data-nav-submenu>
+            <div class="nav-submenu-panel">
+              <a href="./index.html#accueil">Accueil</a>
+              <a href="./actualites.html">Actualités</a>
+              <a href="./calendrier.html">Calendrier</a>
+            </div>
+          </div>
+        </div>
+        <a class="nav-text-link" href="./club.html">Le Club</a>
+        <div class="nav-dropdown" data-nav-dropdown>
+          <a class="nav-text-link nav-dropdown-main" href="./equipes.html" data-nav-dropdown-main aria-haspopup="true" aria-expanded="false">Les Équipes</a>
+          <div class="nav-submenu" data-nav-submenu>
+            <div class="nav-submenu-panel">
+              <a href="./ecole.html">École de Rugby</a>
+              <a href="./jeunes.html">Pôle Jeunes</a>
+              <a href="./cadettes.html">Cadettes</a>
+              <a href="./senior.html">Seniors</a>
+            </div>
+          </div>
+        </div>
+        <a class="nav-text-link" href="./galerie.html">Galerie</a>
+        <a class="nav-text-link" href="./partenaires.html">Partenaires</a>
+        <a class="nav-text-link" href="./boutique.html">Boutique</a>
+        <a class="nav-cta" href="./nous-rejoindre.html">Contact</a>
+        <a class="notification-link" href="./notifications.html" aria-label="Notifications" title="Notifications">&#128276;</a>
+        <a class="admin-link settings-link" href="/cms-login" aria-label="Accès administration" title="Administration">&#9881;</a>
+      </nav>
+    </header>
+
+    <main class="vote-logo-page" data-logo-vote-page>
+      <section class="history-hero vote-logo-hero">
+        <div class="hero-art" aria-hidden="true">
+          <div class="stadium-light light-one"></div>
+          <div class="stadium-light light-two"></div>
+          <div class="rugby-scene academy-scene"><span class="player player-one"></span><span class="rugby-ball"></span><span class="field-line field-one"></span></div>
+        </div>
+        <div class="page-shell history-hero-content">
+          <p class="eyebrow"><span></span> Consultation du club</p>
+          <h1><span>Vote futur</span><strong>logo RCC</strong></h1>
+        </div>
+      </section>
+
+      <section class="page-shell vote-logo-section">
+        <div class="vote-logo-closed" data-vote-closed hidden>
+          <span>Vote nouveau logo</span>
+          <h2>Le vote pour le nouveau logo n’est pas encore ouvert.</h2>
+          <p>Cette page est prête, mais la consultation sera accessible uniquement lorsque le club l’activera depuis l’administration.</p>
+          <a class="button ghost" href="./index.html">Retour à l’accueil</a>
+        </div>
+
+        <div class="vote-logo-open" data-vote-open hidden>
+          <div class="vote-logo-intro">
+            <span>Vote nouveau logo</span>
+            <h2>Choisissez votre proposition préférée</h2>
+            <p>Votre adresse e-mail sert uniquement à vérifier qu’un seul vote est enregistré par participant. Elle n’est pas affichée publiquement.</p>
+          </div>
+
+          <form class="vote-logo-form" data-logo-vote-form>
+            <fieldset>
+              <legend>Propositions</legend>
+              <div class="vote-logo-grid" data-logo-options>
+                <article class="vote-logo-card is-loading">
+                  <div class="vote-logo-placeholder">RCC</div>
+                  <h3>Chargement des propositions</h3>
+                </article>
+              </div>
+            </fieldset>
+
+            <div class="vote-logo-fields">
+              <label>Nom ou prénom <span>facultatif</span>
+                <input type="text" name="name" autocomplete="name" placeholder="Votre nom ou prénom" />
+              </label>
+              <label>Adresse e-mail <span>obligatoire</span>
+                <input type="email" name="email" autocomplete="email" placeholder="exemple@email.fr" required />
+              </label>
+              <label class="vote-logo-consent">
+                <input type="checkbox" name="consent" required />
+                <span>J’accepte que mon adresse e-mail soit utilisée uniquement pour vérifier l’unicité de mon vote.</span>
+              </label>
+              <button class="button primary" type="submit">Valider mon vote</button>
+              <p class="vote-logo-status" data-logo-vote-status role="status" aria-live="polite"></p>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer rcc-footer" data-footer></footer>
+    <script src="./script.js"></script>
+    <script src="./vote-logo.js"></script>
+    <script src="./data-loader.js"></script>
+    <script src="./notifications.js"></script>
+  </body>
+</html>

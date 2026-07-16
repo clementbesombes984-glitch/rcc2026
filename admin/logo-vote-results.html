@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Résultats vote logo - RC Cubzaguais</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body class="poster-admin-page poster-locked logo-vote-admin-page">
+    <section class="poster-lock" data-poster-lock>
+      <form class="poster-lock-box" data-poster-lock-form>
+        <img src="../assets/logo-rcc.png" alt="RC Cubzaguais" />
+        <span>Administration</span>
+        <h1>Vote logo</h1>
+        <p>Entrez le mot de passe du club pour consulter les résultats du vote.</p>
+        <label>Mot de passe
+          <input type="password" name="password" autocomplete="current-password" required autofocus />
+        </label>
+        <button class="button primary" type="submit">Entrer</button>
+        <p class="poster-lock-error" data-poster-lock-error hidden>Mot de passe incorrect.</p>
+        <a href="/cms-login">Retour administration</a>
+      </form>
+    </section>
+
+    <main class="logo-vote-admin" data-poster-admin>
+      <header class="logo-vote-admin-header">
+        <div>
+          <span>Vote nouveau logo</span>
+          <h1>Résultats provisoires</h1>
+          <p>Les adresses e-mail ne sont pas affichées. Le stockage conserve uniquement un hash pour limiter les doubles votes.</p>
+        </div>
+        <div class="logo-vote-admin-actions">
+          <button class="button ghost" type="button" data-refresh-results>Actualiser</button>
+          <a class="button ghost" href="/api/logo-vote/results?format=csv">Exporter CSV</a>
+          <a class="button ghost" href="https://app.pagescms.org/" target="_blank" rel="noopener">Modifier le vote</a>
+          <a class="button ghost" href="/cms-login">Administration</a>
+        </div>
+      </header>
+
+      <section class="logo-vote-admin-summary">
+        <article><span>Total</span><strong data-result-total>--</strong></article>
+        <article><span>Dernier vote</span><strong data-result-last>--</strong></article>
+        <article><span>Vote ouvert</span><strong data-result-open>--</strong></article>
+      </section>
+
+      <section class="logo-vote-results-list" data-results-list>
+        <p>Chargement des résultats...</p>
+      </section>
+
+      <section class="logo-vote-danger">
+        <h2>Remise à zéro</h2>
+        <p>Action irréversible : supprime les votes enregistrés dans le stockage serveur.</p>
+        <button class="button ghost" type="button" data-reset-results>Remettre les compteurs à zéro</button>
+        <p data-results-status role="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <script src="./poster-auth.js"></script>
+    <script src="./logo-vote-results.js"></script>
+  </body>
+</html>
