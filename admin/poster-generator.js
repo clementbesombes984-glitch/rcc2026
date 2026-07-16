@@ -274,7 +274,7 @@
     const key = clean(team).toLowerCase();
     if (key === 'seniors') return text.includes('senior') || text.includes('rcc') || !text;
     if (key === 'cadettes') return text.includes('cadette') || text.includes('feminine');
-    if (key === 'u18') return text.includes('u18') || text.includes('junior');
+    if (key === 'u19') return text.includes('u19') || text.includes('junior');
     if (key === 'u16') return text.includes('u16') || text.includes('cadet');
     return text.includes(key);
   }
@@ -356,7 +356,7 @@
         const source = clean(`${item.source || ''} ${item.label || ''} ${item.category || ''} ${item.age || ''}`).toLowerCase();
         if (key === 'seniors') return source.includes('senior');
         if (key === 'cadettes') return source.includes('cadette') || source.includes('feminine');
-        if (key === 'u18') return source.includes('u18') || source.includes('junior');
+        if (key === 'u19') return source.includes('u19') || source.includes('junior');
         if (key === 'u16') return source.includes('u16') || source.includes('cadet');
         return source.includes(key);
       })
@@ -1904,7 +1904,7 @@
     if (type === 'club') tags.add('VieDuClub');
     if (category.includes('senior')) tags.add('SeniorsRCC');
     if (category.includes('cadette')) tags.add('CadettesRCC');
-    if (category.includes('u16') || category.includes('u18')) tags.add('PoleJeunes');
+    if (category.includes('u16') || category.includes('u19')) tags.add('PoleJeunes');
     return Array.from(tags).map((tag) => `#${tag}`);
   }
 
@@ -1959,9 +1959,9 @@
     if (text.includes('u12')) audience.add('u12');
     if (text.includes('u14')) audience.add('u14');
     if (text.includes('u16')) audience.add('u16');
-    if (text.includes('u18') || text.includes('u19')) audience.add('u18');
+    if (text.includes('u19')) audience.add('u19');
     if (text.includes('ecole') || text.includes('école') || text.includes('u6') || text.includes('u8') || text.includes('u10') || text.includes('u12') || text.includes('u14')) audience.add('ecole');
-    if (text.includes('jeune') || text.includes('u16') || text.includes('u18') || text.includes('u19')) audience.add('jeunes');
+    if (text.includes('jeune') || text.includes('u16') || text.includes('u19')) audience.add('jeunes');
     if (text.includes('tournoi')) audience.add('tournois');
     if (text.includes('match')) audience.add('matchs');
     if (text.includes('entrainement') || text.includes('entraînement')) audience.add('entrainements');

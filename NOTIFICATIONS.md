@@ -168,7 +168,7 @@ Pour envoyer automatiquement une notification quand une actu ou un match est pub
 - `u12`
 - `u14`
 - `u16`
-- `u18`
+- `u19`
 - `ecole`
 - `jeunes`
 - `benevoles`
