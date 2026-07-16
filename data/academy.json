@@ -97,6 +97,11 @@
           "firstName": "Mathieu",
           "lastName": "Sautron",
           "role": "Educateur"
+        },
+        {
+          "firstName": "Evan",
+          "lastName": "Nguyen",
+          "role": "Educateur"
         }
       ]
     }
