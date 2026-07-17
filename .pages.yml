@@ -1303,7 +1303,7 @@ content:
             type: string
 
   - name: bureau
-    label: Bureau RCC Demain
+    label: Organigramme du club
     type: file
     path: data/bureau.json
     format: json

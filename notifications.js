@@ -1,4 +1,14 @@
-(function () {
+(async function () {
+  if (!globalThis.RCCNotificationCategories) {
+    await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = '/notification-categories.js';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    }).catch(() => null);
+  }
+
   const STORAGE_KEY = 'rcc-notification-preferences';
   const SUBSCRIPTION_KEY = 'rcc-push-subscription';
   const SEEN_KEY = 'rcc-notification-seen-items';
@@ -484,7 +494,7 @@
     setStatus('Choisissez vos categories puis activez les notifications.', 'neutral');
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function initializeNotifications() {
     startLocalWatcher();
     if (document.querySelector('[data-notifications-page]')) {
       renderGroups();
@@ -496,5 +506,11 @@
       document.querySelector('[data-check-notifications]')?.addEventListener('click', notifyMatchingNow);
       document.querySelector('[data-reset-notifications]')?.addEventListener('click', resetApplicationCache);
     }
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeNotifications, { once: true });
+  } else {
+    initializeNotifications();
+  }
 })();
