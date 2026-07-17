@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v40';
+const CACHE_VERSION = 'rcc-pwa-v41';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -34,6 +34,7 @@ const STATIC_ASSETS = [
   '/data-loader.js',
   '/matches-view.js',
   '/notifications.js',
+  '/notification-categories.js',
   '/vote-logo.js',
   '/admin/logo-vote-results.js',
   '/admin/poster-generator.js',

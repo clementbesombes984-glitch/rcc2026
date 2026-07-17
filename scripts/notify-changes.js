@@ -1,8 +1,10 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import '../notification-categories.js';
 
 const siteUrl = process.env.RCC_SITE_URL || process.env.SITE_URL || '';
 const token = process.env.RCC_PUSH_ADMIN_TOKEN || process.env.PUSH_ADMIN_TOKEN || '';
+const notificationCategories = globalThis.RCCNotificationCategories;
 
 function runGit(args) {
   try {
@@ -76,22 +78,16 @@ function audienceKey(value) {
 }
 
 function expandAudience(values) {
-  const set = new Set(values.map(audienceKey).filter(Boolean));
-  if (set.has('ecole') || ['u6', 'u8', 'u10', 'u12', 'u14'].some((key) => set.has(key))) {
-    set.add('ecole');
-    ['u6', 'u8', 'u10', 'u12', 'u14'].forEach((key) => set.add(key));
-  }
-  if (set.has('cadettes')) set.add('feminines');
-  return Array.from(set);
+  return notificationCategories.normalizeAudience(values);
 }
 
 function audiences(item, fallback) {
-  const values = Array.isArray(item.audience) ? item.audience : [];
+  const values = Array.isArray(item.audience) ? [...item.audience] : [];
   const teams = asList(item.teams).length ? asList(item.teams) : asList(item.team);
   if (item.important) values.push('important');
   if (fallback) values.push(fallback);
   teams.map(audienceKey).forEach((team) => values.push(team));
-  if (!values.length) values.push('general');
+  if (!values.length) values.push('actualites');
   return expandAudience(values);
 }
 
@@ -118,7 +114,7 @@ function signatureForNews(item) {
     url: item.url || '',
     important: Boolean(item.important),
     notification: Boolean(item.notification),
-    audience: audiences(item, 'general')
+    audience: audiences(item, 'actualites')
   });
 }
 
@@ -142,7 +138,7 @@ function signatureForMatch(item) {
     result: item.result || '',
     description: item.description || '',
     notification: Boolean(item.notification),
-    audience: audiences(item, 'matchs')
+    audience: audiences(item, 'actualites')
   });
 }
 
@@ -152,7 +148,7 @@ function newsPayload(item) {
     title: shortTitle(item.title, 'Actualite RCC'),
     body: item.summary || item.body || item.category || 'Nouvelle actualite du club.',
     url: item.url || '/actualites.html',
-    audience: audiences(item, 'general'),
+    audience: audiences(item, 'actualites'),
     tag: `news-${idFor('news', item)}`
   };
 }

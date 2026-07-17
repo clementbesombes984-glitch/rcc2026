@@ -3,6 +3,7 @@
   const SUBSCRIPTION_KEY = 'rcc-push-subscription';
   const SEEN_KEY = 'rcc-notification-seen-items';
   const CHECK_INTERVAL = 60000;
+  const categoryConfig = globalThis.RCCNotificationCategories;
   async function publicKey() {
     const localKey =
       window.RCC_PUSH_PUBLIC_KEY ||
@@ -21,50 +22,16 @@
 
   const groups = [
     {
-      title: 'Club',
-      items: [
-        ['general', 'Actualites generales'],
-        ['important', 'Urgent / Important'],
-        ['evenements', 'Evenements'],
-        ['benevoles', 'Benevoles'],
-        ['partenaires', 'Partenaires']
-      ]
+      title: 'Informations du club',
+      items: [['actualites', 'Actualités']]
     },
     {
-      title: 'Equipes',
-      items: [
-        ['seniors', 'Seniors'],
-        ['cadettes', 'Cadettes'],
-        ['jeunes', 'Pole jeunes'],
-        ['u16', 'U16'],
-        ['u19', 'U19']
-      ]
-    },
-    {
-      title: 'Ecole de rugby',
-      items: [
-        ['ecole', 'Ecole de rugby'],
-        ['u6', 'U6'],
-        ['u8', 'U8'],
-        ['u10', 'U10'],
-        ['u12', 'U12'],
-        ['u14', 'U14']
-      ]
-    },
-    {
-      title: 'Matchs et vie sportive',
-      items: [
-        ['matchs', 'Matchs'],
-        ['tournois', 'Tournois'],
-        ['resultats', 'Resultats'],
-        ['entrainements', 'Entrainements']
-      ]
+      title: 'Équipes',
+      items: categoryConfig.categories.filter(([key]) => key !== 'actualites')
     }
   ];
 
-  const defaultPreferences = groups
-    .flatMap((group) => group.items.map(([key]) => key))
-    .reduce((acc, key) => ({ ...acc, [key]: key === 'general' || key === 'important' }), {});
+  const defaultPreferences = categoryConfig.migratePreferences({});
 
   const supportsNotifications = () =>
     'Notification' in window &&
@@ -76,14 +43,44 @@
 
   function loadPreferences() {
     try {
-      return { ...defaultPreferences, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') };
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const migrated = categoryConfig.migratePreferences(stored);
+      if (JSON.stringify(stored) !== JSON.stringify(migrated)) savePreferences(migrated, false);
+      return migrated;
     } catch (error) {
       return { ...defaultPreferences };
     }
   }
 
-  function savePreferences(preferences) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
+  function savePreferences(preferences, syncServer = true) {
+    const migrated = categoryConfig.migratePreferences(preferences);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+    if (syncServer) syncSubscriptionPreferences(migrated);
+    return migrated;
+  }
+
+  async function syncSubscriptionPreferences(preferences) {
+    try {
+      const stored = JSON.parse(localStorage.getItem(SUBSCRIPTION_KEY) || '{}');
+      if (!stored.enabled) return;
+      const registration = await navigator.serviceWorker.getRegistration();
+      const subscription = registration ? await registration.pushManager?.getSubscription() : null;
+      if (!subscription) return;
+      const payload = {
+        ...stored,
+        preferences,
+        subscription: subscription.toJSON(),
+        endpoint: subscription.endpoint
+      };
+      localStorage.setItem(SUBSCRIPTION_KEY, JSON.stringify(payload));
+      await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (error) {
+      // La sauvegarde locale reste valide si la synchronisation serveur est momentanément indisponible.
+    }
   }
 
   function setStatus(message, tone) {
@@ -156,27 +153,8 @@
 
   const asList = (value) => Array.isArray(value) ? value.filter(Boolean) : (value ? [value] : []);
 
-  function audienceKey(value) {
-    const key = String(value || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    if (key === 'ecole de rugby') return 'ecole';
-    if (key === 'pole jeunes') return 'jeunes';
-    if (key === 'feminines' || key === 'feminine' || key === 'feminines' || key === 'cadette') return 'cadettes';
-    if (key === 'seniors' || key === 'senior') return 'seniors';
-    if (key === 'entrainement' || key === 'entrainements' || key === 'training') return 'entrainements';
-    if (key === 'tournoi') return 'tournois';
-    if (key === 'match') return 'matchs';
-    if (key === 'evenement_club' || key === 'evenement club' || key === 'evenement') return 'evenements';
-    return key.replace(/\s+/g, '-');
-  }
-
   function expandAudience(values) {
-    const set = new Set(values.map(audienceKey).filter(Boolean));
-    if (set.has('ecole') || ['u6', 'u8', 'u10', 'u12', 'u14'].some((key) => set.has(key))) {
-      set.add('ecole');
-      ['u6', 'u8', 'u10', 'u12', 'u14'].forEach((key) => set.add(key));
-    }
-    if (set.has('cadettes')) set.add('feminines');
-    return Array.from(set);
+    return categoryConfig.normalizeAudience(values);
   }
 
   function itemAudiences(item, fallback) {
@@ -185,7 +163,7 @@
     const extra = [];
     if (item.important) extra.push('important');
     if (fallback) extra.push(fallback);
-    return expandAudience([...audience, ...teams, ...extra, 'general']);
+    return expandAudience([...audience, ...teams, ...extra]);
   }
 
   function matchesPreferences(audiences) {
@@ -251,7 +229,7 @@
 
     return [
       ...news.filter((item) => item.notification).map((item) => {
-        const audience = itemAudiences(item, 'general');
+        const audience = itemAudiences(item, 'actualites');
         return {
           id: itemId('news', item),
           type: 'news',
@@ -262,12 +240,9 @@
         };
       }),
       ...matches.filter((item) => item.notification).map((item) => {
-        const status = String(item.status || '').toLowerCase();
-        const isResult = status === 'win' || status === 'loss' || Boolean(item.result);
-        const rawType = audienceKey(item.type_evenement || item.type || 'match');
-        const eventType = rawType === 'tournois' ? 'tournoi' : rawType === 'entrainements' ? 'entrainement' : rawType === 'evenements' ? 'evenement' : 'match';
-        const eventAudience = eventType === 'tournoi' ? 'tournois' : eventType === 'entrainement' ? 'entrainements' : eventType === 'evenement' ? 'evenements' : 'matchs';
-        const audience = itemAudiences(item, isResult ? 'resultats' : eventAudience);
+        const rawType = String(item.type_evenement || item.type || 'match').toLowerCase();
+        const eventType = rawType.includes('tournoi') ? 'tournoi' : rawType.includes('entrain') ? 'entrainement' : rawType.includes('evenement') ? 'evenement' : 'match';
+        const audience = itemAudiences(item, 'actualites');
         const teams = asList(item.teams).length ? asList(item.teams) : asList(item.team);
         const teamsLabel = teams.join(', ');
         const title = eventType === 'tournoi'
@@ -350,14 +325,8 @@
       if (!input) return;
       const next = loadPreferences();
       next[input.value] = input.checked;
-      if (input.value === 'ecole' && input.checked) {
-        ['u6', 'u8', 'u10', 'u12', 'u14'].forEach((key) => { next[key] = true; });
-        root.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
-          if (['u6', 'u8', 'u10', 'u12', 'u14'].includes(checkbox.value)) checkbox.checked = true;
-        });
-      }
       savePreferences(next);
-      setStatus('Preferences enregistrees sur cet appareil.', 'success');
+      setStatus('Préférences enregistrées pour cet appareil.', 'success');
     });
   }
 
@@ -475,7 +444,7 @@
       body: 'Vous recevrez les alertes correspondant a vos preferences quand l application les detecte.',
       url: '/notifications.html',
       type: 'test',
-      audience: ['general']
+      audience: ['actualites']
     });
     setStatus(sent ? 'Notification test envoyee.' : 'Impossible d afficher la notification test sur ce navigateur.', sent ? 'success' : 'error');
     refreshDiagnostics();

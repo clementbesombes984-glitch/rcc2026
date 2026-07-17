@@ -777,6 +777,9 @@ body{position:relative;background:radial-gradient(circle at 50% 0,rgba(255,255,2
 .notifications-page .notification-actions .button{width:100%;min-height:42px;padding:0 14px;border-radius:10px;font-size:11px;letter-spacing:1px;line-height:1.15;text-align:center;white-space:normal}
 .notifications-page .notification-actions .button.primary{box-shadow:0 12px 28px rgba(177,24,69,.22)}
 .notifications-page .notification-groups{margin-top:24px}
+.notifications-page .notification-switch{grid-template-columns:22px minmax(0,1fr);min-height:42px}
+.notifications-page .notification-switch input{position:static;width:18px;height:18px;margin:0;opacity:1;pointer-events:auto;accent-color:var(--red-bright)}
+.notifications-page .notification-switch span{display:none}
 .notifications-page .notification-note{display:none}
 @media(max-width:1180px){.notifications-page .notification-status-card{grid-template-columns:1fr}.notifications-page .notification-actions{grid-template-columns:repeat(3,minmax(0,1fr));justify-content:stretch}}
 @media(max-width:760px){.notifications-page .notification-actions{grid-template-columns:1fr}.notifications-page .notification-actions .button{min-height:44px}}

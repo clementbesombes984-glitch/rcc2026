@@ -1,34 +1,25 @@
+import '../../../notification-categories.js';
+
 const jsonHeaders = {
   'Content-Type': 'application/json; charset=UTF-8',
   'Cache-Control': 'no-store'
 };
 
 const encoder = new TextEncoder();
+const notificationCategories = globalThis.RCCNotificationCategories;
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: jsonHeaders });
 }
 
 function hasMatchingPreference(preferences, audience) {
-  const targets = expandAudience(Array.isArray(audience) && audience.length ? audience : ['general']);
-  return targets.some((key) => preferences && preferences[key]);
-}
-
-function audienceKey(value) {
-  const key = String(value || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  if (key === 'ecole de rugby') return 'ecole';
-  if (key === 'feminines' || key === 'feminine' || key === 'feminines' || key === 'cadette') return 'cadettes';
-  return key.replace(/\s+/g, '-');
+  const targets = expandAudience(Array.isArray(audience) && audience.length ? audience : ['actualites']);
+  const migrated = notificationCategories.migratePreferences(preferences);
+  return targets.some((key) => migrated[key]);
 }
 
 function expandAudience(values) {
-  const set = new Set(values.map(audienceKey).filter(Boolean));
-  if (set.has('ecole') || ['u6', 'u8', 'u10', 'u12', 'u14'].some((key) => set.has(key))) {
-    set.add('ecole');
-    ['u6', 'u8', 'u10', 'u12', 'u14'].forEach((key) => set.add(key));
-  }
-  if (set.has('cadettes')) set.add('feminines');
-  return Array.from(set);
+  return notificationCategories.normalizeAudience(values);
 }
 
 function shortTitle(value, fallback = 'RC Cubzaguais') {
@@ -280,7 +271,7 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'JSON invalide.' }, 400);
   }
 
-  const audience = expandAudience(Array.isArray(payload.audience) ? payload.audience : ['general']);
+  const audience = expandAudience(Array.isArray(payload.audience) ? payload.audience : ['actualites']);
   const list = await env.RCC_PUSH_SUBSCRIPTIONS.list();
   let sent = 0;
   let skipped = 0;
@@ -312,7 +303,7 @@ export async function onRequestPost({ request, env }) {
         url: payload.url || '/',
         audience,
         tag: payload.tag || `rcc-${Date.now()}`,
-        urgent: audience.includes('urgent') || audience.includes('important')
+        urgent: Boolean(payload.important)
       }, env);
       sent += 1;
     } catch (error) {

@@ -1,3 +1,5 @@
+import '../../../notification-categories.js';
+
 const jsonHeaders = {
   'Content-Type': 'application/json; charset=UTF-8',
   'Cache-Control': 'no-store'
@@ -25,7 +27,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   const subscription = payload.subscription;
-  const preferences = payload.preferences || {};
+  const preferences = globalThis.RCCNotificationCategories.migratePreferences(payload.preferences || {});
   const id = subscriptionId(subscription);
 
   if (!id || !subscription || !subscription.endpoint) {

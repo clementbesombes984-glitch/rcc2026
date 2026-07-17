@@ -2,6 +2,7 @@
   const container = document.querySelector('[data-publication-history]');
   const clearButton = document.querySelector('[data-clear-publication-history]');
   const key = 'rcc_publication_history';
+  const notificationCategories = globalThis.RCCNotificationCategories;
 
   const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
     '&': '&amp;',
@@ -66,7 +67,7 @@
               <td>${item.facebook ? 'Oui' : 'Non'}</td>
               <td>${item.instagram ? 'Oui' : 'Non'}</td>
               <td>${item.push ? 'Oui' : 'Non'}</td>
-              <td>${escapeHtml(item.notificationAudience || '')}</td>
+              <td>${escapeHtml(item.notificationAudience ? notificationCategories.labelFor(item.notificationAudience) : '')}</td>
               <td>${item.notificationSent ? `Oui - ${escapeHtml(formatDate(item.notificationSentAt))}` : (item.push ? 'Non / prepare' : 'Non')}</td>
               <td>${escapeHtml(item.status || '')}</td>
               <td>${escapeHtml(item.notificationError || item.error || '')}</td>

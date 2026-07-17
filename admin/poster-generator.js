@@ -14,6 +14,7 @@
   const IMPACT_FONT = '"Anton", "League Spartan", Impact, sans-serif';
   const BODY_FONT = '"Rajdhani", "Oswald", Arial, sans-serif';
   const CURRENT_SEASON = '2026-2027';
+  const notificationCategories = globalThis.RCCNotificationCategories;
 
   const COLORS = {
     black: '#020203',
@@ -202,7 +203,8 @@
       comments: ''
     },
     activeCompositionStep: 'match',
-    newsletterBlocks: []
+    newsletterBlocks: [],
+    pushAudienceManual: false
   };
 
   const logo = new Image();
@@ -1350,6 +1352,7 @@
   function applySource(index) {
     const item = currentItems()[Number(index)];
     if (!item) return;
+    state.pushAudienceManual = false;
     state.image = null;
     state.opponentLogo = null;
 
@@ -1359,6 +1362,7 @@
     if (state.activeSource === 'shop') applyShop(item);
     if (state.activeSource === 'gallery') applyGallery(item);
     if (state.activeSource === 'team') applyTeam(item);
+    syncPushSettings(readForm());
     updateCaption();
     render();
   }
@@ -2198,7 +2202,7 @@
     const title = clean(data.pushTitle || data.title || TEMPLATE_TITLES[data.template] || 'Info RCC');
     const short = title.length > 40 ? `${title.slice(0, 37).trimEnd()}...` : title;
     const body = clean(data.pushBody || data.summary || data.subtitle || 'Nouvelle information du RCC.');
-    const audience = clean(data.pushAudience || data.category || 'general');
+    const audience = notificationCategories.labelFor(data.pushAudience || data.category || 'actualites');
     const importance = data.pushImportance === 'important' ? 'Important' : 'Normal';
     const link = clean(data.pushUrl || '/actualites.html');
     return `${short}\n${body}\nPublic : ${audience} | ${importance}\nLien : ${link}`;
@@ -2212,7 +2216,9 @@
     if (!clean(form.elements.pushTitle?.value)) setField('pushTitle', data.title || TEMPLATE_TITLES[data.template] || 'Info RCC');
     if (!clean(form.elements.pushBody?.value)) setField('pushBody', data.summary || data.subtitle || 'Nouvelle information du RCC.');
     if (!clean(form.elements.pushUrl?.value)) setField('pushUrl', '/actualites.html');
-    if (!clean(form.elements.pushAudience?.value)) setField('pushAudience', audienceFromCategory(data.category || data.template || 'general')[0] || 'general');
+    if (!state.pushAudienceManual) {
+      setField('pushAudience', audienceFromCategory(`${data.category || ''} ${data.subtitle || ''} ${data.template || ''}`)[0]);
+    }
   }
 
   function checkedChannel(data, name) {
@@ -2220,25 +2226,7 @@
   }
 
   function audienceFromCategory(value) {
-    const text = clean(value).toLowerCase();
-    const audience = new Set(['general']);
-    if (text.includes('senior')) audience.add('seniors');
-    if (text.includes('cadette') || text.includes('feminine') || text.includes('féminine')) audience.add('cadettes');
-    if (text.includes('u6')) audience.add('u6');
-    if (text.includes('u8')) audience.add('u8');
-    if (text.includes('u10')) audience.add('u10');
-    if (text.includes('u12')) audience.add('u12');
-    if (text.includes('u14')) audience.add('u14');
-    if (text.includes('u16')) audience.add('u16');
-    if (text.includes('u19')) audience.add('u19');
-    if (text.includes('ecole') || text.includes('école') || text.includes('u6') || text.includes('u8') || text.includes('u10') || text.includes('u12') || text.includes('u14')) audience.add('ecole');
-    if (text.includes('jeune') || text.includes('u16') || text.includes('u19')) audience.add('jeunes');
-    if (text.includes('tournoi')) audience.add('tournois');
-    if (text.includes('match')) audience.add('matchs');
-    if (text.includes('entrainement') || text.includes('entraînement')) audience.add('entrainements');
-    if (text.includes('benevole') || text.includes('bénévole')) audience.add('benevoles');
-    if (text.includes('partenaire')) audience.add('partenaires');
-    return [...audience];
+    return [notificationCategories.inferCategory(value)];
   }
 
   function recordPublication(status = 'préparée', error = '', meta = {}) {
@@ -3032,6 +3020,7 @@
     render();
   });
   form?.addEventListener('change', (event) => {
+    if (event.target?.name === 'pushAudience') state.pushAudienceManual = true;
     if (event.target?.name === 'template') {
       setTemplate(event.target.value);
     }

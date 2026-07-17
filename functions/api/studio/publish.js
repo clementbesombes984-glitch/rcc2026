@@ -1,3 +1,5 @@
+import '../../../notification-categories.js';
+
 const SESSION_COOKIE = 'rcc_admin_session';
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 
@@ -160,7 +162,9 @@ async function putGithubFile(path, contentBase64, message, env, sha = undefined)
 function normalizeArticle(article = {}, imagePath = '') {
   const title = clean(article.title || 'Publication RCC');
   const summary = clean(article.summary || article.body || 'Nouvelle publication du RC Cubzaguais.');
-  const audience = Array.isArray(article.audience) && article.audience.length ? article.audience : ['general'];
+  const audience = globalThis.RCCNotificationCategories.normalizeAudience(
+    Array.isArray(article.audience) && article.audience.length ? article.audience : ['actualites']
+  );
 
   return {
     title,
