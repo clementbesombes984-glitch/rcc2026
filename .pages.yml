@@ -1055,7 +1055,7 @@ content:
         list:
           collapsible:
             collapsed: true
-            summary: "{period} - {title}"
+            summary: "{month} {year} - {title}"
         fields:
           - name: id
             label: Identifiant
@@ -1063,6 +1063,29 @@ content:
           - name: title
             label: Titre
             type: string
+          - name: issueNumber
+            label: Numéro
+            type: string
+          - name: month
+            label: Mois
+            type: string
+          - name: year
+            label: Année
+            type: number
+          - name: season
+            label: Saison
+            type: string
+          - name: slogan
+            label: Slogan
+            type: string
+          - name: status
+            label: Statut
+            type: select
+            options:
+              values:
+                - draft
+                - published
+                - archived
           - name: date
             label: Date de publication
             type: date
@@ -1084,6 +1107,109 @@ content:
           - name: intro
             label: Introduction
             type: text
+          - name: pages
+            label: Pages A4
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "Page {number}"
+            fields:
+              - name: number
+                label: Numéro de page
+                type: number
+              - name: blocks
+                label: Blocs de la page
+                type: object
+                list:
+                  collapsible:
+                    collapsed: true
+                    summary: "{type} - {title}"
+                fields:
+                  - name: id
+                    label: Identifiant
+                    type: string
+                  - name: type
+                    label: Type de bloc
+                    type: select
+                    options:
+                      values:
+                        - header
+                        - editorial
+                        - news
+                        - leadNews
+                        - interview
+                        - portrait
+                        - match
+                        - result
+                        - upcoming
+                        - calendar
+                        - academy
+                        - youth
+                        - cadettes
+                        - seniors
+                        - partner
+                        - number
+                        - important
+                        - progress
+                        - tomorrow
+                        - thanks
+                        - gallery
+                        - photo
+                        - quote
+                        - text
+                        - divider
+                        - footer
+                  - name: size
+                    label: Taille
+                    type: select
+                    options:
+                      values:
+                        - full
+                        - two-thirds
+                        - half
+                        - third
+                        - small
+                  - name: label
+                    label: Libellé
+                    type: string
+                  - name: title
+                    label: Titre
+                    type: string
+                  - name: subtitle
+                    label: Sous-titre
+                    type: string
+                  - name: text
+                    label: Texte
+                    type: text
+                  - name: image
+                    label: Image
+                    type: image
+                  - name: hideImage
+                    label: Masquer l'image
+                    type: boolean
+                  - name: align
+                    label: Alignement
+                    type: select
+                    options:
+                      values:
+                        - left
+                        - center
+                        - right
+                  - name: accent
+                    label: Accent
+                    type: select
+                    options:
+                      values:
+                        - burgundy
+                        - navy
+                        - light
+                  - name: link
+                    label: Lien
+                    type: string
+                  - name: photoCount
+                    label: Nombre de photos
+                    type: number
           - name: items
             label: Contenus selectionnes
             type: object

@@ -504,87 +504,114 @@
       </section>
 
       <section class="studio-tab-panel studio-tool-panel" id="studio-panel-newsletter" role="tabpanel" aria-labelledby="studio-tab-newsletter" data-studio-tab-panel="newsletter" hidden>
-        <div class="studio-tool-grid">
-          <aside class="studio-sidebar">
-            <div class="poster-panel-head">
-              <span>Newsletter</span>
-              <strong>Contenus</strong>
-            </div>
-            <label>Titre
-              <input data-newsletter-title type="text" value="Newsletter RCC" />
-            </label>
-            <label>Mois / saison
-              <input data-newsletter-period type="text" value="Saison 2026-2027" />
-            </label>
-            <label>Mot du club
-              <textarea data-newsletter-intro rows="3">Les dernieres nouvelles du RC Cubzaguais.</textarea>
-            </label>
-            <div class="poster-field-grid">
-              <label>Modele
-                <select data-newsletter-template>
-                  <option value="monthly">Newsletter mensuelle</option>
-                  <option value="ag">Speciale AG</option>
-                  <option value="recruitment">Recrutement</option>
-                  <option value="partner">Partenaire</option>
-                </select>
-              </label>
-              <label>Bloc
-                <select data-newsletter-block-type>
-                  <option value="editorial">Editorial</option>
-                  <option value="news">Actualite</option>
-                  <option value="result">Resultat</option>
-                  <option value="calendar">Calendrier</option>
-                  <option value="interview">Interview</option>
-                  <option value="partner">Zoom partenaire</option>
-                  <option value="photo">Photo</option>
-                  <option value="ranking">Classement</option>
-                  <option value="club">Vie du club</option>
-                  <option value="volunteer">Benevole du mois</option>
-                  <option value="quote">Citation</option>
-                  <option value="sponsors">Sponsors</option>
-                </select>
-              </label>
-            </div>
-            <div class="poster-actions compact-actions">
-              <button class="button ghost" type="button" data-newsletter-add-block>Ajouter le bloc</button>
-              <button class="button ghost" type="button" data-newsletter-clear-blocks>Vider les blocs</button>
-            </div>
-            <div class="newsletter-source-list" data-newsletter-items></div>
-            <div class="newsletter-block-list" data-newsletter-blocks></div>
-          </aside>
-          <section class="studio-preview-panel">
-            <div class="poster-preview-toolbar">
-              <span>Apercu A4</span>
-              <strong>2 pages max</strong>
-            </div>
-            <div class="newsletter-preview" data-newsletter-preview></div>
-          </section>
-          <aside class="studio-sidebar studio-right">
-            <div class="poster-panel-head">
-              <span>Actions</span>
-              <strong>Export</strong>
-            </div>
-            <label>Partenaire du mois
-              <select data-newsletter-partner>
-                <option value="">Choisir un partenaire</option>
+        <div class="newsletter-editor-v2" data-newsletter-v2>
+          <div class="newsletter-commandbar">
+            <label>Modèle
+              <select data-nl-template>
+                <option value="monthly">Mensuelle standard</option>
+                <option value="ag">Spéciale assemblée générale</option>
+                <option value="season">Rentrée du club</option>
+                <option value="event">Événement spécial</option>
               </select>
             </label>
-            <label>Rappel important
-              <textarea data-newsletter-reminder rows="3" placeholder="Infos licences, horaires, benevoles..."></textarea>
+            <label>Brouillon
+              <select data-nl-draft-select><option value="">Nouveau document</option></select>
             </label>
-            <div class="poster-actions studio-actions">
-              <button class="button primary" type="button" data-newsletter-export-pdf>Telecharger PDF</button>
-              <button class="button ghost" type="button" data-newsletter-export-png>PNG</button>
-              <button class="button ghost" type="button" data-newsletter-export-jpeg>JPEG</button>
-              <button class="button ghost" type="button" data-newsletter-copy-facebook>Copier Facebook</button>
-              <button class="button ghost" type="button" data-newsletter-copy-instagram>Copier Instagram</button>
-            </div>
-            <div class="poster-panel-head compact">
-              <span>Mediatheque</span>
-              <strong>Images RCC</strong>
-            </div>
-            <div class="media-library" data-media-library></div>
-          </aside>
+            <button class="button ghost" type="button" data-nl-new>Nouveau</button>
+            <button class="button ghost" type="button" data-nl-save>Enregistrer</button>
+            <button class="button ghost" type="button" data-nl-duplicate>Dupliquer</button>
+            <button class="button ghost" type="button" data-nl-delete>Supprimer</button>
+            <span class="newsletter-save-state" data-nl-save-state>Brouillon non enregistré</span>
+          </div>
+
+          <div class="newsletter-workspace">
+            <aside class="newsletter-library" aria-label="Bibliothèque de blocs">
+              <div class="newsletter-panel-title"><strong>Blocs</strong><span>Ajouter à la page active</span></div>
+              <label>Rechercher
+                <input type="search" data-nl-block-search placeholder="Actualité, photo, calendrier..." />
+              </label>
+              <div class="newsletter-block-palette" data-nl-block-palette></div>
+              <details class="newsletter-source-panel" open>
+                <summary>Contenus du site</summary>
+                <label>Source
+                  <select data-nl-source-type>
+                    <option value="news">Actualités</option>
+                    <option value="matches">Calendrier</option>
+                    <option value="partners">Partenaires</option>
+                    <option value="gallery">Galerie</option>
+                  </select>
+                </label>
+                <div class="newsletter-source-results" data-nl-source-results><p>Chargement des contenus…</p></div>
+              </details>
+            </aside>
+
+            <section class="newsletter-canvas-panel">
+              <div class="newsletter-previewbar">
+                <div class="newsletter-page-tabs" role="tablist" aria-label="Pages de la newsletter">
+                  <button class="is-active" type="button" data-nl-page-view="1">Page 1</button>
+                  <button type="button" data-nl-page-view="2">Page 2</button>
+                  <button type="button" data-nl-page-view="both">Double page</button>
+                </div>
+                <div class="newsletter-zoom-tools">
+                  <button type="button" data-nl-zoom="out" aria-label="Réduire le zoom">−</button>
+                  <span data-nl-zoom-label>70 %</span>
+                  <button type="button" data-nl-zoom="in" aria-label="Augmenter le zoom">+</button>
+                </div>
+              </div>
+              <div class="newsletter-overflow-warning" data-nl-overflow hidden>Une page dépasse le format A4. Réduisez ou déplacez un bloc avant l’export.</div>
+              <div class="newsletter-spread" data-nl-spread></div>
+            </section>
+
+            <aside class="newsletter-properties" aria-label="Réglages de la newsletter">
+              <div class="newsletter-panel-title"><strong>Réglages</strong><span data-nl-selection-label>Document</span></div>
+              <div data-nl-document-properties>
+                <label>Titre du journal<input type="text" data-nl-meta="title" /></label>
+                <div class="newsletter-field-row">
+                  <label>Numéro<input type="text" data-nl-meta="issueNumber" /></label>
+                  <label>Mois<input type="text" data-nl-meta="month" /></label>
+                </div>
+                <div class="newsletter-field-row">
+                  <label>Année<input type="number" min="2020" max="2100" data-nl-meta="year" /></label>
+                  <label>Saison<input type="text" data-nl-meta="season" /></label>
+                </div>
+                <label>Slogan<input type="text" data-nl-meta="slogan" /></label>
+                <label>Description<textarea rows="3" data-nl-meta="description"></textarea></label>
+                <label>Statut
+                  <select data-nl-meta="status"><option value="draft">Brouillon</option><option value="published">Publié</option><option value="archived">Archivé</option></select>
+                </label>
+              </div>
+              <div data-nl-block-properties hidden>
+                <label>Type<select data-nl-block-field="type"></select></label>
+                <label>Libellé<input type="text" data-nl-block-field="label" /></label>
+                <label>Titre<input type="text" data-nl-block-field="title" /></label>
+                <label>Sous-titre<input type="text" data-nl-block-field="subtitle" /></label>
+                <label>Texte<textarea rows="6" data-nl-block-field="text"></textarea></label>
+                <label>Image<input type="file" accept="image/*" data-nl-image-file /></label>
+                <label>Chemin image<input type="text" data-nl-block-field="image" placeholder="/assets/..." /></label>
+                <label class="poster-check"><input type="checkbox" data-nl-block-field="hideImage" /> Masquer l’image</label>
+                <div class="newsletter-field-row">
+                  <label>Taille<select data-nl-block-field="size"><option value="full">Pleine largeur</option><option value="two-thirds">Deux tiers</option><option value="half">Moitié</option><option value="third">Un tiers</option><option value="small">Petit</option></select></label>
+                  <label>Alignement<select data-nl-block-field="align"><option value="left">Gauche</option><option value="center">Centre</option><option value="right">Droite</option></select></label>
+                </div>
+                <label>Accent<select data-nl-block-field="accent"><option value="burgundy">Bordeaux</option><option value="navy">Bleu marine</option><option value="light">Clair</option></select></label>
+                <label>Lien<input type="url" data-nl-block-field="link" placeholder="https://..." /></label>
+                <label>Nombre de photos dans la galerie<input type="number" min="1" max="8" data-nl-block-field="photoCount" /></label>
+                <div class="newsletter-block-actions">
+                  <button type="button" data-nl-move="up">Monter</button><button type="button" data-nl-move="down">Descendre</button>
+                  <button type="button" data-nl-move-page>Changer de page</button><button type="button" data-nl-clone-block>Dupliquer</button>
+                  <button class="is-danger" type="button" data-nl-remove-block>Supprimer</button>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <div class="newsletter-actionbar">
+            <button class="button ghost" type="button" data-nl-export-page>PNG page active</button>
+            <button class="button ghost" type="button" data-nl-export-cover>PNG couverture</button>
+            <button class="button primary" type="button" data-nl-export-pdf>PDF deux pages</button>
+            <button class="button primary" type="button" data-nl-publish>Publier et archiver</button>
+            <span data-nl-action-status aria-live="polite"></span>
+          </div>
         </div>
       </section>
 
@@ -640,5 +667,6 @@
     <script src="./poster-auth.js?v=studio-rcc-8"></script>
     <script src="../script.js"></script>
     <script src="./poster-generator.js?v=studio-rcc-8"></script>
+    <script src="./newsletter-editor.js?v=studio-rcc-1"></script>
   </body>
 </html>

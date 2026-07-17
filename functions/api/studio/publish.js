@@ -99,6 +99,12 @@ function githubConfig(env) {
   };
 }
 
+function decodeFileDataUrl(dataUrl, allowedTypes = []) {
+  const match = String(dataUrl || '').match(/^data:([^;,]+);base64,(.+)$/i);
+  if (!match || (allowedTypes.length && !allowedTypes.includes(match[1].toLowerCase()))) return null;
+  return { mime: match[1].toLowerCase(), content: match[2] };
+}
+
 function githubTokenConfigured(env) {
   return Boolean(env.RCC_GITHUB_TOKEN || env.GITHUB_TOKEN);
 }
@@ -224,6 +230,69 @@ async function sendPush(push, env, request) {
   return response.json().catch(() => ({ ok: response.ok }));
 }
 
+function normalizeNewsletter(newsletter = {}, pdfPath = '', coverPath = '') {
+  const status = ['draft', 'published', 'archived'].includes(newsletter.status) ? newsletter.status : 'draft';
+  return {
+    id: clean(newsletter.id || slugify(newsletter.title)),
+    title: clean(newsletter.title || 'Le journal du RCC'),
+    issueNumber: clean(newsletter.issueNumber),
+    month: clean(newsletter.month),
+    year: Number(newsletter.year) || new Date().getFullYear(),
+    season: clean(newsletter.season || '2026-2027'),
+    slogan: clean(newsletter.slogan),
+    description: clean(newsletter.description),
+    date: clean(newsletter.date || new Date().toISOString().slice(0, 10)),
+    status,
+    published: status === 'published' || Boolean(newsletter.published),
+    pdf: pdfPath || clean(newsletter.pdf),
+    cover: coverPath || clean(newsletter.cover),
+    template: clean(newsletter.template || 'monthly'),
+    pages: Array.isArray(newsletter.pages) ? newsletter.pages : [],
+    updatedAt: new Date().toISOString()
+  };
+}
+
+async function publishNewsletter(newsletter, env) {
+  const pdf = decodeFileDataUrl(newsletter.pdfData, ['application/pdf']);
+  const cover = decodeFileDataUrl(newsletter.coverData, ['image/jpeg', 'image/png', 'image/webp']);
+  if (!pdf || !cover) {
+    const error = new Error('Le PDF ou la couverture de la newsletter est invalide.');
+    error.status = 400;
+    throw error;
+  }
+
+  const baseName = `${slugify(newsletter.title || 'journal-rcc')}-${Date.now()}`;
+  const pdfPath = `/assets/newsletters/${baseName}.pdf`;
+  const coverExtension = cover.mime === 'image/png' ? 'png' : (cover.mime === 'image/webp' ? 'webp' : 'jpg');
+  const coverPath = `/assets/newsletters/${baseName}-cover.${coverExtension}`;
+
+  await putGithubFile(pdfPath.slice(1), pdf.content, `Studio RCC: ajoute la newsletter ${clean(newsletter.title)}`, env);
+  await putGithubFile(coverPath.slice(1), cover.content, `Studio RCC: ajoute la couverture ${clean(newsletter.title)}`, env);
+
+  let current;
+  try {
+    current = await readGithubJson('data/newsletters.json', env);
+  } catch (error) {
+    if (error.status !== 404) throw error;
+    current = { sha: undefined, json: { newsletters: [] } };
+  }
+  const entries = Array.isArray(current.json) ? current.json : (Array.isArray(current.json.newsletters) ? current.json.newsletters : []);
+  const normalized = normalizeNewsletter(newsletter, pdfPath, coverPath);
+  const withoutPrevious = entries.filter((entry) => clean(entry.id) !== normalized.id);
+  const next = Array.isArray(current.json)
+    ? [normalized, ...withoutPrevious]
+    : { ...current.json, newsletters: [normalized, ...withoutPrevious] };
+
+  await putGithubFile(
+    'data/newsletters.json',
+    utf8ToBase64(`${JSON.stringify(next, null, 2)}\n`),
+    `Studio RCC: publie la newsletter ${normalized.title}`,
+    env,
+    current.sha
+  );
+  return normalized;
+}
+
 export async function onRequestGet({ env }) {
   const { repository, branch } = githubConfig(env);
   return json({
@@ -265,6 +334,13 @@ export async function onRequestPost({ request, env }) {
   };
 
   try {
+    if (payload.kind === 'newsletter') {
+      const newsletter = await publishNewsletter(payload.newsletter || {}, env);
+      result.newsletter = newsletter;
+      result.url = '/actualites.html?filtre=newsletters';
+      return json(result, 200, authHeaders);
+    }
+
     if (payload.publishSite) {
       const published = await publishArticle(payload.article || {}, env);
       result.articleCreated = true;
