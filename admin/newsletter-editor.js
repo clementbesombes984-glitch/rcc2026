@@ -132,6 +132,7 @@
     const index = drafts.findIndex((draft) => draft.id === state.id);
     if (index >= 0) drafts[index] = state; else drafts.unshift(state);
     putDrafts(drafts.slice(0, 30));
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(state));
     dirty = false;
     $('[data-nl-save-state]').textContent = 'Enregistré';
     hydrateDraftSelect();
@@ -170,7 +171,7 @@
 
   function renderPage(page) {
     return `<article class="newsletter-sheet" data-page="${page.number}" aria-label="Page ${page.number}">
-      <div class="newsletter-sheet-grid">${page.blocks.map((block) => `<section class="${blockClass(block)}" data-block-id="${block.id}" draggable="true">${renderBlockContent(block)}</section>`).join('')}</div>
+      <div class="newsletter-sheet-grid">${page.blocks.map((block) => `<section class="${blockClass(block)}" data-block-id="${block.id}" data-newsletter-block-id="${block.id}" draggable="true" tabindex="0" role="button" aria-label="Modifier le bloc ${escapeHtml(BLOCK_TYPES[block.type] || 'Newsletter')}" aria-selected="${block.id === selectedBlockId}">${renderBlockContent(block)}</section>`).join('')}</div>
       <span class="newsletter-page-number">${page.number} / 2</span>
     </article>`;
   }
@@ -182,7 +183,6 @@
     $('[data-nl-spread]').innerHTML = pages.map(renderPage).join('');
     $('[data-nl-zoom-label]').textContent = `${Math.round(zoom * 100)} %`;
     $$('[data-nl-page-view]').forEach((button) => button.classList.toggle('is-active', button.dataset.nlPageView === pageView));
-    bindPageEvents();
     renderProperties();
     requestAnimationFrame(checkOverflow);
   }
@@ -202,17 +202,15 @@
     }
   }
 
-  function bindPageEvents() {
-    $$('[data-block-id]').forEach((node) => {
-      node.addEventListener('click', () => { selectedBlockId = node.dataset.blockId; activePage = Number(node.closest('[data-page]').dataset.page); render(); });
-      node.addEventListener('dragstart', (event) => event.dataTransfer.setData('text/plain', node.dataset.blockId));
-      node.addEventListener('dragover', (event) => event.preventDefault());
-      node.addEventListener('drop', (event) => {
-        event.preventDefault();
-        const sourceId = event.dataTransfer.getData('text/plain');
-        reorderBlock(sourceId, node.dataset.blockId);
-      });
-    });
+  function blockNodeFromEvent(event) {
+    return event.target.closest('[data-newsletter-block-id]');
+  }
+
+  function selectBlockNode(node) {
+    if (!node) return;
+    selectedBlockId = node.dataset.newsletterBlockId;
+    activePage = Number(node.closest('[data-page]')?.dataset.page) || activePage;
+    render();
   }
 
   function checkOverflow() {
@@ -246,6 +244,7 @@
   }
   function removeBlock() {
     const block = selectedBlock(); if (!block) return;
+    if (!window.confirm(`Supprimer le bloc « ${block.title || BLOCK_TYPES[block.type]} » ?`)) return;
     const page = state.pages.find((entry) => entry.number === block.page);
     page.blocks = page.blocks.filter((entry) => entry.id !== block.id);
     selectedBlockId = null; setDirty(); render();
@@ -309,11 +308,12 @@
     renderSourceResults();
   }
   function sourceToBlock(kind, item) {
-    if (kind === 'news') return { type: item.important ? 'leadNews' : 'news', title: item.title, text: item.summary || item.body, image: item.image || '', label: item.category || 'Actualité', link: '/actualites.html' };
-    if (kind === 'matches') return { type: item.type_evenement === 'tournoi' ? 'upcoming' : (item.status === 'played' ? 'result' : 'match'), title: item.title || `${item.team || 'RCC'} ${item.opponent ? `– ${item.opponent}` : ''}`, subtitle: [parseDate(item.date), item.time, item.location].filter(Boolean).join(' • '), text: item.description || item.result || '', label: item.type_evenement || 'Calendrier', link: '/calendrier.html' };
-    if (kind === 'partners') return { type: 'partner', title: item.name, text: item.description || '', image: item.logo || '', label: 'Partenaire', link: item.url || '' };
+    const source = { sourceType: kind, sourceId: item.id || item.slug || '' };
+    if (kind === 'news') return { ...source, type: item.important ? 'leadNews' : 'news', title: item.title, text: item.summary || item.body, image: item.image || '', label: item.category || 'Actualité', link: item.url || '/actualites.html' };
+    if (kind === 'matches') return { ...source, type: item.type_evenement === 'tournoi' ? 'upcoming' : (item.status === 'played' ? 'result' : 'match'), title: item.title || `${item.team || 'RCC'} ${item.opponent ? `– ${item.opponent}` : ''}`, subtitle: [parseDate(item.date), item.time, item.location].filter(Boolean).join(' • '), text: item.description || item.result || '', label: item.type_evenement || 'Calendrier', link: '/calendrier.html' };
+    if (kind === 'partners') return { ...source, type: 'partner', title: item.name, text: item.description || '', image: item.logo || '', label: 'Partenaire', link: item.url || '' };
     const photos = (item.photos || []).map((photo) => typeof photo === 'string' ? { image: photo } : photo).filter((photo) => photo.image);
-    return { type: 'gallery', title: item.title, text: item.description || '', image: item.cover || photos[0]?.image || '', photos, label: item.category || 'Galerie' };
+    return { ...source, type: 'gallery', title: item.title, text: item.description || '', image: item.cover || photos[0]?.image || '', photos, label: item.category || 'Galerie' };
   }
   function renderSourceResults() {
     const kind = $('[data-nl-source-type]').value;
@@ -430,6 +430,28 @@
       const button = event.target.closest('[data-import-source]'); if (!button) return;
       const kind = $('[data-nl-source-type]').value; const item = sources[kind][Number(button.dataset.importSource)];
       if (item) addBlock(sourceToBlock(kind, item).type, sourceToBlock(kind, item));
+    });
+    const spread = $('[data-nl-spread]');
+    spread.addEventListener('click', (event) => selectBlockNode(blockNodeFromEvent(event)));
+    spread.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      const node = blockNodeFromEvent(event); if (!node) return;
+      event.preventDefault(); selectBlockNode(node);
+    });
+    spread.addEventListener('dragstart', (event) => {
+      const node = blockNodeFromEvent(event); if (!node || !event.dataTransfer) return;
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', node.dataset.newsletterBlockId);
+    });
+    spread.addEventListener('dragover', (event) => {
+      if (!blockNodeFromEvent(event)) return;
+      event.preventDefault();
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    });
+    spread.addEventListener('drop', (event) => {
+      const target = blockNodeFromEvent(event); if (!target || !event.dataTransfer) return;
+      event.preventDefault();
+      reorderBlock(event.dataTransfer.getData('text/plain'), target.dataset.newsletterBlockId);
     });
     $$('[data-nl-page-view]').forEach((button) => button.addEventListener('click', () => { pageView = button.dataset.nlPageView; if (pageView !== 'both') activePage = Number(pageView); userZoomed = false; render(); requestAnimationFrame(fitPreviewToWorkspace); }));
     $$('[data-nl-zoom]').forEach((button) => button.addEventListener('click', () => { userZoomed = true; zoom = Math.min(1, Math.max(0.35, zoom + (button.dataset.nlZoom === 'in' ? 0.1 : -0.1))); render(); }));
