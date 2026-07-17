@@ -191,6 +191,8 @@
         position: RUGBY_POSITIONS[index] || `Poste ${index + 1}`,
         player: '',
         playerKey: '',
+        firstName: '',
+        lastName: '',
         photo: '',
         role: ''
       })),
@@ -207,6 +209,8 @@
   logo.crossOrigin = 'anonymous';
   logo.src = '../assets/logo-rcc.png';
   logo.onload = render;
+  const RCC_COMPOSITION_AVATAR = '../assets/logo-rcc.png';
+  const compositionImageCache = new Map();
 
   const clean = (value) => String(value || '').replace(/\s+/g, ' ').trim();
   const upper = (value) => clean(value).toUpperCase();
@@ -335,6 +339,8 @@
       position: RUGBY_POSITIONS[index] || `Poste ${index + 1}`,
       player: '',
       playerKey: '',
+      firstName: '',
+      lastName: '',
       photo: '',
       role: ''
     }));
@@ -369,6 +375,8 @@
       })
       .map((item) => ({
         name: playerName(item),
+        firstName: clean(item.firstName || item.prenom || item.raw?.firstName || item.raw?.prenom || ''),
+        lastName: clean(item.lastName || item.nom || item.raw?.lastName || item.raw?.nom || ''),
         role: normalizePlayerPosition(item.primaryPosition || item.position || item.role || item.label || ''),
         photo: clean(item.photo || item.teamPhoto || item.image || ''),
         secondaryRole: secondaryPlayerPosition(item),
@@ -447,6 +455,64 @@
     if (!src) return '';
     if (/^https?:\/\//i.test(src) || src.startsWith('data:')) return src;
     return src.startsWith('/') ? '..' + src : src;
+  }
+
+  function resolveAssetUrl(src) {
+    if (!src) return '';
+    if (typeof src === 'object') src = src.image || src.url || src.src || '';
+    const value = clean(src);
+    if (!value) return '';
+    if (/^(data:|blob:)/i.test(value)) return value;
+    try {
+      return new URL(value, value.startsWith('/') ? window.location.origin : window.location.href).href;
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function resolvePlayerPhoto(player) {
+    if (!player) return '';
+    const candidates = [
+      player.photo,
+      player.photoUrl,
+      player.image,
+      player.avatar,
+      player.teamPhoto,
+      player.raw?.photo,
+      player.raw?.photoUrl,
+      player.raw?.image,
+      player.raw?.avatar,
+      player.raw?.teamPhoto
+    ];
+    return resolveAssetUrl(candidates.find((value) => clean(value)) || '');
+  }
+
+  function playerNameParts(player) {
+    const firstName = clean(player?.firstName || player?.prenom || '');
+    const lastName = clean(player?.lastName || player?.nom || '');
+    if (firstName || lastName) return { firstName, lastName };
+    const fullName = clean(player?.player || player?.name || '');
+    const parts = fullName.split(' ').filter(Boolean);
+    return {
+      firstName: parts.shift() || '',
+      lastName: parts.join(' ')
+    };
+  }
+
+  function abbreviatedFirstName(firstName) {
+    const primaryName = clean(firstName).split(' ')[0] || '';
+    return primaryName
+      .split('-')
+      .filter(Boolean)
+      .map((part) => `${part.charAt(0).toLocaleUpperCase('fr-FR')}.`)
+      .join('-');
+  }
+
+  function formatCompositionPlayerName(player) {
+    const { firstName, lastName } = playerNameParts(player);
+    if (!firstName && !lastName) return 'À définir';
+    const initial = abbreviatedFirstName(firstName);
+    return clean([initial, lastName].filter(Boolean).join(' ')) || clean(player?.player || player?.name) || 'À définir';
   }
 
   function loadFontStylesheet() {
@@ -695,6 +761,8 @@
         const slot = state.composition.slots[Number(input.dataset.compositionManual)];
         slot.player = input.value;
         slot.playerKey = '';
+        slot.firstName = '';
+        slot.lastName = '';
         slot.photo = '';
         slot.role = '';
         renderComposition();
@@ -723,6 +791,8 @@
     if (!player) {
       slot.player = '';
       slot.playerKey = '';
+      slot.firstName = '';
+      slot.lastName = '';
       slot.photo = '';
       slot.role = '';
     } else {
@@ -733,6 +803,8 @@
       }
       slot.player = player.name;
       slot.playerKey = player.key;
+      slot.firstName = player.firstName;
+      slot.lastName = player.lastName;
       slot.photo = player.photo;
       slot.role = [player.role, player.secondaryRole].filter(Boolean).join(' / ');
     }
@@ -831,18 +903,14 @@
     setCompositionStep(steps[target]);
   }
 
-  function initials(name) {
-    return clean(name).split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'RCC';
-  }
-
   function compositionPhoto(slot) {
-    const photo = normalizeAssetPath(slot.photo);
-    return photo
-      ? `<img src="${escapeHtml(photo)}" alt="" loading="lazy" />`
-      : `<span>${escapeHtml(initials(slot.player))}</span>`;
+    const playerPhoto = resolvePlayerPhoto(slot);
+    const photo = playerPhoto || resolveAssetUrl(RCC_COMPOSITION_AVATAR);
+    return `<img class="${playerPhoto ? '' : 'is-rcc-fallback'}" src="${escapeHtml(photo)}" alt="" data-composition-player-photo loading="eager" />`;
   }
 
   function slotBadges(slot, captain, vice) {
+    if (!clean(slot.player)) return '';
     return [
       slot.player === captain ? '<i>CAP</i>' : '',
       slot.player === vice ? '<i>VC</i>' : ''
@@ -855,7 +923,7 @@
       <button class="composition-player-card${missing}" type="button" data-composition-preview-slot="${index}">
         <b>${slot.number}</b>
         <span class="composition-player-photo">${compositionPhoto(slot)}</span>
-        <strong>${escapeHtml(slot.player || 'A définir')}</strong>
+        <strong>${escapeHtml(formatCompositionPlayerName(slot))}</strong>
         <small>${escapeHtml(slot.position)}</small>
         ${slotBadges(slot, captain, vice)}
       </button>
@@ -912,7 +980,7 @@
               ${bench.map((slot, offset) => `
                 <button type="button" data-composition-preview-slot="${offset + 15}">
                   <b>${slot.number}</b>
-                  <span>${escapeHtml(slot.player || 'A définir')}</span>
+                  <span>${escapeHtml(formatCompositionPlayerName(slot))}</span>
                 </button>
               `).join('')}
             </div>
@@ -934,6 +1002,14 @@
         editor?.focus();
         editor?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       });
+    });
+    compositionPreview.querySelectorAll('[data-composition-player-photo]').forEach((image) => {
+      image.addEventListener('error', () => {
+        if (image.dataset.fallbackApplied === 'true') return;
+        image.dataset.fallbackApplied = 'true';
+        image.classList.add('is-rcc-fallback');
+        image.src = resolveAssetUrl(RCC_COMPOSITION_AVATAR);
+      }, { once: true });
     });
     renderCompositionHistory();
     renderCompositionSummary();
@@ -970,6 +1046,8 @@
         number: slot.number,
         position: slot.position,
         name: slot.player,
+        firstName: slot.firstName,
+        lastName: slot.lastName,
         role: slot.role,
         photo: slot.photo
       })),
@@ -1022,6 +1100,8 @@
       number: player.number || index + 1,
       position: player.position || RUGBY_POSITIONS[index],
       player: player.name || '',
+      firstName: player.firstName || '',
+      lastName: player.lastName || '',
       role: player.role || '',
       photo: player.photo || ''
     })));
@@ -2506,7 +2586,99 @@
     link.click();
   }
 
-  function drawCompositionExport(format = 'portrait') {
+  function loadCompositionImage(url) {
+    if (!url) return Promise.resolve(null);
+    if (compositionImageCache.has(url)) return compositionImageCache.get(url);
+    const promise = new Promise((resolve) => {
+      const image = new Image();
+      if (!/^(data:|blob:)/i.test(url)) image.crossOrigin = 'anonymous';
+      image.onload = async () => {
+        try {
+          if (typeof image.decode === 'function') await image.decode();
+        } catch (error) {
+          // Le chargement onload suffit lorsque decode() n'est pas disponible ou échoue.
+        }
+        resolve(image);
+      };
+      image.onerror = () => {
+        console.warn('Studio RCC : une photo de composition n’a pas pu être chargée pour l’export.');
+        resolve(null);
+      };
+      image.src = url;
+    });
+    compositionImageCache.set(url, promise);
+    return promise;
+  }
+
+  async function preloadCompositionPhotos() {
+    const fallbackUrl = resolveAssetUrl(RCC_COMPOSITION_AVATAR);
+    const fallbackImage = await loadCompositionImage(fallbackUrl);
+    return Promise.all(state.composition.slots.map(async (slot) => {
+      const photoUrl = resolvePlayerPhoto(slot);
+      const playerImage = photoUrl ? await loadCompositionImage(photoUrl) : null;
+      return {
+        image: playerImage || fallbackImage,
+        isFallback: !playerImage
+      };
+    }));
+  }
+
+  function drawCircularCompositionPhoto(context, photo, x, y, radius, scale) {
+    context.save();
+    context.fillStyle = COLORS.navy;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2);
+    context.fill();
+    context.clip();
+    if (photo?.image) {
+      const image = photo.image;
+      const naturalWidth = image.naturalWidth || image.width || 1;
+      const naturalHeight = image.naturalHeight || image.height || 1;
+      if (photo.isFallback) {
+        const side = radius * 1.55;
+        context.fillStyle = '#fff';
+        context.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+        context.drawImage(image, x - side / 2, y - side / 2, side, side);
+      } else {
+        const diameter = radius * 2;
+        const imageScale = Math.max(diameter / naturalWidth, diameter / naturalHeight);
+        const width = naturalWidth * imageScale;
+        const height = naturalHeight * imageScale;
+        context.drawImage(image, x - width / 2, y - height / 2, width, height);
+      }
+    }
+    context.restore();
+    context.strokeStyle = COLORS.navy;
+    context.lineWidth = 3 * scale;
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2);
+    context.stroke();
+  }
+
+  function drawCompositionName(context, player, x, y, maxWidth, scale, align = 'center') {
+    const label = formatCompositionPlayerName(player);
+    const minimumSize = 15 * scale;
+    let fontSize = 21 * scale;
+    context.textAlign = align;
+    context.fillStyle = COLORS.navy;
+    context.font = `700 ${fontSize}px ${BODY_FONT}`;
+    while (context.measureText(label).width > maxWidth && fontSize > minimumSize) {
+      fontSize -= scale;
+      context.font = `700 ${fontSize}px ${BODY_FONT}`;
+    }
+    if (context.measureText(label).width <= maxWidth || !label.includes(' ')) {
+      context.fillText(label, x, y);
+      return;
+    }
+    const words = label.split(' ');
+    const firstLine = words.shift();
+    context.fillText(firstLine, x, y - 7 * scale);
+    context.fillText(words.join(' '), x, y + 13 * scale);
+  }
+
+  async function drawCompositionExport(format = 'portrait') {
+    if (!state.fontsReady) await loadFonts();
+    const compositionPhotos = await preloadCompositionPhotos();
     const size = format === 'story'
       ? { width: 1080, height: 1920 }
       : format === 'print'
@@ -2577,17 +2749,11 @@
       const slot = state.composition.slots[slotIndex];
       const x = fieldX + fieldW * px;
       const y = fieldY + fieldH * py;
-      c.fillStyle = COLORS.navy;
-      c.beginPath();
-      c.arc(x, y, 34 * scale, 0, Math.PI * 2);
-      c.fill();
+      drawCircularCompositionPhoto(c, compositionPhotos[slotIndex], x, y, 34 * scale, scale);
       c.fillStyle = COLORS.redBright;
       c.font = `${24 * scale}px ${IMPACT_FONT}`;
       c.fillText(String(slot.number), x - 34 * scale, y + 7 * scale);
-      c.fillStyle = COLORS.white;
-      c.font = `${20 * scale}px ${IMPACT_FONT}`;
-      c.fillText(initials(slot.player), x, y + 7 * scale);
-      if (slot.player === captain || slot.player === vice) {
+      if (clean(slot.player) && (slot.player === captain || slot.player === vice)) {
         c.fillStyle = COLORS.red;
         c.beginPath();
         c.arc(x + 34 * scale, y - 26 * scale, 15 * scale, 0, Math.PI * 2);
@@ -2596,9 +2762,7 @@
         c.font = `${11 * scale}px ${BODY_FONT}`;
         c.fillText(slot.player === captain ? 'CAP' : 'VC', x + 34 * scale, y - 22 * scale);
       }
-      c.fillStyle = COLORS.navy;
-      c.font = `${21 * scale}px ${BODY_FONT}`;
-      c.fillText((slot.player || 'A DEFINIR').toUpperCase().slice(0, 17), x, y + 62 * scale);
+      drawCompositionName(c, slot, x, y + 62 * scale, 118 * scale, scale);
     });
 
     c.textAlign = 'left';
@@ -2613,7 +2777,15 @@
       c.fillStyle = COLORS.redBright;
       c.fillText(String(slot.number).padStart(2, '0'), benchX, y);
       c.fillStyle = COLORS.white;
-      c.fillText((slot.player || 'A définir').toUpperCase().slice(0, 18), benchX + 48 * scale, y);
+      c.textAlign = 'left';
+      const label = formatCompositionPlayerName(slot);
+      let benchFontSize = 24 * scale;
+      c.font = `700 ${benchFontSize}px ${BODY_FONT}`;
+      while (c.measureText(label).width > 168 * scale && benchFontSize > 15 * scale) {
+        benchFontSize -= scale;
+        c.font = `700 ${benchFontSize}px ${BODY_FONT}`;
+      }
+      c.fillText(label, benchX + 48 * scale, y);
     });
     c.fillStyle = COLORS.redBright;
     c.font = `${28 * scale}px ${IMPACT_FONT}`;
@@ -2626,9 +2798,20 @@
     c.fillText('RCCUBZAGUAIS.FR', 74 * scale, exportCanvas.height - 78 * scale);
     return exportCanvas;
   }
-  function exportCompositionPng(format = 'portrait') {
-    downloadCanvasImage(drawCompositionExport(format), `composition-rcc-${slug(compositionTeam?.value || 'equipe')}-${format}.png`);
-    setStatus('Composition exportee en PNG.');
+  async function exportCompositionPng(format = 'portrait') {
+    const exportButtons = document.querySelectorAll('[data-composition-export],[data-composition-export-story],[data-composition-export-print]');
+    exportButtons.forEach((button) => { button.disabled = true; });
+    setStatus('Préparation des photos pour le PNG HD…');
+    try {
+      const exportCanvas = await drawCompositionExport(format);
+      downloadCanvasImage(exportCanvas, `composition-rcc-${slug(compositionTeam?.value || 'equipe')}-${format}.png`);
+      setStatus('Composition exportée en PNG HD.');
+    } catch (error) {
+      console.error('Studio RCC : échec de l’export de la composition.', error);
+      setStatus('Impossible de générer le PNG. Réessaie dans quelques instants.');
+    } finally {
+      exportButtons.forEach((button) => { button.disabled = false; });
+    }
   }
 
   function newsletterText(channel = 'facebook') {

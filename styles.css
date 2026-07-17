@@ -5205,12 +5205,24 @@ body{
   object-fit:cover;
 }
 
+.composition-player-photo img.is-rcc-fallback{
+  padding:7px;
+  background:#fff;
+  object-fit:contain;
+}
+
 .composition-player-card strong{
+  display:-webkit-box;
+  min-height:28px;
   max-width:108px;
+  overflow:hidden;
   color:#061b38;
   font-size:13px;
-  line-height:1.05;
+  line-height:1.08;
   text-align:center;
+  overflow-wrap:anywhere;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
 }
 
 .composition-player-card small{
