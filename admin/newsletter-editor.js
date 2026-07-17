@@ -5,6 +5,15 @@
   if (!root) return;
 
   const CURRENT_SEASON = '2026-2027';
+  const DEFAULT_NEWSLETTER_HEADER = Object.freeze({
+    title: 'La Gazette du RCC',
+    subtitle: 'La newsletter mensuelle du Racing Club Cubzaguais',
+    issueNumber: '',
+    month: '',
+    year: '',
+    season: CURRENT_SEASON,
+    tagline: 'Ensemble, plus forts.'
+  });
   const STORAGE_KEY = 'rcc_newsletter_drafts_v2';
   const AUTOSAVE_KEY = 'rcc_newsletter_autosave_v2';
   const A4 = { width: 794, height: 1123, exportWidth: 1748, exportHeight: 2480 };
@@ -18,7 +27,7 @@
     divider: 'Séparateur', footer: 'Pied de page'
   };
   const TYPE_DEFAULTS = {
-    header: { size: 'full', title: 'Le journal du RCC', label: 'Racing Club Cubzaguais' },
+    header: { size: 'full', title: '', label: 'Racing Club Cubzaguais' },
     editorial: { size: 'half', title: "L'édito", label: 'Le mot du club' },
     news: { size: 'half', title: 'Actualité', label: 'À retenir' },
     leadNews: { size: 'two-thirds', title: 'À la une', label: 'Actualité' },
@@ -86,27 +95,54 @@
 
   function createDocument(template = 'monthly') {
     const now = new Date();
-    return {
-      id: uid(), title: 'Le journal du RCC', issueNumber: '', month: now.toLocaleDateString('fr-FR', { month: 'long' }),
-      year: now.getFullYear(), season: CURRENT_SEASON, slogan: 'Ensemble, plus forts.',
+    const header = {
+      ...DEFAULT_NEWSLETTER_HEADER,
+      month: now.toLocaleDateString('fr-FR', { month: 'long' }),
+      year: now.getFullYear()
+    };
+    return syncLegacyHeaderFields({
+      id: uid(), header,
       description: 'La newsletter du Racing Club Cubzaguais.', status: 'draft', template,
       createdAt: now.toISOString(), updatedAt: now.toISOString(), published: false, pdf: '', cover: '',
       pages: [1, 2].map((number) => ({ number, blocks: TEMPLATE_BLOCKS[template].filter((item) => item[1] === number).map((item) => makeBlock(item[0], number, item[2])) }))
-    };
+    });
+  }
+
+  function syncLegacyHeaderFields(document) {
+    const header = document.header || DEFAULT_NEWSLETTER_HEADER;
+    document.title = header.title;
+    document.issueNumber = header.issueNumber;
+    document.month = header.month;
+    document.year = header.year;
+    document.season = header.season;
+    document.slogan = header.tagline;
+    return document;
   }
 
   function normalizeDocument(value) {
     if (!value || typeof value !== 'object') return createDocument('monthly');
+    const hasHeader = value.header && typeof value.header === 'object';
+    const header = hasHeader
+      ? { ...DEFAULT_NEWSLETTER_HEADER, ...value.header }
+      : {
+          title: value.title || 'Newsletter RCC',
+          subtitle: '',
+          issueNumber: value.issueNumber || '',
+          month: value.month || '',
+          year: value.year || '',
+          season: value.season || CURRENT_SEASON,
+          tagline: value.slogan || ''
+        };
     const pages = Array.isArray(value.pages) ? value.pages : [
       { number: 1, blocks: Array.isArray(value.blocks) ? value.blocks : [] }, { number: 2, blocks: [] }
     ];
-    return {
-      ...createDocument(value.template || 'monthly'), ...value, id: value.id || uid(),
+    return syncLegacyHeaderFields({
+      ...createDocument(value.template || 'monthly'), ...value, header, id: value.id || uid(),
       pages: [1, 2].map((number) => {
         const page = pages.find((entry) => Number(entry.number) === number) || { blocks: [] };
         return { number, blocks: (page.blocks || []).map((block) => ({ ...makeBlock(block.type || 'text', number), ...block, id: block.id || uid(), page: number })) };
       })
-    };
+    });
   }
 
   function currentPage() { return state.pages.find((page) => page.number === activePage); }
@@ -162,7 +198,12 @@
   }
   function renderBlockContent(block) {
     if (block.type === 'divider') return '<div class="newsletter-divider"></div>';
-    if (block.type === 'header') return `<div class="newsletter-masthead"><img class="newsletter-logo newsletter-header-logo" src="../assets/logo-rcc.png" alt="" /><div><span>${escapeHtml(block.label || 'Racing Club Cubzaguais')}</span><h1>${escapeHtml(state.title)}</h1><p>${escapeHtml(state.slogan)}</p></div><b>N°${escapeHtml(state.issueNumber || '—')}<small>${escapeHtml(state.month)} ${escapeHtml(state.year)}</small></b></div>`;
+    if (block.type === 'header') {
+      const header = state.header;
+      const titleLength = clean(header.title).length;
+      const titleClass = titleLength > 38 ? 'is-very-long' : (titleLength > 25 ? 'is-long' : '');
+      return `<div class="newsletter-masthead"><img class="newsletter-logo newsletter-header-logo" src="../assets/logo-rcc.png" alt="" /><div class="newsletter-masthead-copy"><span>${escapeHtml(block.label || 'Racing Club Cubzaguais')}</span><h1 class="${titleClass}">${escapeHtml(header.title)}</h1>${header.subtitle ? `<p>${escapeHtml(header.subtitle)}</p>` : ''}${header.tagline ? `<small class="newsletter-tagline">${escapeHtml(header.tagline)}</small>` : ''}</div><b>N°${escapeHtml(header.issueNumber || '—')}<small>${escapeHtml(header.month)} ${escapeHtml(header.year)}</small>${header.season ? `<em>${escapeHtml(header.season)}</em>` : ''}</b></div>`;
+    }
     if (block.type === 'footer') return `<div class="newsletter-footer"><img class="newsletter-logo newsletter-footer-logo" src="../assets/logo-rcc.png" alt="" /><strong>Racing Club Cubzaguais</strong><span>rccubzaguais.fr</span></div>`;
     const photos = block.type === 'gallery' && block.photos?.length
       ? `<div class="newsletter-photo-grid">${block.photos.slice(0, Number(block.photoCount) || 4).map((photo) => `<img src="${escapeHtml(photo.image || photo)}" alt="" crossorigin="anonymous" />`).join('')}</div>` : '';
@@ -220,13 +261,18 @@
 
   function renderProperties() {
     const block = selectedBlock();
+    const headerSelected = block?.type === 'header';
     $('[data-nl-document-properties]').hidden = Boolean(block);
     $('[data-nl-block-properties]').hidden = !block;
+    $('[data-nl-header-block-properties]').hidden = !headerSelected;
+    $('[data-nl-standard-block-properties]').hidden = !block || headerSelected;
     $('[data-nl-selection-label]').textContent = block ? BLOCK_TYPES[block.type] : 'Document';
+    $$('[data-nl-header-field]').forEach((input) => { input.value = state.header[input.dataset.nlHeaderField] ?? ''; });
     if (!block) {
       $$('[data-nl-meta]').forEach((input) => { input.value = state[input.dataset.nlMeta] ?? ''; });
       return;
     }
+    if (headerSelected) return;
     const typeSelect = $('[data-nl-block-field="type"]');
     typeSelect.innerHTML = Object.entries(BLOCK_TYPES).map(([value, label]) => `<option value="${value}">${escapeHtml(label)}</option>`).join('');
     $$('[data-nl-block-field]').forEach((input) => {
@@ -340,6 +386,7 @@
     *{box-sizing:border-box}body{margin:0}.newsletter-sheet{position:relative;width:794px;height:1123px;padding:22px;background:#f5f3ef;color:#111;font-family:Arial,sans-serif;overflow:hidden}
     .newsletter-sheet:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(177,24,69,.07),transparent 35%),linear-gradient(315deg,rgba(3,23,52,.07),transparent 35%);pointer-events:none}
     .newsletter-sheet-grid{position:relative;display:grid;grid-template-columns:repeat(12,1fr);grid-auto-flow:row dense;gap:9px;align-content:start}.newsletter-content-block{grid-column:span 6;border:1px solid #cbc7c1;background:#fff;min-height:92px;overflow:hidden;position:relative;display:flex}.size-full{grid-column:span 12}.size-two-thirds{grid-column:span 8}.size-half{grid-column:span 6}.size-third,.size-small{grid-column:span 4}.newsletter-content-block figure{width:39%;margin:0;flex:none}.newsletter-content-block figure img{width:100%;height:100%;object-fit:cover}.newsletter-block-copy{padding:12px;flex:1}.newsletter-block-copy>span{font-size:10px;line-height:1.2;text-transform:uppercase;color:#b11845;font-weight:700;letter-spacing:.08em}.newsletter-block-copy h2{font-size:21px;line-height:1.05;margin:4px 0 6px;text-transform:uppercase;color:#071a37}.newsletter-block-copy h3{font-size:13px;margin:0 0 5px;color:#b11845}.newsletter-block-copy p{font-size:11px;line-height:1.42;margin:0}.newsletter-block-copy small{display:block;font-size:8px;margin-top:7px;color:#555}.accent-navy{border-top:3px solid #071a37}.accent-burgundy{border-top:3px solid #b11845}.accent-light{border-top:3px solid #c9c7c3}.block-header,.block-footer{border:0;background:#080b10;color:#fff}.block-header{min-height:118px}.newsletter-masthead{display:flex;align-items:center;width:100%;padding:16px 20px;background:linear-gradient(110deg,#080b10 65%,#3a0716)}.newsletter-masthead img{width:72px;height:72px;object-fit:contain;margin-right:16px}.newsletter-masthead span,.newsletter-masthead p{font-size:10px;text-transform:uppercase;letter-spacing:.12em;margin:0}.newsletter-masthead h1{font-size:38px;line-height:.95;text-transform:uppercase;margin:3px 0;color:#fff}.newsletter-masthead b{margin-left:auto;text-align:center;font-size:18px;color:#fff}.newsletter-masthead small{display:block;font-size:9px;margin-top:4px}.block-footer{min-height:44px}.newsletter-footer{display:flex;align-items:center;width:100%;gap:10px;padding:8px 14px}.newsletter-footer img{width:29px;height:29px;object-fit:contain}.newsletter-footer span{margin-left:auto;color:#d45a7f}.block-number .newsletter-block-copy h2{font-size:36px;color:#b11845}.block-quote{background:#0a172b;color:#fff}.block-quote h2{color:#fff}.block-important{background:#0d1015;color:#fff}.block-important h2{color:#fff}.block-leadNews{min-height:180px}.block-leadNews h2{font-size:27px}.block-gallery{display:block}.newsletter-photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:0 10px 10px}.newsletter-photo-grid img{width:100%;height:88px;object-fit:cover}.newsletter-divider{height:2px;width:100%;margin:auto;background:#b11845}.block-divider{min-height:12px;background:transparent;border:0}.newsletter-page-number{position:absolute;bottom:6px;right:12px;font-size:8px;color:#777}
+    .newsletter-masthead{padding:13px 20px}.newsletter-masthead-copy{min-width:0;flex:1}.newsletter-masthead span,.newsletter-masthead p{font-size:9px;letter-spacing:.1em}.newsletter-masthead h1{overflow-wrap:anywhere}.newsletter-masthead h1.is-long{font-size:31px}.newsletter-masthead h1.is-very-long{font-size:25px}.newsletter-masthead .newsletter-tagline{display:block;font-size:8px;letter-spacing:.08em;margin-top:4px;color:#d45a7f;text-transform:uppercase}.newsletter-masthead b{margin-left:16px;flex:0 0 92px}.newsletter-masthead b small,.newsletter-masthead b em{display:block;font-size:9px;margin-top:4px;font-style:normal}
   `;
 
   async function pageToCanvas(pageNumber) {
@@ -457,6 +504,10 @@
     $$('[data-nl-zoom]').forEach((button) => button.addEventListener('click', () => { userZoomed = true; zoom = Math.min(1, Math.max(0.35, zoom + (button.dataset.nlZoom === 'in' ? 0.1 : -0.1))); render(); }));
     document.querySelector('[data-studio-tab="newsletter"]')?.addEventListener('click', () => setTimeout(fitPreviewToWorkspace, 0));
     if ('ResizeObserver' in window) new ResizeObserver(() => fitPreviewToWorkspace()).observe($('.newsletter-canvas-panel'));
+    $$('[data-nl-header-field]').forEach((input) => input.addEventListener('input', () => {
+      state.header[input.dataset.nlHeaderField] = input.type === 'number' ? Number(input.value) : input.value;
+      syncLegacyHeaderFields(state); setDirty(); render();
+    }));
     $$('[data-nl-meta]').forEach((input) => input.addEventListener('input', () => { state[input.dataset.nlMeta] = input.type === 'number' ? Number(input.value) : input.value; setDirty(); render(); }));
     $$('[data-nl-block-field]').forEach((input) => input.addEventListener('input', () => {
       const block = selectedBlock(); if (!block) return; block[input.dataset.nlBlockField] = input.type === 'checkbox' ? input.checked : input.value; setDirty(); render();

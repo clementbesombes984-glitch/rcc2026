@@ -560,37 +560,53 @@
               <div class="newsletter-panel-title"><strong>Réglages</strong><span data-nl-selection-label>Document</span></div>
               <div data-nl-document-properties>
                 <p class="newsletter-selection-help">Sélectionnez un bloc dans la page pour le modifier. Les réglages généraux restent disponibles ci-dessous.</p>
-                <label>Titre du journal<input type="text" data-nl-meta="title" /></label>
+                <label>Titre principal<input type="text" data-nl-header-field="title" /></label>
+                <label>Sous-titre<input type="text" data-nl-header-field="subtitle" /></label>
                 <div class="newsletter-field-row">
-                  <label>Numéro<input type="text" data-nl-meta="issueNumber" /></label>
-                  <label>Mois<input type="text" data-nl-meta="month" /></label>
+                  <label>Numéro de l’édition<input type="text" data-nl-header-field="issueNumber" /></label>
+                  <label>Mois<input type="text" data-nl-header-field="month" /></label>
                 </div>
                 <div class="newsletter-field-row">
-                  <label>Année<input type="number" min="2020" max="2100" data-nl-meta="year" /></label>
-                  <label>Saison<input type="text" data-nl-meta="season" /></label>
+                  <label>Année<input type="number" min="2020" max="2100" data-nl-header-field="year" /></label>
+                  <label>Saison<input type="text" data-nl-header-field="season" /></label>
                 </div>
-                <label>Slogan<input type="text" data-nl-meta="slogan" /></label>
+                <label>Slogan<input type="text" data-nl-header-field="tagline" /></label>
                 <label>Description<textarea rows="3" data-nl-meta="description"></textarea></label>
                 <label>Statut
                   <select data-nl-meta="status"><option value="draft">Brouillon</option><option value="published">Publié</option><option value="archived">Archivé</option></select>
                 </label>
               </div>
               <div data-nl-block-properties hidden>
-                <label>Type<select data-nl-block-field="type"></select></label>
-                <label>Libellé<input type="text" data-nl-block-field="label" /></label>
-                <label>Titre<input type="text" data-nl-block-field="title" /></label>
-                <label>Sous-titre<input type="text" data-nl-block-field="subtitle" /></label>
-                <label>Texte<textarea rows="6" data-nl-block-field="text"></textarea></label>
-                <label>Image<input type="file" accept="image/*" data-nl-image-file /></label>
-                <label>Chemin image<input type="text" data-nl-block-field="image" placeholder="/assets/..." /></label>
-                <label class="poster-check"><input type="checkbox" data-nl-block-field="hideImage" /> Masquer l’image</label>
-                <div class="newsletter-field-row">
-                  <label>Taille<select data-nl-block-field="size"><option value="full">Pleine largeur</option><option value="two-thirds">Deux tiers</option><option value="half">Moitié</option><option value="third">Un tiers</option><option value="small">Petit</option></select></label>
-                  <label>Alignement<select data-nl-block-field="align"><option value="left">Gauche</option><option value="center">Centre</option><option value="right">Droite</option></select></label>
+                <div data-nl-header-block-properties hidden>
+                  <label>Titre principal<input type="text" data-nl-header-field="title" /></label>
+                  <label>Sous-titre<input type="text" data-nl-header-field="subtitle" /></label>
+                  <div class="newsletter-field-row">
+                    <label>Numéro de l’édition<input type="text" data-nl-header-field="issueNumber" /></label>
+                    <label>Mois<input type="text" data-nl-header-field="month" /></label>
+                  </div>
+                  <div class="newsletter-field-row">
+                    <label>Année<input type="number" min="2020" max="2100" data-nl-header-field="year" /></label>
+                    <label>Saison<input type="text" data-nl-header-field="season" /></label>
+                  </div>
+                  <label>Slogan<input type="text" data-nl-header-field="tagline" /></label>
                 </div>
-                <label>Accent<select data-nl-block-field="accent"><option value="burgundy">Bordeaux</option><option value="navy">Bleu marine</option><option value="light">Clair</option></select></label>
-                <label>Lien<input type="url" data-nl-block-field="link" placeholder="https://..." /></label>
-                <label>Nombre de photos dans la galerie<input type="number" min="1" max="8" data-nl-block-field="photoCount" /></label>
+                <div data-nl-standard-block-properties>
+                  <label>Type<select data-nl-block-field="type"></select></label>
+                  <label>Libellé<input type="text" data-nl-block-field="label" /></label>
+                  <label>Titre<input type="text" data-nl-block-field="title" /></label>
+                  <label>Sous-titre<input type="text" data-nl-block-field="subtitle" /></label>
+                  <label>Texte<textarea rows="6" data-nl-block-field="text"></textarea></label>
+                  <label>Image<input type="file" accept="image/*" data-nl-image-file /></label>
+                  <label>Chemin image<input type="text" data-nl-block-field="image" placeholder="/assets/..." /></label>
+                  <label class="poster-check"><input type="checkbox" data-nl-block-field="hideImage" /> Masquer l’image</label>
+                  <div class="newsletter-field-row">
+                    <label>Taille<select data-nl-block-field="size"><option value="full">Pleine largeur</option><option value="two-thirds">Deux tiers</option><option value="half">Moitié</option><option value="third">Un tiers</option><option value="small">Petit</option></select></label>
+                    <label>Alignement<select data-nl-block-field="align"><option value="left">Gauche</option><option value="center">Centre</option><option value="right">Droite</option></select></label>
+                  </div>
+                  <label>Accent<select data-nl-block-field="accent"><option value="burgundy">Bordeaux</option><option value="navy">Bleu marine</option><option value="light">Clair</option></select></label>
+                  <label>Lien<input type="url" data-nl-block-field="link" placeholder="https://..." /></label>
+                  <label>Nombre de photos dans la galerie<input type="number" min="1" max="8" data-nl-block-field="photoCount" /></label>
+                </div>
                 <div class="newsletter-block-actions">
                   <button type="button" data-nl-move="up">Monter</button><button type="button" data-nl-move="down">Descendre</button>
                   <button type="button" data-nl-move-page>Changer de page</button><button type="button" data-nl-clone-block>Dupliquer</button>
@@ -663,6 +679,6 @@
     <script src="./poster-auth.js?v=studio-rcc-8"></script>
     <script src="../script.js"></script>
     <script src="./poster-generator.js?v=studio-rcc-8"></script>
-    <script src="./newsletter-editor.js?v=studio-rcc-2"></script>
+    <script src="./newsletter-editor.js?v=studio-rcc-3"></script>
   </body>
 </html>

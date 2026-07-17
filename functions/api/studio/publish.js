@@ -236,14 +236,25 @@ async function sendPush(push, env, request) {
 
 function normalizeNewsletter(newsletter = {}, pdfPath = '', coverPath = '') {
   const status = ['draft', 'published', 'archived'].includes(newsletter.status) ? newsletter.status : 'draft';
+  const sourceHeader = newsletter.header && typeof newsletter.header === 'object' ? newsletter.header : {};
+  const header = {
+    title: clean(sourceHeader.title || newsletter.title || 'Newsletter RCC'),
+    subtitle: clean(sourceHeader.subtitle),
+    issueNumber: clean(sourceHeader.issueNumber || newsletter.issueNumber),
+    month: clean(sourceHeader.month || newsletter.month),
+    year: Number(sourceHeader.year || newsletter.year) || new Date().getFullYear(),
+    season: clean(sourceHeader.season || newsletter.season || '2026-2027'),
+    tagline: clean(sourceHeader.tagline || newsletter.slogan)
+  };
   return {
-    id: clean(newsletter.id || slugify(newsletter.title)),
-    title: clean(newsletter.title || 'Le journal du RCC'),
-    issueNumber: clean(newsletter.issueNumber),
-    month: clean(newsletter.month),
-    year: Number(newsletter.year) || new Date().getFullYear(),
-    season: clean(newsletter.season || '2026-2027'),
-    slogan: clean(newsletter.slogan),
+    id: clean(newsletter.id || slugify(header.title)),
+    header,
+    title: header.title,
+    issueNumber: header.issueNumber,
+    month: header.month,
+    year: header.year,
+    season: header.season,
+    slogan: header.tagline,
     description: clean(newsletter.description),
     date: clean(newsletter.date || new Date().toISOString().slice(0, 10)),
     status,

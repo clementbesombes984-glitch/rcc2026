@@ -1063,6 +1063,31 @@ content:
           - name: title
             label: Titre
             type: string
+          - name: header
+            label: En-tête de la newsletter
+            type: object
+            fields:
+              - name: title
+                label: Titre principal
+                type: string
+              - name: subtitle
+                label: Sous-titre
+                type: string
+              - name: issueNumber
+                label: Numéro de l'édition
+                type: string
+              - name: month
+                label: Mois
+                type: string
+              - name: year
+                label: Année
+                type: number
+              - name: season
+                label: Saison
+                type: string
+              - name: tagline
+                label: Slogan
+                type: string
           - name: issueNumber
             label: Numéro
             type: string
