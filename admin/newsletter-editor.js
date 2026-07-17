@@ -69,6 +69,7 @@
   let pageView = '1';
   let activePage = 1;
   let zoom = 0.7;
+  let userZoomed = false;
   let dirty = false;
   let sources = { news: [], matches: [], partners: [], gallery: [] };
   let serverNewsletters = [];
@@ -160,8 +161,8 @@
   }
   function renderBlockContent(block) {
     if (block.type === 'divider') return '<div class="newsletter-divider"></div>';
-    if (block.type === 'header') return `<div class="newsletter-masthead"><img src="../assets/logo-rcc.png" alt="" /><div><span>${escapeHtml(block.label || 'Racing Club Cubzaguais')}</span><h1>${escapeHtml(state.title)}</h1><p>${escapeHtml(state.slogan)}</p></div><b>N°${escapeHtml(state.issueNumber || '—')}<small>${escapeHtml(state.month)} ${escapeHtml(state.year)}</small></b></div>`;
-    if (block.type === 'footer') return `<div class="newsletter-footer"><img src="../assets/logo-rcc.png" alt="" /><strong>Racing Club Cubzaguais</strong><span>rccubzaguais.fr</span></div>`;
+    if (block.type === 'header') return `<div class="newsletter-masthead"><img class="newsletter-logo newsletter-header-logo" src="../assets/logo-rcc.png" alt="" /><div><span>${escapeHtml(block.label || 'Racing Club Cubzaguais')}</span><h1>${escapeHtml(state.title)}</h1><p>${escapeHtml(state.slogan)}</p></div><b>N°${escapeHtml(state.issueNumber || '—')}<small>${escapeHtml(state.month)} ${escapeHtml(state.year)}</small></b></div>`;
+    if (block.type === 'footer') return `<div class="newsletter-footer"><img class="newsletter-logo newsletter-footer-logo" src="../assets/logo-rcc.png" alt="" /><strong>Racing Club Cubzaguais</strong><span>rccubzaguais.fr</span></div>`;
     const photos = block.type === 'gallery' && block.photos?.length
       ? `<div class="newsletter-photo-grid">${block.photos.slice(0, Number(block.photoCount) || 4).map((photo) => `<img src="${escapeHtml(photo.image || photo)}" alt="" crossorigin="anonymous" />`).join('')}</div>` : '';
     return `${imageMarkup(block)}<div class="newsletter-block-copy" style="text-align:${block.align}"><span>${escapeHtml(block.label)}</span><h2>${escapeHtml(block.title || BLOCK_TYPES[block.type])}</h2>${block.subtitle ? `<h3>${escapeHtml(block.subtitle)}</h3>` : ''}${block.text ? `<p>${escapeHtml(block.text).replace(/\n/g, '<br>')}</p>` : ''}${block.link ? `<small>${escapeHtml(block.link)}</small>` : ''}</div>${photos}`;
@@ -184,6 +185,21 @@
     bindPageEvents();
     renderProperties();
     requestAnimationFrame(checkOverflow);
+  }
+
+  function fitPreviewToWorkspace() {
+    if (!window.matchMedia('(min-width: 769px)').matches) return;
+    const panel = $('.newsletter-canvas-panel');
+    if (!panel || panel.offsetParent === null || panel.clientWidth < 120) return;
+    const pageCount = pageView === 'both' ? 2 : 1;
+    const available = Math.max(280, panel.clientWidth - 44);
+    const naturalWidth = (A4.width * pageCount) + (pageCount > 1 ? 16 : 0);
+    const fitted = Math.min(0.7, Math.max(0.35, available / naturalWidth));
+    if (!userZoomed || zoom > fitted) {
+      zoom = fitted;
+      $('[data-nl-spread]').style.setProperty('--newsletter-zoom', zoom);
+      $('[data-nl-zoom-label]').textContent = `${Math.round(zoom * 100)} %`;
+    }
   }
 
   function bindPageEvents() {
@@ -302,7 +318,7 @@
   function renderSourceResults() {
     const kind = $('[data-nl-source-type]').value;
     const items = sources[kind] || [];
-    $('[data-nl-source-results]').innerHTML = items.length ? items.slice(0, 30).map((item, index) => `<button type="button" data-import-source="${index}"><strong>${escapeHtml(item.title || item.name || 'Contenu')}</strong><span>${escapeHtml(item.date || item.category || item.type_evenement || '')}</span></button>`).join('') : '<p>Aucun contenu disponible.</p>';
+    $('[data-nl-source-results]').innerHTML = items.length ? items.slice(0, 30).map((item, index) => `<button type="button" data-import-source="${index}"><span class="newsletter-source-copy"><strong>${escapeHtml(item.title || item.name || 'Contenu')}</strong><small>${escapeHtml([item.date ? parseDate(item.date) : '', item.category || item.type_evenement || ''].filter(Boolean).join(' • '))}</small></span><em>Ajouter</em></button>`).join('') : '<p>Aucun contenu disponible.</p>';
   }
 
   async function fileToDataUrl(file) {
@@ -415,8 +431,10 @@
       const kind = $('[data-nl-source-type]').value; const item = sources[kind][Number(button.dataset.importSource)];
       if (item) addBlock(sourceToBlock(kind, item).type, sourceToBlock(kind, item));
     });
-    $$('[data-nl-page-view]').forEach((button) => button.addEventListener('click', () => { pageView = button.dataset.nlPageView; if (pageView !== 'both') activePage = Number(pageView); render(); }));
-    $$('[data-nl-zoom]').forEach((button) => button.addEventListener('click', () => { zoom = Math.min(1, Math.max(0.35, zoom + (button.dataset.nlZoom === 'in' ? 0.1 : -0.1))); render(); }));
+    $$('[data-nl-page-view]').forEach((button) => button.addEventListener('click', () => { pageView = button.dataset.nlPageView; if (pageView !== 'both') activePage = Number(pageView); userZoomed = false; render(); requestAnimationFrame(fitPreviewToWorkspace); }));
+    $$('[data-nl-zoom]').forEach((button) => button.addEventListener('click', () => { userZoomed = true; zoom = Math.min(1, Math.max(0.35, zoom + (button.dataset.nlZoom === 'in' ? 0.1 : -0.1))); render(); }));
+    document.querySelector('[data-studio-tab="newsletter"]')?.addEventListener('click', () => setTimeout(fitPreviewToWorkspace, 0));
+    if ('ResizeObserver' in window) new ResizeObserver(() => fitPreviewToWorkspace()).observe($('.newsletter-canvas-panel'));
     $$('[data-nl-meta]').forEach((input) => input.addEventListener('input', () => { state[input.dataset.nlMeta] = input.type === 'number' ? Number(input.value) : input.value; setDirty(); render(); }));
     $$('[data-nl-block-field]').forEach((input) => input.addEventListener('input', () => {
       const block = selectedBlock(); if (!block) return; block[input.dataset.nlBlockField] = input.type === 'checkbox' ? input.checked : input.value; setDirty(); render();
@@ -442,7 +460,7 @@
   function init() {
     const autosave = localStorage.getItem(AUTOSAVE_KEY);
     if (autosave) { try { state = normalizeDocument(JSON.parse(autosave)); } catch { /* ignore invalid local draft */ } }
-    palette(); hydrateDraftSelect(); bind(); render(); loadSources();
+    palette(); hydrateDraftSelect(); bind(); render(); requestAnimationFrame(fitPreviewToWorkspace); loadSources();
   }
   init();
 })();
