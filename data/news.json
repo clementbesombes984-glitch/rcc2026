@@ -12,14 +12,7 @@
       "important": false,
       "notification": false,
       "featured": false,
-      "date": "2026-07-16",
-      "hashtags": [
-        "#RCCubzaguais",
-        "#RacingClubCubzaguais",
-        "#Rugby",
-        "#NouvelleAquitaine",
-        "#RejoinsLeRCC"
-      ]
+      "date": "2026-07-16"
     },
     {
       "title": "STAFF CADETTES",
@@ -33,14 +26,7 @@
       "important": false,
       "notification": false,
       "featured": false,
-      "date": "2026-07-14",
-      "hashtags": [
-        "#RCCubzaguais",
-        "#RacingClubCubzaguais",
-        "#Rugby",
-        "#NouvelleAquitaine",
-        "#RejoinsLeRCC"
-      ]
+      "date": "2026-07-14"
     },
     {
       "title": "STAFF U19",
@@ -54,14 +40,7 @@
       "important": false,
       "notification": false,
       "featured": false,
-      "date": "2026-07-14",
-      "hashtags": [
-        "#RCCubzaguais",
-        "#RacingClubCubzaguais",
-        "#Rugby",
-        "#NouvelleAquitaine",
-        "#RejoinsLeRCC"
-      ]
+      "date": "2026-07-14"
     },
     {
       "title": "STAFF U16",
@@ -75,14 +54,7 @@
       "important": false,
       "notification": false,
       "featured": false,
-      "date": "2026-07-14",
-      "hashtags": [
-        "#RCCubzaguais",
-        "#RacingClubCubzaguais",
-        "#Rugby",
-        "#NouvelleAquitaine",
-        "#RejoinsLeRCC"
-      ]
+      "date": "2026-07-14"
     },
     {
       "title": "STAFF U12",
@@ -200,6 +172,19 @@
       "notification": true,
       "featured": true,
       "date": "2026-07-11"
+    },
+    {
+      "title": "Les cadettes recrutent",
+      "body": "🏉 Les Cadettes du Racing Club Cubzaguais recrutent ! ❤️🖤\nDébutante ou confirmée, viens découvrir le rugby dans une équipe où la passion, la convivialité et le plaisir de jouer sont au rendez-vous. 💪\n📍 Saint-André-de-Cubzac\n🌐 www.rccubzaguais.fr⁠�\n#RCC #RacingClubCubzaguais #RugbyFeminin #Cadettes #Recrutement #Rugby #SportAuFeminin #TeamRCC #SaintAndreDeCubzac",
+      "image": "/assets/uploads/file000000006cd881f4b86246337b08f65c.png",
+      "category": "Cadettes",
+      "audience": [
+        "cadettes"
+      ],
+      "important": false,
+      "notification": true,
+      "featured": true,
+      "date": "2026-07-18"
     }
   ]
 }
