@@ -7,6 +7,7 @@ const jsonHeaders = {
 
 const encoder = new TextEncoder();
 const notificationCategories = globalThis.RCCNotificationCategories;
+const OFFICIAL_ORIGIN = 'https://rccubzaguais.fr';
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: jsonHeaders });
@@ -27,6 +28,19 @@ function shortTitle(value, fallback = 'RC Cubzaguais') {
   return text.length > 40 ? text.slice(0, 37).trimEnd() + '...' : text;
 }
 
+function notificationPath(value) {
+  try {
+    const url = new URL(String(value || '/'), OFFICIAL_ORIGIN);
+    return `${url.pathname || '/'}${url.search}${url.hash}`;
+  } catch (error) {
+    return '/';
+  }
+}
+
+function isOfficialSubscription(record) {
+  return record && record.siteOrigin === OFFICIAL_ORIGIN;
+}
+
 function isAuthorized(request, env) {
   const expected = env.PUSH_ADMIN_TOKEN || env.RCC_PUSH_ADMIN_TOKEN || '';
   if (!expected) return false;
@@ -41,17 +55,26 @@ async function removeSubscription(env, id) {
 export async function onRequestGet({ env }) {
   const kvConfigured = Boolean(env.RCC_PUSH_SUBSCRIPTIONS);
   let subscriptions = 0;
+  let officialSubscriptions = 0;
+  let legacySubscriptions = 0;
 
   if (kvConfigured) {
     const list = await env.RCC_PUSH_SUBSCRIPTIONS.list();
     subscriptions = list.keys.length;
+    for (const key of list.keys) {
+      const record = await env.RCC_PUSH_SUBSCRIPTIONS.get(key.name, { type: 'json' });
+      if (isOfficialSubscription(record)) officialSubscriptions += 1;
+      else legacySubscriptions += 1;
+    }
   }
 
   return json({
     routeActive: true,
     vapidConfigured: Boolean(env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY),
     kvConfigured,
-    subscriptions
+    subscriptions,
+    officialSubscriptions,
+    legacySubscriptions
   });
 }
 
@@ -276,6 +299,7 @@ export async function onRequestPost({ request, env }) {
   let sent = 0;
   let skipped = 0;
   let failed = 0;
+  let legacyRemoved = 0;
   const errors = [];
 
   for (const key of list.keys) {
@@ -290,6 +314,13 @@ export async function onRequestPost({ request, env }) {
       continue;
     }
 
+    if (!isOfficialSubscription(record)) {
+      skipped += 1;
+      legacyRemoved += 1;
+      await removeSubscription(env, key.name);
+      continue;
+    }
+
     if (!hasMatchingPreference(record.preferences, audience)) {
       skipped += 1;
       continue;
@@ -300,7 +331,7 @@ export async function onRequestPost({ request, env }) {
         type: payload.type || 'news',
         title: shortTitle(payload.title, 'RC Cubzaguais'),
         body: payload.body || 'Nouvelle information du club.',
-        url: payload.url || '/',
+        url: notificationPath(payload.url),
         audience,
         tag: payload.tag || `rcc-${Date.now()}`,
         urgent: Boolean(payload.important)
@@ -321,5 +352,5 @@ export async function onRequestPost({ request, env }) {
     }
   }
 
-  return json({ ok: true, sent, skipped, failed, total: list.keys.length, errors });
+  return json({ ok: true, sent, skipped, failed, legacyRemoved, total: list.keys.length, errors });
 }

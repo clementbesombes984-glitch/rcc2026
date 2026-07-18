@@ -14,6 +14,7 @@
   const IMPACT_FONT = '"Anton", "League Spartan", Impact, sans-serif';
   const BODY_FONT = '"Rajdhani", "Oswald", Arial, sans-serif';
   const CURRENT_SEASON = '2026-2027';
+  const OFFICIAL_ORIGIN = 'https://rccubzaguais.fr';
   const notificationCategories = globalThis.RCCNotificationCategories;
 
   const COLORS = {
@@ -2204,8 +2205,17 @@
     const body = clean(data.pushBody || data.summary || data.subtitle || 'Nouvelle information du RCC.');
     const audience = notificationCategories.labelFor(data.pushAudience || data.category || 'actualites');
     const importance = data.pushImportance === 'important' ? 'Important' : 'Normal';
-    const link = clean(data.pushUrl || '/actualites.html');
-    return `${short}\n${body}\nPublic : ${audience} | ${importance}\nLien : ${link}`;
+    const link = notificationPath(data.pushUrl || '/actualites.html');
+    return `${short}\n${body}\nPublic : ${audience} | ${importance}\nLien final : ${new URL(link, OFFICIAL_ORIGIN).href}`;
+  }
+
+  function notificationPath(value) {
+    try {
+      const url = new URL(clean(value || '/'), OFFICIAL_ORIGIN);
+      return `${url.pathname || '/'}${url.search}${url.hash}`;
+    } catch (error) {
+      return '/';
+    }
   }
 
   function syncPushSettings(data = readForm()) {
@@ -2433,7 +2443,7 @@
       ? [data.pushAudience]
       : audienceFromCategory(`${data.category || ''} ${data.template || ''}`);
     const sendPushNow = checkedChannel(data, 'publishPush') && data.pushMode !== 'draft';
-    const pushUrl = clean(data.pushUrl || '/actualites.html');
+    const pushUrl = notificationPath(data.pushUrl || '/actualites.html');
     const body = [
       data.subtitle,
       data.summary,

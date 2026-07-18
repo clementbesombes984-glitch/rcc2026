@@ -2,7 +2,9 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import '../notification-categories.js';
 
-const siteUrl = process.env.RCC_SITE_URL || process.env.SITE_URL || '';
+const OFFICIAL_SITE_URL = 'https://rccubzaguais.fr';
+const configuredSiteUrl = process.env.RCC_SITE_URL || process.env.SITE_URL || '';
+const siteUrl = OFFICIAL_SITE_URL;
 const token = process.env.RCC_PUSH_ADMIN_TOKEN || process.env.PUSH_ADMIN_TOKEN || '';
 const notificationCategories = globalThis.RCCNotificationCategories;
 
@@ -186,8 +188,12 @@ function matchPayload(item) {
 async function send(payload) {
   console.log('Payload envoye a /api/push/send:', JSON.stringify(payload, null, 2));
 
-  if (!siteUrl || !token) {
-    console.log('SITE_URL ou PUSH_ADMIN_TOKEN absent, notification ignoree:', payload.title);
+  if (configuredSiteUrl && configuredSiteUrl.replace(/\/$/, '') !== OFFICIAL_SITE_URL) {
+    console.warn('RCC_SITE_URL ne correspond pas au domaine officiel et sera ignoree.');
+  }
+
+  if (!token) {
+    console.log('PUSH_ADMIN_TOKEN absent, notification ignoree:', payload.title);
     return;
   }
 

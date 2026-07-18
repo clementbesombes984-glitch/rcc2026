@@ -13,7 +13,12 @@
   const SUBSCRIPTION_KEY = 'rcc-push-subscription';
   const SEEN_KEY = 'rcc-notification-seen-items';
   const CHECK_INTERVAL = 60000;
+  const OFFICIAL_ORIGIN = 'https://rccubzaguais.fr';
   const categoryConfig = globalThis.RCCNotificationCategories;
+
+  function isTrustedPushOrigin() {
+    return window.location.origin === OFFICIAL_ORIGIN || /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+  }
   async function publicKey() {
     const localKey =
       window.RCC_PUSH_PUBLIC_KEY ||
@@ -83,11 +88,12 @@
         endpoint: subscription.endpoint
       };
       localStorage.setItem(SUBSCRIPTION_KEY, JSON.stringify(payload));
-      await fetch('/api/push/subscribe', {
+      const response = await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      if (response.status === 409) await removePushSubscription(subscription);
     } catch (error) {
       // La sauvegarde locale reste valide si la synchronisation serveur est momentanément indisponible.
     }
@@ -129,7 +135,7 @@
     lines.push('Vrai push serveur : ' + ('PushManager' in window ? 'possible' : 'non supporte ici'));
     lines.push('Autorisation : ' + (('Notification' in window) ? Notification.permission : 'indisponible'));
     lines.push('Notifications RCC : ' + (isEnabled() ? 'activees' : 'desactivees'));
-    lines.push('Cache PWA : version rcc-pwa-v4 attendue');
+    lines.push('Cache PWA : version rcc-pwa-v43 attendue');
     try {
       const items = await collectNotificationItems();
       const matching = items.filter((item) => matchesPreferences(item.audience));
@@ -342,7 +348,7 @@
 
   async function getRegistration() {
     const existing = await navigator.serviceWorker.getRegistration();
-    if (!existing) await navigator.serviceWorker.register('/sw.js');
+    if (!existing) await navigator.serviceWorker.register('/sw.js', { scope: '/' });
     return navigator.serviceWorker.ready;
   }
 
@@ -394,6 +400,7 @@
     const payload = {
       enabled: true,
       subscribedAt: new Date().toISOString(),
+      siteOrigin: window.location.origin,
       preferences: loadPreferences(),
       subscription: subscription ? subscription.toJSON() : null,
       endpoint: subscription ? subscription.endpoint : null
@@ -402,11 +409,17 @@
     localStorage.setItem(SUBSCRIPTION_KEY, JSON.stringify(payload));
     await markCurrentItemsAsSeen();
     if (subscription) {
-      fetch('/api/push/subscribe', {
+      const response = await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       }).catch(() => null);
+      if (response && !response.ok) {
+        await removePushSubscription(subscription);
+        setStatus('Activez les notifications depuis le domaine officiel RCC.', 'error');
+        refreshDiagnostics();
+        return;
+      }
     }
     setStatus(subscription ? 'Notifications activees pour cet appareil.' : 'Notifications locales activees. Le push en arriere-plan demandera un backend.', 'success');
     checkForLocalNotifications();
@@ -417,7 +430,7 @@
     if (supportsPush()) {
       const registration = await navigator.serviceWorker.getRegistration();
       const subscription = registration ? await registration.pushManager.getSubscription() : null;
-      if (subscription) await subscription.unsubscribe().catch(() => null);
+      if (subscription) await removePushSubscription(subscription);
     }
     localStorage.removeItem(SUBSCRIPTION_KEY);
     setStatus('Notifications desactivees sur cet appareil.', 'neutral');
@@ -494,7 +507,12 @@
     setStatus('Choisissez vos categories puis activez les notifications.', 'neutral');
   }
 
-  function initializeNotifications() {
+  async function initializeNotifications() {
+    const migrated = await migrateForeignOriginSubscription();
+    if (migrated) return;
+    if (supportsPush() && localStorage.getItem(SUBSCRIPTION_KEY)) {
+      await syncSubscriptionPreferences(loadPreferences());
+    }
     startLocalWatcher();
     if (document.querySelector('[data-notifications-page]')) {
       renderGroups();
@@ -506,6 +524,37 @@
       document.querySelector('[data-check-notifications]')?.addEventListener('click', notifyMatchingNow);
       document.querySelector('[data-reset-notifications]')?.addEventListener('click', resetApplicationCache);
     }
+  }
+
+  async function removePushSubscription(subscription, removeLocalState = true) {
+    if (subscription) {
+      await fetch('/api/push/subscribe', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription: subscription.toJSON() })
+      }).catch(() => null);
+      await subscription.unsubscribe().catch(() => null);
+    }
+    if (removeLocalState) localStorage.removeItem(SUBSCRIPTION_KEY);
+  }
+
+  async function migrateForeignOriginSubscription() {
+    if (isTrustedPushOrigin()) return false;
+
+    if (supportsPush()) {
+      const registration = await navigator.serviceWorker.getRegistration().catch(() => null);
+      const subscription = registration ? await registration.pushManager.getSubscription().catch(() => null) : null;
+      await removePushSubscription(subscription);
+    } else {
+      localStorage.removeItem(SUBSCRIPTION_KEY);
+    }
+
+    showPageNotice(
+      'Notifications a reactiver',
+      `Cet ancien abonnement a ete retire. Ouvrez ${OFFICIAL_ORIGIN}/notifications.html pour activer les notifications RCC sur le domaine officiel.`,
+      'neutral'
+    );
+    return true;
   }
 
   if (document.readyState === 'loading') {

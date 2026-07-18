@@ -185,3 +185,17 @@ Pour envoyer automatiquement une notification quand une actu ou un match est pub
 - Ne pas envoyer toutes les notifications a tout le monde.
 - Ne pas supprimer les preferences locales sans action utilisateur.
 - Ne pas casser le fonctionnement statique du site si le backend est indisponible.
+
+## Migration vers le domaine officiel
+
+Les abonnements Web Push sont lies a l'origine qui les a crees. Ils ne peuvent donc pas etre transferes automatiquement vers un autre domaine.
+
+- Les nouveaux abonnements sont acceptes uniquement depuis `https://rccubzaguais.fr` (et depuis localhost pour les tests locaux).
+- Le KV enregistre maintenant `siteOrigin` avec chaque abonnement.
+- Lors d'un envoi, les abonnements sans origine officielle sont ignores puis supprimes du KV sans recevoir de notification.
+- Si une ancienne origine charge encore `notifications.js`, son abonnement local est resilie sans nouvelle demande d'autorisation et un message invite a reactiver les alertes sur le domaine officiel.
+- Les preferences de categories restent conservees sur le domaine ou elles ont ete creees ; aucune autorisation n'est redemandee automatiquement.
+
+Procedure utilisateur : ouvrir `https://rccubzaguais.fr/notifications.html`, choisir les categories puis cliquer sur `Activer les notifications`. Une ancienne PWA installee depuis une autre origine peut etre desinstallee apres cette reactivation.
+
+La redirection permanente de l'ancien sous-domaine Cloudflare doit etre configuree dans le tableau de bord Cloudflare apres une courte periode de migration. Une redirection seule ne migre pas un abonnement Web Push.

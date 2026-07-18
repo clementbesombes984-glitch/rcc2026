@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rcc-pwa-v42';
+const CACHE_VERSION = 'rcc-pwa-v43';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DATA_CACHE = CACHE_VERSION + '-data';
 
@@ -170,7 +170,14 @@ self.addEventListener('fetch', (event) => {
 
 function notificationTarget(data) {
   const type = data && data.type ? String(data.type) : '';
-  if (data && data.url) return data.url;
+  if (data && data.url) {
+    try {
+      const url = new URL(String(data.url), self.location.origin);
+      return `${url.pathname || '/'}${url.search}${url.hash}`;
+    } catch (error) {
+      return '/';
+    }
+  }
   if (type === 'news' || type === 'actualite') return '/actualites.html';
   if (type === 'match' || type === 'tournoi' || type === 'resultat' || type === 'entrainement' || type === 'reunion' || type === 'evenement_club') return '/calendrier.html';
   if (type === 'gallery' || type === 'galerie') return '/galerie.html';
@@ -207,7 +214,8 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = new URL(event.notification.data?.url || '/', self.location.origin).href;
+  const targetPath = notificationTarget(event.notification.data || {});
+  const targetUrl = new URL(targetPath, self.location.origin).href;
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
