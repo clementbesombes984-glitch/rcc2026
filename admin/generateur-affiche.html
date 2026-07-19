@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Studio RCC - RC Cubzaguais</title>
     <meta name="description" content="Studio RCC : centre de communication officiel du RC Cubzaguais." />
-    <link rel="stylesheet" href="../styles.css?v=studio-v3-direct-2" />
+    <link rel="stylesheet" href="../styles.css?v=studio-v3-fit-1" />
     <meta name="theme-color" content="#b11845" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="RCC" />
@@ -122,26 +122,36 @@
             <strong data-poster-size>1080 x 1080</strong>
             <button class="studio-settings-toggle" type="button" data-studio-settings-toggle aria-expanded="false">Reglages</button>
           </div>
-          <div class="studio-preview-tools">
+          <div class="studio-preview-tools studio-document-tools" aria-label="Affichage du document">
+            <span>Document</span>
+            <button type="button" data-document-fit class="is-active">Adapter</button>
+            <button type="button" data-document-zoom-out aria-label="Reduire le zoom du document">Zoom document -</button>
+            <button type="button" data-document-zoom-in aria-label="Agrandir le zoom du document">Zoom document +</button>
+            <output data-document-zoom-label>Adapter</output>
+          </div>
+          <div class="studio-preview-tools studio-photo-tools" aria-label="Photo de fond">
+            <span>Photo de fond</span>
             <label class="studio-tool-upload">Photo<input type="file" accept="image/*" data-direct-poster-image /></label>
-            <button type="button" data-zoom-out aria-label="Reduire le zoom de la photo">Zoom -</button>
-            <button type="button" data-zoom-in aria-label="Agrandir le zoom de la photo">Zoom +</button>
+            <button type="button" data-zoom-out aria-label="Reduire le zoom de la photo">Zoom photo -</button>
+            <button type="button" data-zoom-in aria-label="Agrandir le zoom de la photo">Zoom photo +</button>
             <button type="button" data-toggle-grid aria-label="Afficher ou masquer la grille de composition">Grille</button>
             <button type="button" data-reset-photo aria-label="Recentrer la photo principale">Recentrer photo</button>
             <button type="button" data-remove-photo aria-label="Supprimer la photo principale">Supprimer photo</button>
           </div>
           <div class="poster-canvas-wrap studio-canvas-wrap">
-            <canvas id="posterCanvas" width="1080" height="1080" aria-label="Apercu de la communication RCC"></canvas>
-            <div class="poster-direct-layer" data-poster-direct-layer aria-label="Textes modifiables de l'affiche">
-              <button type="button" data-direct-field="category">Club</button>
-              <button type="button" data-direct-field="title">Reprise de la preparation</button>
-              <button type="button" data-direct-field="subtitle">Le RCC retrouve le terrain</button>
-              <button type="button" data-direct-field="date">Date</button>
-              <button type="button" data-direct-field="time">Heure</button>
-              <button type="button" data-direct-field="location">Lieu</button>
-              <button type="button" data-direct-field="opponent">Adversaire</button>
-              <button type="button" data-direct-field="score">Score</button>
-              <button type="button" data-direct-field="summary">Informations</button>
+            <div class="poster-stage" data-poster-stage>
+              <canvas id="posterCanvas" width="1080" height="1080" aria-label="Apercu de la communication RCC"></canvas>
+              <div class="poster-direct-layer" data-poster-direct-layer aria-label="Textes modifiables de l'affiche">
+                <button type="button" data-direct-field="category">Club</button>
+                <button type="button" data-direct-field="title">Reprise de la preparation</button>
+                <button type="button" data-direct-field="subtitle">Le RCC retrouve le terrain</button>
+                <button type="button" data-direct-field="date">Date</button>
+                <button type="button" data-direct-field="time">Heure</button>
+                <button type="button" data-direct-field="location">Lieu</button>
+                <button type="button" data-direct-field="opponent">Adversaire</button>
+                <button type="button" data-direct-field="score">Score</button>
+                <button type="button" data-direct-field="summary">Informations</button>
+              </div>
             </div>
           </div>
           <div class="poster-context-toolbar" data-poster-context-toolbar hidden>
@@ -725,7 +735,7 @@
     <script src="../notification-categories.js"></script>
     <script src="./poster-auth.js?v=studio-v3-direct-2"></script>
     <script src="../script.js"></script>
-    <script src="./poster-generator.js?v=studio-v3-direct-2"></script>
+    <script src="./poster-generator.js?v=studio-v3-fit-1"></script>
     <script src="./newsletter-editor.js?v=studio-v3-direct-2"></script>
   </body>
 </html>

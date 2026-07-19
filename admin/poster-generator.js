@@ -110,6 +110,11 @@
   const directImageInput = document.querySelector('[data-direct-poster-image]');
   const settingsToggle = document.querySelector('[data-studio-settings-toggle]');
   const canvasWrap = canvas?.closest('.studio-canvas-wrap');
+  const posterStage = document.querySelector('[data-poster-stage]');
+  const documentFitButton = document.querySelector('[data-document-fit]');
+  const documentZoomInButton = document.querySelector('[data-document-zoom-in]');
+  const documentZoomOutButton = document.querySelector('[data-document-zoom-out]');
+  const documentZoomLabel = document.querySelector('[data-document-zoom-label]');
   const studioTabButtons = document.querySelectorAll('[data-studio-tab]');
   const studioTabPanels = document.querySelectorAll('[data-studio-tab-panel]');
   const studioCurrentModule = document.querySelector('[data-studio-current-module]');
@@ -215,7 +220,10 @@
     newsletterBlocks: [],
     pushAudienceManual: false,
     activeDirectField: '',
-    directOriginalValue: ''
+    directOriginalValue: '',
+    documentZoomMode: 'fit',
+    documentZoomFactor: 1,
+    documentScale: 1
   };
 
   const logo = new Image();
@@ -448,6 +456,61 @@
     return ({ title: 'Titre', subtitle: 'Sous-titre', summary: 'Informations', category: 'Categorie', date: 'Date', time: 'Heure', location: 'Lieu', opponent: 'Adversaire', score: 'Score' })[name] || 'Texte';
   }
 
+  function directFieldLayout(data) {
+    const style = getStyleKey(data.style, data.template);
+    const layouts = {
+      match: {
+        category: [12, 8, 38, 5, 22], title: [5.5, 27, 89, 8, 48], subtitle: [5.5, 35, 89, 7, 32],
+        date: [5.5, 35, 42, 5, 21], time: [51, 35, 42, 5, 21], location: [5.5, 41, 42, 5, 21],
+        opponent: [67, 61, 25, 7, 28], score: [42, 55, 16, 8, 48], summary: [7.5, 79, 85, 10, 25]
+      },
+      magazine: {
+        category: [8.5, 18, 72, 5, 22], title: [8.5, 23, 83, 22, 48], subtitle: [8.5, 48, 83, 7, 28],
+        date: [5.5, 58, 42, 5, 21], time: [51, 58, 42, 5, 21], location: [5.5, 64, 42, 5, 21],
+        opponent: [51, 64, 42, 5, 21], score: [42, 48, 16, 8, 42], summary: [8, 76, 84, 12, 24]
+      },
+      club: {
+        category: [6, 21, 82, 5, 24], title: [6, 28, 88, 24, 50], subtitle: [6, 54, 88, 6, 27],
+        date: [5.5, 52, 42, 5, 21], time: [51, 52, 42, 5, 21], location: [5.5, 58, 42, 5, 21],
+        opponent: [51, 58, 42, 5, 21], score: [42, 47, 16, 8, 42], summary: [8, 67, 84, 13, 25]
+      },
+      recruitment: {
+        category: [5.5, 47, 89, 6, 25], title: [5.5, 20, 89, 25, 52], subtitle: [5.5, 49, 89, 7, 29],
+        date: [5.5, 42, 42, 5, 21], time: [51, 42, 42, 5, 21], location: [5.5, 48, 42, 5, 21],
+        opponent: [51, 48, 42, 5, 21], score: [42, 40, 16, 8, 42], summary: [8, 66, 84, 11, 25]
+      },
+      partner: {
+        category: [20, 24, 60, 5, 23], title: [14, 51, 72, 12, 46], subtitle: [14, 62, 72, 6, 27],
+        date: [5.5, 72, 42, 5, 21], time: [51, 72, 42, 5, 21], location: [5.5, 78, 42, 5, 21],
+        opponent: [14, 51, 72, 12, 46], score: [42, 51, 16, 8, 42], summary: [8, 77, 84, 10, 24]
+      },
+      tournament: {
+        category: [5.5, 19, 89, 5, 23], title: [5.5, 27, 89, 22, 50], subtitle: [5.5, 51, 89, 6, 27],
+        date: [5.5, 46, 42, 5, 21], time: [51, 46, 42, 5, 21], location: [5.5, 52, 42, 5, 21],
+        opponent: [51, 52, 42, 5, 21], score: [42, 40, 16, 8, 42], summary: [8, 65, 84, 11, 25]
+      }
+    };
+    return layouts[style] || layouts.match;
+  }
+
+  function positionDirectFields(data) {
+    if (!directLayer) return;
+    const layout = directFieldLayout(data);
+    directLayer.querySelectorAll('[data-direct-field]').forEach((node) => {
+      const region = layout[node.dataset.directField];
+      if (!region) return;
+      const [left, top, width, height, fontSize] = region;
+      node.style.left = `${left}%`;
+      node.style.top = `${top}%`;
+      node.style.width = `${width}%`;
+      node.style.height = `${height}%`;
+      node.style.right = 'auto';
+      node.style.bottom = 'auto';
+      node.style.maxWidth = 'none';
+      node.style.fontSize = `${Math.max(10, fontSize * state.documentScale)}px`;
+    });
+  }
+
   function syncDirectEditor(data = readForm()) {
     if (!directLayer) return;
     directLayer.dataset.template = data.template || 'upcoming';
@@ -458,8 +521,40 @@
       node.classList.toggle('is-empty', !value);
       node.hidden = false;
     });
+    positionDirectFields(data);
     if (directFormat) directFormat.value = data.format || 'portrait';
     if (directStyle) directStyle.value = getStyleKey(data.style, data.template);
+  }
+
+  function updateDocumentViewport() {
+    if (!canvasWrap || !posterStage || !canvas?.width || !canvas?.height) return;
+    const wrapStyle = getComputedStyle(canvasWrap);
+    const availableWidth = Math.max(1, canvasWrap.clientWidth - parseFloat(wrapStyle.paddingLeft) - parseFloat(wrapStyle.paddingRight));
+    const availableHeight = Math.max(1, canvasWrap.clientHeight - parseFloat(wrapStyle.paddingTop) - parseFloat(wrapStyle.paddingBottom));
+    const fitScale = Math.min(availableWidth / canvas.width, availableHeight / canvas.height);
+    const factor = state.documentZoomMode === 'fit' ? 1 : state.documentZoomFactor;
+    const scale = Math.max(0.05, fitScale * factor);
+    state.documentScale = scale;
+    posterStage.style.width = `${Math.round(canvas.width * scale)}px`;
+    posterStage.style.height = `${Math.round(canvas.height * scale)}px`;
+    canvasWrap.classList.toggle('is-document-fit', state.documentZoomMode === 'fit');
+    canvasWrap.classList.toggle('is-document-manual', state.documentZoomMode !== 'fit');
+    documentFitButton?.classList.toggle('is-active', state.documentZoomMode === 'fit');
+    if (documentZoomLabel) documentZoomLabel.textContent = state.documentZoomMode === 'fit' ? 'Adapter' : `${Math.round(scale * 100)} %`;
+    positionDirectFields(readForm());
+  }
+
+  function fitDocumentToViewport() {
+    state.documentZoomMode = 'fit';
+    state.documentZoomFactor = 1;
+    canvasWrap?.scrollTo({ left: 0, top: 0 });
+    updateDocumentViewport();
+  }
+
+  function changeDocumentZoom(delta) {
+    state.documentZoomMode = 'manual';
+    state.documentZoomFactor = clamp(state.documentZoomFactor + delta, 0.5, 3);
+    updateDocumentViewport();
   }
 
   function closeDirectEditor(commit = true) {
@@ -765,6 +860,7 @@
       renderComposition();
     }
     if (activeTab === 'newsletter') renderNewsletter();
+    if (activeTab === 'publications') requestAnimationFrame(updateDocumentViewport);
   }
 
   function hydrateCompositionMatches() {
@@ -2288,9 +2384,11 @@
     const data = readForm();
     const format = resizeCanvas(data.format);
     const scale = Math.min(format.width / 1080, format.height / 1080);
-    renderPoster(data, format.width, format.height, scale);
+    const renderData = state.activeDirectField ? { ...data, [state.activeDirectField]: ' ' } : data;
+    renderPoster(renderData, format.width, format.height, scale);
     syncDirectEditor(data);
     updateCaption(data);
+    requestAnimationFrame(updateDocumentViewport);
   }
 
   function templateLabel(template) {
@@ -3271,6 +3369,9 @@
     render();
   });
   directImageInput?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'image'));
+  documentFitButton?.addEventListener('click', fitDocumentToViewport);
+  documentZoomOutButton?.addEventListener('click', () => changeDocumentZoom(-0.25));
+  documentZoomInButton?.addEventListener('click', () => changeDocumentZoom(0.25));
   directFormat?.addEventListener('change', (event) => {
     setField('format', event.target.value);
     render();
@@ -3325,6 +3426,7 @@
     const sidebar = document.querySelector('#studio-panel-publications .studio-left');
     const open = sidebar?.classList.toggle('is-mobile-open') || false;
     settingsToggle.setAttribute('aria-expanded', String(open));
+    requestAnimationFrame(updateDocumentViewport);
   });
   canvasWrap?.addEventListener('pointerdown', (event) => {
     if (event.target !== canvas || !state.image) return;
@@ -3351,6 +3453,12 @@
   };
   canvasWrap?.addEventListener('pointerup', endPhotoDrag);
   canvasWrap?.addEventListener('pointercancel', endPhotoDrag);
+
+  const documentResizeObserver = typeof ResizeObserver === 'function'
+    ? new ResizeObserver(() => updateDocumentViewport())
+    : null;
+  if (canvasWrap) documentResizeObserver?.observe(canvasWrap);
+  window.addEventListener('resize', updateDocumentViewport, { passive: true });
 
   setSourceSelectLoading('Chargement du CMS...');
   syncTemplateButtons(readForm().template || 'upcoming');

@@ -5683,17 +5683,59 @@ body{
 }
 
 .studio-page #studio-panel-publications .studio-canvas-wrap{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:calc(100dvh - 340px)!important;
+  min-height:360px!important;
   overflow:hidden!important;
+  overscroll-behavior:contain;
 }
 
-.studio-page #studio-panel-publications .studio-canvas-wrap canvas{
+.studio-page #studio-panel-publications .poster-stage{
+  position:relative;
+  flex:0 0 auto;
+  overflow:visible;
+}
+
+.studio-page #studio-panel-publications .poster-stage canvas{
   display:block!important;
-  width:auto!important;
-  height:auto!important;
-  max-width:100%!important;
-  max-height:100%!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
   touch-action:none;
   cursor:grab;
+}
+
+.studio-page #studio-panel-publications .studio-canvas-wrap.is-document-manual{
+  align-items:flex-start!important;
+  justify-content:flex-start!important;
+  overflow:auto!important;
+}
+
+.studio-page .studio-document-tools,
+.studio-page .studio-photo-tools{
+  align-items:center;
+}
+
+.studio-page .studio-document-tools > span,
+.studio-page .studio-photo-tools > span{
+  color:#aaa49d;
+  font:600 12px/1.2 Arial,sans-serif;
+}
+
+.studio-page .studio-document-tools output{
+  min-width:52px;
+  color:#d8d0c6;
+  font:600 12px/1.2 Arial,sans-serif;
+  text-align:center;
+}
+
+.studio-page .studio-document-tools button.is-active{
+  border-color:#b11845!important;
+  background:rgba(177,24,69,.18)!important;
+  color:#fff!important;
 }
 
 .studio-page #studio-panel-publications .studio-canvas-wrap.is-dragging-photo canvas{
@@ -5702,9 +5744,10 @@ body{
 
 .studio-page .poster-direct-layer{
   position:absolute;
-  inset:10px;
+  inset:0;
   z-index:4;
   pointer-events:none;
+  overflow:hidden;
 }
 
 .studio-page .poster-direct-layer [data-direct-field]{
@@ -5720,6 +5763,9 @@ body{
   text-align:left;
   cursor:text;
   pointer-events:auto;
+  line-height:1.08;
+  white-space:normal;
+  overflow:hidden;
 }
 
 .studio-page .poster-direct-layer [data-direct-field]:hover,
@@ -5737,15 +5783,10 @@ body{
   color:#aaa;
 }
 
-.studio-page .poster-direct-layer [data-direct-field="category"]{left:8%;top:7%;font-size:clamp(10px,1.2vw,18px)}
-.studio-page .poster-direct-layer [data-direct-field="title"]{left:8%;top:18%;font-size:clamp(18px,3vw,46px)}
-.studio-page .poster-direct-layer [data-direct-field="subtitle"]{left:8%;top:35%;font-size:clamp(13px,1.8vw,28px)}
-.studio-page .poster-direct-layer [data-direct-field="date"]{left:8%;top:54%}
-.studio-page .poster-direct-layer [data-direct-field="time"]{left:29%;top:54%}
-.studio-page .poster-direct-layer [data-direct-field="location"]{left:48%;top:54%}
-.studio-page .poster-direct-layer [data-direct-field="opponent"]{right:9%;top:42%;text-align:right}
-.studio-page .poster-direct-layer [data-direct-field="score"]{left:44%;top:42%;font-size:clamp(18px,3vw,44px)}
-.studio-page .poster-direct-layer [data-direct-field="summary"]{left:8%;bottom:11%;max-width:78%}
+.studio-page .poster-direct-layer [data-direct-field="opponent"],
+.studio-page .poster-direct-layer [data-direct-field="score"]{
+  text-align:center;
+}
 
 .studio-page .poster-context-toolbar{
   position:sticky;
@@ -5827,8 +5868,10 @@ body{
   .studio-page #studio-panel-publications .studio-left.is-mobile-open{display:block!important}
   .studio-page .studio-settings-toggle{display:inline-flex!important}
   .studio-page .poster-preview-toolbar{flex-wrap:wrap!important}
-  .studio-page .poster-direct-layer [data-direct-field="title"]{font-size:clamp(16px,5vw,28px)}
-  .studio-page .poster-direct-layer [data-direct-field="summary"]{bottom:8%}
+  .studio-page #studio-panel-publications .studio-canvas-wrap{height:58dvh!important;min-height:300px!important}
+  .studio-page #studio-panel-publications .studio-preview-tools{flex-wrap:nowrap!important;overflow-x:auto!important}
+  .studio-page .studio-document-tools > span,
+  .studio-page .studio-photo-tools > span{flex:0 0 auto}
   .studio-page .poster-context-toolbar{width:100%;overflow:auto;flex-wrap:nowrap}
 }
 
