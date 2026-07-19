@@ -843,17 +843,21 @@
       const active = button.dataset.studioTab === activeTab;
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-selected', active ? 'true' : 'false');
+      button.tabIndex = active ? 0 : -1;
     });
     studioTabPanels.forEach((panel) => {
       const active = panel.dataset.studioTabPanel === activeTab;
       panel.classList.toggle('is-active', active);
       panel.hidden = !active;
-      panel.style.display = active ? '' : 'none';
+      panel.setAttribute('aria-hidden', active ? 'false' : 'true');
+      panel.inert = !active;
+      if (active) panel.style.removeProperty('display');
+      else panel.style.setProperty('display', 'none', 'important');
     });
     if (studioCurrentModule) studioCurrentModule.textContent = labels[activeTab] || 'Studio';
     sessionStorage.setItem('rcc-studio-active-module', activeTab);
-    if (!options.silentHash) {
-      history.replaceState(null, '', `#${activeTab}`);
+    if (!options.silentHash && location.hash !== `#${activeTab}`) {
+      history.pushState({ studioTab: activeTab }, '', `#${activeTab}`);
     }
     if (activeTab === 'composition') {
       setCompositionStep(state.activeCompositionStep || 'match');
@@ -861,6 +865,12 @@
     }
     if (activeTab === 'newsletter') renderNewsletter();
     if (activeTab === 'publications') requestAnimationFrame(updateDocumentViewport);
+    if (options.scroll) {
+      requestAnimationFrame(() => document.querySelector('.studio-main-modules')?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start'
+      }));
+    }
   }
 
   function hydrateCompositionMatches() {
@@ -3304,8 +3314,11 @@
 
   studioTabButtons.forEach((button) => button.addEventListener('click', (event) => {
     event.preventDefault();
-    switchStudioTab(button.dataset.studioTab);
+    switchStudioTab(button.dataset.studioTab, { scroll: true });
   }));
+  window.addEventListener('hashchange', () => {
+    switchStudioTab(location.hash, { silentHash: true, scroll: true });
+  });
   compositionTeam?.addEventListener('change', () => {
     hydrateCompositionMatches();
     hydrateCompositionPlayers();

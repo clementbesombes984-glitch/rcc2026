@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Studio RCC - RC Cubzaguais</title>
     <meta name="description" content="Studio RCC : centre de communication officiel du RC Cubzaguais." />
-    <link rel="stylesheet" href="../styles.css?v=studio-v3-simple-2" />
+    <link rel="stylesheet" href="../styles.css?v=studio-v3-tabs-1" />
     <meta name="theme-color" content="#b11845" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="RCC" />
@@ -62,7 +62,7 @@
         <button id="studio-tab-newsletter" type="button" role="tab" aria-selected="false" aria-controls="studio-panel-newsletter" data-studio-tab="newsletter">Newsletter</button>
       </nav>
 
-      <section class="studio-layout studio-tab-panel is-active" id="studio-panel-publications" role="tabpanel" aria-labelledby="studio-tab-publications" data-studio-tab-panel="publications">
+      <section class="studio-layout studio-tab-panel is-active" id="studio-panel-publications" role="tabpanel" aria-labelledby="studio-tab-publications" aria-hidden="false" data-studio-tab-panel="publications">
         <aside class="studio-sidebar studio-left">
           <div class="poster-panel-head">
             <span>Modèle</span>
@@ -431,7 +431,7 @@
         </form>
       </section>
 
-      <section class="studio-tab-panel studio-tool-panel" id="studio-panel-composition" role="tabpanel" aria-labelledby="studio-tab-composition" data-studio-tab-panel="composition" hidden>
+      <section class="studio-tab-panel studio-tool-panel" id="studio-panel-composition" role="tabpanel" aria-labelledby="studio-tab-composition" aria-hidden="true" data-studio-tab-panel="composition" hidden>
         <div class="composition-workflow" data-composition-workflow>
           <nav class="composition-steps" aria-label="Etapes composition">
             <button class="is-active" type="button" data-composition-step="match"><span>1.</span> Match</button>
@@ -538,7 +538,7 @@
         </div>
       </section>
 
-      <section class="studio-tab-panel studio-tool-panel" id="studio-panel-newsletter" role="tabpanel" aria-labelledby="studio-tab-newsletter" data-studio-tab-panel="newsletter" hidden>
+      <section class="studio-tab-panel studio-tool-panel" id="studio-panel-newsletter" role="tabpanel" aria-labelledby="studio-tab-newsletter" aria-hidden="true" data-studio-tab-panel="newsletter" hidden>
         <div class="newsletter-editor-v2" data-newsletter-v2>
           <div class="newsletter-commandbar">
             <label>Modèle
@@ -745,7 +745,7 @@
     <script src="../notification-categories.js"></script>
     <script src="./poster-auth.js?v=studio-v3-direct-2"></script>
     <script src="../script.js"></script>
-    <script src="./poster-generator.js?v=studio-v3-simple-2"></script>
+    <script src="./poster-generator.js?v=studio-v3-tabs-1"></script>
     <script src="./newsletter-editor.js?v=studio-v3-simple-2"></script>
   </body>
 </html>

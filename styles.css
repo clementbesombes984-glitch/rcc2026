@@ -6222,6 +6222,13 @@ body{
   display:none!important;
 }
 
+body.studio-page #studio-panel-publications[hidden],
+body.studio-page #studio-panel-composition[hidden],
+body.studio-page #studio-panel-newsletter[hidden]{
+  display:none!important;
+  visibility:hidden!important;
+}
+
 .studio-page .composition-steps{
   display:flex!important;
   grid-template-columns:none!important;
