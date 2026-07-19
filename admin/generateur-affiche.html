@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Studio RCC - RC Cubzaguais</title>
     <meta name="description" content="Studio RCC : centre de communication officiel du RC Cubzaguais." />
-    <link rel="stylesheet" href="../styles.css?v=studio-newsletter-2" />
+    <link rel="stylesheet" href="../styles.css?v=studio-v3-direct-2" />
     <meta name="theme-color" content="#b11845" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="RCC" />
@@ -92,6 +92,27 @@
             </select>
           </label>
 
+          <div class="poster-panel-head compact">
+            <span>Rendu</span>
+            <strong>Style et format</strong>
+          </div>
+          <label class="studio-compact-select">Style graphique
+            <select data-direct-style>
+              <option value="match">Top 14</option>
+              <option value="magazine">Magazine</option>
+              <option value="club">Vie du club</option>
+            </select>
+          </label>
+          <label class="studio-compact-select">Format
+            <select data-direct-format>
+              <option value="portrait">Instagram portrait</option>
+              <option value="facebook">Facebook paysage</option>
+              <option value="story">Story</option>
+              <option value="a4">Impression A4</option>
+              <option value="a3">Impression A3</option>
+            </select>
+          </label>
+
           <p class="poster-help" data-poster-status role="status" aria-live="polite">Chargement du Studio RCC...</p>
         </aside>
 
@@ -99,19 +120,45 @@
           <div class="poster-preview-toolbar">
             <span>Apercu en direct</span>
             <strong data-poster-size>1080 x 1080</strong>
+            <button class="studio-settings-toggle" type="button" data-studio-settings-toggle aria-expanded="false">Reglages</button>
           </div>
           <div class="studio-preview-tools">
+            <label class="studio-tool-upload">Photo<input type="file" accept="image/*" data-direct-poster-image /></label>
             <button type="button" data-zoom-out aria-label="Reduire le zoom de la photo">Zoom -</button>
             <button type="button" data-zoom-in aria-label="Agrandir le zoom de la photo">Zoom +</button>
             <button type="button" data-toggle-grid aria-label="Afficher ou masquer la grille de composition">Grille</button>
             <button type="button" data-reset-photo aria-label="Recentrer la photo principale">Recentrer photo</button>
+            <button type="button" data-remove-photo aria-label="Supprimer la photo principale">Supprimer photo</button>
           </div>
           <div class="poster-canvas-wrap studio-canvas-wrap">
             <canvas id="posterCanvas" width="1080" height="1080" aria-label="Apercu de la communication RCC"></canvas>
+            <div class="poster-direct-layer" data-poster-direct-layer aria-label="Textes modifiables de l'affiche">
+              <button type="button" data-direct-field="category">Club</button>
+              <button type="button" data-direct-field="title">Reprise de la preparation</button>
+              <button type="button" data-direct-field="subtitle">Le RCC retrouve le terrain</button>
+              <button type="button" data-direct-field="date">Date</button>
+              <button type="button" data-direct-field="time">Heure</button>
+              <button type="button" data-direct-field="location">Lieu</button>
+              <button type="button" data-direct-field="opponent">Adversaire</button>
+              <button type="button" data-direct-field="score">Score</button>
+              <button type="button" data-direct-field="summary">Informations</button>
+            </div>
+          </div>
+          <div class="poster-context-toolbar" data-poster-context-toolbar hidden>
+            <strong data-context-label>Texte</strong>
+            <label>Taille <input type="range" min="70" max="135" value="100" data-context-size /></label>
+            <button type="button" data-context-align>Aligner</button>
+            <button type="button" data-context-hide>Masquer</button>
+            <button type="button" data-context-reset>Reinitialiser</button>
+          </div>
+          <div class="poster-actions studio-direct-actions">
+            <button class="button ghost" type="button" data-download-poster>PNG</button>
+            <button class="button ghost" type="button" data-download-pdf>PDF</button>
+            <button class="button primary" type="button" data-publish-dialog-open>Publier</button>
           </div>
         </section>
 
-        <form class="studio-sidebar studio-right poster-form" data-poster-form>
+        <form class="studio-sidebar studio-right poster-form studio-state-form" data-poster-form hidden>
           <div class="poster-panel-head">
             <span>Etape 3</span>
             <strong>Ajuster l'affiche</strong>
@@ -676,9 +723,9 @@
     </main>
 
     <script src="../notification-categories.js"></script>
-    <script src="./poster-auth.js?v=studio-rcc-8"></script>
+    <script src="./poster-auth.js?v=studio-v3-direct-2"></script>
     <script src="../script.js"></script>
-    <script src="./poster-generator.js?v=studio-rcc-8"></script>
-    <script src="./newsletter-editor.js?v=studio-rcc-3"></script>
+    <script src="./poster-generator.js?v=studio-v3-direct-2"></script>
+    <script src="./newsletter-editor.js?v=studio-v3-direct-2"></script>
   </body>
 </html>

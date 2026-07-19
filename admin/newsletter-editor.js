@@ -202,12 +202,12 @@
       const header = state.header;
       const titleLength = clean(header.title).length;
       const titleClass = titleLength > 38 ? 'is-very-long' : (titleLength > 25 ? 'is-long' : '');
-      return `<div class="newsletter-masthead"><img class="newsletter-logo newsletter-header-logo" src="../assets/logo-rcc.png" alt="" /><div class="newsletter-masthead-copy"><span>${escapeHtml(block.label || 'Racing Club Cubzaguais')}</span><h1 class="${titleClass}">${escapeHtml(header.title)}</h1>${header.subtitle ? `<p>${escapeHtml(header.subtitle)}</p>` : ''}${header.tagline ? `<small class="newsletter-tagline">${escapeHtml(header.tagline)}</small>` : ''}</div><b>N°${escapeHtml(header.issueNumber || '—')}<small>${escapeHtml(header.month)} ${escapeHtml(header.year)}</small>${header.season ? `<em>${escapeHtml(header.season)}</em>` : ''}</b></div>`;
+      return `<div class="newsletter-masthead"><img class="newsletter-logo newsletter-header-logo" src="../assets/logo-rcc.png" alt="" /><div class="newsletter-masthead-copy"><span contenteditable="true" data-nl-direct-block="label">${escapeHtml(block.label || 'Racing Club Cubzaguais')}</span><h1 class="${titleClass}" contenteditable="true" data-nl-direct-header="title">${escapeHtml(header.title)}</h1><p contenteditable="true" data-nl-direct-header="subtitle">${escapeHtml(header.subtitle || '')}</p><small class="newsletter-tagline" contenteditable="true" data-nl-direct-header="tagline">${escapeHtml(header.tagline || '')}</small></div><b>N°<span contenteditable="true" data-nl-direct-header="issueNumber">${escapeHtml(header.issueNumber || '')}</span><small><span contenteditable="true" data-nl-direct-header="month">${escapeHtml(header.month)}</span> <span contenteditable="true" data-nl-direct-header="year">${escapeHtml(header.year)}</span></small><em contenteditable="true" data-nl-direct-header="season">${escapeHtml(header.season || '')}</em></b></div>`;
     }
     if (block.type === 'footer') return `<div class="newsletter-footer"><img class="newsletter-logo newsletter-footer-logo" src="../assets/logo-rcc.png" alt="" /><strong>Racing Club Cubzaguais</strong><span>rccubzaguais.fr</span></div>`;
     const photos = block.type === 'gallery' && block.photos?.length
       ? `<div class="newsletter-photo-grid">${block.photos.slice(0, Number(block.photoCount) || 4).map((photo) => `<img src="${escapeHtml(photo.image || photo)}" alt="" crossorigin="anonymous" />`).join('')}</div>` : '';
-    return `${imageMarkup(block)}<div class="newsletter-block-copy" style="text-align:${block.align}"><span>${escapeHtml(block.label)}</span><h2>${escapeHtml(block.title || BLOCK_TYPES[block.type])}</h2>${block.subtitle ? `<h3>${escapeHtml(block.subtitle)}</h3>` : ''}${block.text ? `<p>${escapeHtml(block.text).replace(/\n/g, '<br>')}</p>` : ''}${block.link ? `<small>${escapeHtml(block.link)}</small>` : ''}</div>${photos}`;
+    return `${imageMarkup(block)}<div class="newsletter-block-copy" style="text-align:${block.align}"><span contenteditable="true" data-nl-direct-block="label">${escapeHtml(block.label)}</span><h2 contenteditable="true" data-nl-direct-block="title">${escapeHtml(block.title || BLOCK_TYPES[block.type])}</h2><h3 contenteditable="true" data-nl-direct-block="subtitle">${escapeHtml(block.subtitle || '')}</h3><p contenteditable="true" data-nl-direct-block="text">${escapeHtml(block.text || '').replace(/\n/g, '<br>')}</p><small contenteditable="true" data-nl-direct-block="link">${escapeHtml(block.link || '')}</small></div>${photos}`;
   }
 
   function renderPage(page) {
@@ -537,13 +537,60 @@
       if (item) addBlock(sourceToBlock(kind, item).type, sourceToBlock(kind, item));
     });
     const spread = $('[data-nl-spread]');
-    spread.addEventListener('click', (event) => selectBlockNode(blockNodeFromEvent(event)));
+    spread.addEventListener('click', (event) => {
+      const node = blockNodeFromEvent(event);
+      if (!node) return;
+      if (event.target.closest('[contenteditable="true"]')) {
+        selectedBlockId = node.dataset.newsletterBlockId;
+        activePage = Number(node.closest('[data-page]')?.dataset.page) || activePage;
+        event.target.focus();
+        return;
+      }
+      selectBlockNode(node);
+    });
+    spread.addEventListener('input', (event) => {
+      const editable = event.target.closest('[data-nl-direct-block],[data-nl-direct-header]');
+      if (!editable) return;
+      const node = blockNodeFromEvent(event);
+      const block = node ? allBlocks().find((item) => item.id === node.dataset.newsletterBlockId) : null;
+      const value = editable.innerText.replace(/\n{3,}/g, '\n\n').trim();
+      if (editable.dataset.nlDirectHeader) {
+        const key = editable.dataset.nlDirectHeader;
+        state.header[key] = key === 'year' ? Number(value) || '' : value;
+        const mirror = root.querySelector(`[data-nl-header-field="${key}"]`);
+        if (mirror) mirror.value = state.header[key];
+        syncLegacyHeaderFields(state);
+      } else if (block) {
+        const key = editable.dataset.nlDirectBlock;
+        block[key] = value;
+        const mirror = root.querySelector(`[data-nl-block-field="${key}"]`);
+        if (mirror) mirror.value = value;
+      }
+      setDirty();
+    });
+    spread.addEventListener('focusout', (event) => {
+      if (!event.target.closest('[data-nl-direct-block],[data-nl-direct-header]')) return;
+      renderProperties();
+    });
     spread.addEventListener('keydown', (event) => {
+      const editable = event.target.closest('[data-nl-direct-block],[data-nl-direct-header]');
+      if (!editable) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        render();
+      }
+    });
+    spread.addEventListener('keydown', (event) => {
+      if (event.target.closest('[contenteditable="true"]')) return;
       if (event.key !== 'Enter' && event.key !== ' ') return;
       const node = blockNodeFromEvent(event); if (!node) return;
       event.preventDefault(); selectBlockNode(node);
     });
     spread.addEventListener('dragstart', (event) => {
+      if (event.target.closest('[contenteditable="true"]')) {
+        event.preventDefault();
+        return;
+      }
       const node = blockNodeFromEvent(event); if (!node || !event.dataTransfer) return;
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/plain', node.dataset.newsletterBlockId);

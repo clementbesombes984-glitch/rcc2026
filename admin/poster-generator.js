@@ -102,6 +102,14 @@
   const zoomOutButton = document.querySelector('[data-zoom-out]');
   const toggleGridButton = document.querySelector('[data-toggle-grid]');
   const resetPhotoButton = document.querySelector('[data-reset-photo]');
+  const removePhotoButton = document.querySelector('[data-remove-photo]');
+  const directLayer = document.querySelector('[data-poster-direct-layer]');
+  const contextToolbar = document.querySelector('[data-poster-context-toolbar]');
+  const directFormat = document.querySelector('[data-direct-format]');
+  const directStyle = document.querySelector('[data-direct-style]');
+  const directImageInput = document.querySelector('[data-direct-poster-image]');
+  const settingsToggle = document.querySelector('[data-studio-settings-toggle]');
+  const canvasWrap = canvas?.closest('.studio-canvas-wrap');
   const studioTabButtons = document.querySelectorAll('[data-studio-tab]');
   const studioTabPanels = document.querySelectorAll('[data-studio-tab-panel]');
   const studioCurrentModule = document.querySelector('[data-studio-current-module]');
@@ -205,7 +213,9 @@
     },
     activeCompositionStep: 'match',
     newsletterBlocks: [],
-    pushAudienceManual: false
+    pushAudienceManual: false,
+    activeDirectField: '',
+    directOriginalValue: ''
   };
 
   const logo = new Image();
@@ -214,6 +224,7 @@
   logo.onload = render;
   const RCC_COMPOSITION_AVATAR = '../assets/logo-rcc.png';
   const compositionImageCache = new Map();
+  let photoDrag = null;
 
   const clean = (value) => String(value || '').replace(/\s+/g, ' ').trim();
   const upper = (value) => clean(value).toUpperCase();
@@ -431,6 +442,64 @@
   function setField(name, value) {
     const field = form?.elements[name];
     if (field && value !== undefined && value !== null) field.value = value;
+  }
+
+  function directFieldLabel(name) {
+    return ({ title: 'Titre', subtitle: 'Sous-titre', summary: 'Informations', category: 'Categorie', date: 'Date', time: 'Heure', location: 'Lieu', opponent: 'Adversaire', score: 'Score' })[name] || 'Texte';
+  }
+
+  function syncDirectEditor(data = readForm()) {
+    if (!directLayer) return;
+    directLayer.dataset.template = data.template || 'upcoming';
+    directLayer.querySelectorAll('[data-direct-field]').forEach((node) => {
+      if (node.dataset.directField === state.activeDirectField && node.isContentEditable) return;
+      const value = clean(data[node.dataset.directField]);
+      node.textContent = value || directFieldLabel(node.dataset.directField);
+      node.classList.toggle('is-empty', !value);
+      node.hidden = false;
+    });
+    if (directFormat) directFormat.value = data.format || 'portrait';
+    if (directStyle) directStyle.value = getStyleKey(data.style, data.template);
+  }
+
+  function closeDirectEditor(commit = true) {
+    const node = directLayer?.querySelector('[contenteditable="true"]');
+    if (node) {
+      const fieldName = node.dataset.directField;
+      if (commit) setField(fieldName, clean(node.textContent));
+      else node.textContent = state.directOriginalValue;
+      node.contentEditable = 'false';
+      node.classList.remove('is-editing');
+    }
+    state.activeDirectField = '';
+    if (contextToolbar) contextToolbar.hidden = true;
+    render();
+  }
+
+  function openDirectEditor(node) {
+    if (!node) return;
+    if (state.activeDirectField && state.activeDirectField !== node.dataset.directField) closeDirectEditor(true);
+    state.activeDirectField = node.dataset.directField;
+    state.directOriginalValue = form.elements[state.activeDirectField]?.value || '';
+    node.textContent = state.directOriginalValue;
+    node.contentEditable = 'true';
+    node.classList.add('is-editing');
+    if (contextToolbar) {
+      contextToolbar.hidden = false;
+      const label = contextToolbar.querySelector('[data-context-label]');
+      if (label) label.textContent = directFieldLabel(state.activeDirectField);
+      const size = contextToolbar.querySelector('[data-context-size]');
+      if (size) {
+        size.value = form.elements.textScale?.value || 100;
+        size.closest('label').hidden = state.activeDirectField !== 'title';
+      }
+    }
+    node.focus();
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 
   function syncTemplateButtons(template) {
@@ -933,6 +1002,89 @@
     `;
   }
 
+  function closeCompositionPicker() {
+    document.querySelector('[data-composition-picker]')?.remove();
+  }
+
+  function openCompositionPicker(slotIndex, anchor) {
+    closeCompositionPicker();
+    const slot = state.composition.slots[slotIndex];
+    if (!slot) return;
+    const team = compositionTeam?.value || 'Seniors';
+    const players = playersForSlot(slot, playerPool(team));
+    const picker = document.createElement('div');
+    picker.className = 'composition-direct-picker';
+    picker.dataset.compositionPicker = 'true';
+    picker.innerHTML = `
+      <strong>N° ${slot.number} · ${escapeHtml(slot.position)}</strong>
+      <label>Joueur
+        <select data-picker-player>
+          <option value="">À définir</option>
+          ${players.map((player) => `<option value="${escapeHtml(player.key)}"${player.key === slot.playerKey ? ' selected' : ''}>${escapeHtml(player.name)}${player.role ? ` · ${escapeHtml(player.role)}` : ''}</option>`).join('')}
+          <option value="__manual__">+ Saisie libre</option>
+        </select>
+      </label>
+      <label data-picker-manual-wrap${slot.playerKey ? ' hidden' : ''}>Nom libre
+        <input type="text" data-picker-manual value="${escapeHtml(slot.playerKey ? '' : slot.player)}" placeholder="Prénom Nom" />
+      </label>
+      <label>Numéro<input type="number" min="1" max="99" data-picker-number value="${slot.number}" /></label>
+      <div>
+        <button type="button" data-picker-captain>Capitaine</button>
+        <button type="button" data-picker-vice>Vice-capitaine</button>
+        <button type="button" data-picker-close>Fermer</button>
+      </div>
+    `;
+    document.body.appendChild(picker);
+    const rect = anchor.getBoundingClientRect();
+    picker.style.left = `${Math.max(10, Math.min(window.innerWidth - picker.offsetWidth - 10, rect.left))}px`;
+    picker.style.top = `${Math.max(10, Math.min(window.innerHeight - picker.offsetHeight - 10, rect.bottom + 8))}px`;
+    const select = picker.querySelector('[data-picker-player]');
+    const manualWrap = picker.querySelector('[data-picker-manual-wrap]');
+    select.addEventListener('change', () => {
+      manualWrap.hidden = select.value !== '__manual__';
+      if (select.value && select.value !== '__manual__') {
+        setCompositionSlot(slotIndex, select.value);
+        closeCompositionPicker();
+      } else if (!select.value) {
+        clearCompositionSlot(slotIndex);
+        closeCompositionPicker();
+      } else picker.querySelector('[data-picker-manual]')?.focus();
+    });
+    const manualInput = picker.querySelector('[data-picker-manual]');
+    const commitManualPlayer = () => {
+      slot.player = clean(manualInput?.value);
+      slot.playerKey = '';
+      slot.firstName = '';
+      slot.lastName = '';
+      slot.photo = '';
+      renderComposition();
+      closeCompositionPicker();
+    };
+    manualInput?.addEventListener('change', commitManualPlayer);
+    manualInput?.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      commitManualPlayer();
+    });
+    picker.querySelector('[data-picker-number]')?.addEventListener('change', (event) => {
+      slot.number = clamp(Number(event.target.value) || slotIndex + 1, 1, 99);
+      renderComposition();
+    });
+    picker.querySelector('[data-picker-captain]').addEventListener('click', () => {
+      state.composition.captain = slot.player;
+      if (compositionCaptain) compositionCaptain.value = slot.player;
+      renderComposition();
+      closeCompositionPicker();
+    });
+    picker.querySelector('[data-picker-vice]').addEventListener('click', () => {
+      state.composition.viceCaptain = slot.player;
+      if (compositionVice) compositionVice.value = slot.player;
+      renderComposition();
+      closeCompositionPicker();
+    });
+    picker.querySelector('[data-picker-close]').addEventListener('click', closeCompositionPicker);
+  }
+
   function renderComposition() {
     updateCompositionMatchInfo();
     if (!compositionPreview) return;
@@ -999,12 +1151,7 @@
       </div>
     `;
     compositionPreview.querySelectorAll('[data-composition-preview-slot]').forEach((node) => {
-      node.addEventListener('click', () => {
-        setCompositionStep('players');
-        const editor = compositionList?.querySelector(`[data-slot-editor="${node.dataset.compositionPreviewSlot}"] select`);
-        editor?.focus();
-        editor?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      });
+      node.addEventListener('click', () => openCompositionPicker(Number(node.dataset.compositionPreviewSlot), node));
     });
     compositionPreview.querySelectorAll('[data-composition-player-photo]').forEach((image) => {
       image.addEventListener('error', () => {
@@ -2142,6 +2289,7 @@
     const format = resizeCanvas(data.format);
     const scale = Math.min(format.width / 1080, format.height / 1080);
     renderPoster(data, format.width, format.height, scale);
+    syncDirectEditor(data);
     updateCaption(data);
   }
 
@@ -3115,6 +3263,94 @@
     setField('photoOffsetY', 0);
     render();
   });
+  removePhotoButton?.addEventListener('click', () => {
+    state.image = null;
+    if (directImageInput) directImageInput.value = '';
+    const legacyImage = document.querySelector('[data-poster-image]');
+    if (legacyImage) legacyImage.value = '';
+    render();
+  });
+  directImageInput?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'image'));
+  directFormat?.addEventListener('change', (event) => {
+    setField('format', event.target.value);
+    render();
+  });
+  directStyle?.addEventListener('change', (event) => {
+    setField('style', event.target.value);
+    render();
+  });
+  directLayer?.addEventListener('click', (event) => {
+    const node = event.target.closest('[data-direct-field]');
+    if (!node) return;
+    event.preventDefault();
+    openDirectEditor(node);
+  });
+  directLayer?.addEventListener('keydown', (event) => {
+    if (!event.target.matches('[data-direct-field]')) return;
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      closeDirectEditor(true);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      closeDirectEditor(false);
+    }
+  });
+  directLayer?.addEventListener('focusout', (event) => {
+    if (!event.target.matches('[data-direct-field]')) return;
+    window.setTimeout(() => {
+      if (!contextToolbar?.contains(document.activeElement)) closeDirectEditor(true);
+    }, 0);
+  });
+  contextToolbar?.querySelector('[data-context-size]')?.addEventListener('input', (event) => {
+    if (state.activeDirectField !== 'title') return;
+    setField('textScale', event.target.value);
+    render();
+  });
+  contextToolbar?.querySelector('[data-context-align]')?.addEventListener('click', () => {
+    const options = ['left', 'center', 'bottom'];
+    const current = form.elements.textPosition?.value || 'left';
+    setField('textPosition', options[(options.indexOf(current) + 1) % options.length]);
+    render();
+  });
+  contextToolbar?.querySelector('[data-context-hide]')?.addEventListener('click', () => {
+    if (state.activeDirectField) setField(state.activeDirectField, '');
+    closeDirectEditor(true);
+  });
+  contextToolbar?.querySelector('[data-context-reset]')?.addEventListener('click', () => {
+    if (state.activeDirectField) setField(state.activeDirectField, state.directOriginalValue);
+    setField('textScale', 100);
+    closeDirectEditor(true);
+  });
+  settingsToggle?.addEventListener('click', () => {
+    const sidebar = document.querySelector('#studio-panel-publications .studio-left');
+    const open = sidebar?.classList.toggle('is-mobile-open') || false;
+    settingsToggle.setAttribute('aria-expanded', String(open));
+  });
+  canvasWrap?.addEventListener('pointerdown', (event) => {
+    if (event.target !== canvas || !state.image) return;
+    photoDrag = {
+      x: event.clientX,
+      y: event.clientY,
+      offsetX: Number(form.elements.photoOffsetX?.value || 0),
+      offsetY: Number(form.elements.photoOffsetY?.value || 0)
+    };
+    canvas.setPointerCapture?.(event.pointerId);
+    canvasWrap.classList.add('is-dragging-photo');
+  });
+  canvasWrap?.addEventListener('pointermove', (event) => {
+    if (!photoDrag) return;
+    const width = Math.max(1, canvas.getBoundingClientRect().width);
+    const height = Math.max(1, canvas.getBoundingClientRect().height);
+    setField('photoOffsetX', clamp(photoDrag.offsetX + ((event.clientX - photoDrag.x) / width) * 100, -35, 35));
+    setField('photoOffsetY', clamp(photoDrag.offsetY + ((event.clientY - photoDrag.y) / height) * 100, -35, 35));
+    render();
+  });
+  const endPhotoDrag = () => {
+    photoDrag = null;
+    canvasWrap?.classList.remove('is-dragging-photo');
+  };
+  canvasWrap?.addEventListener('pointerup', endPhotoDrag);
+  canvasWrap?.addEventListener('pointercancel', endPhotoDrag);
 
   setSourceSelectLoading('Chargement du CMS...');
   syncTemplateButtons(readForm().template || 'upcoming');
