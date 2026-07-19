@@ -83,14 +83,56 @@
   let sources = { news: [], matches: [], partners: [], gallery: [] };
   let serverNewsletters = [];
   let autosaveTimer = null;
+  let activeEditable = null;
 
   function makeBlock(type, page = activePage, size = '') {
     const defaults = TYPE_DEFAULTS[type] || TYPE_DEFAULTS.text;
     return {
       id: uid(), type, page, size: size || defaults.size || 'half', title: defaults.title || '', subtitle: '',
       text: '', label: defaults.label || '', image: '', hideImage: false, align: 'left', accent: 'burgundy', link: '',
-      sourceType: '', sourceId: '', photos: [], photoCount: 4
+      sourceType: '', sourceId: '', photos: [], photoCount: 4, textStyles: {}, richText: {}
     };
+  }
+
+  function sanitizeRichHtml(value) {
+    const template = document.createElement('template');
+    template.innerHTML = String(value || '');
+    const allowed = new Set(['STRONG', 'B', 'EM', 'I', 'U', 'BR', 'UL', 'OL', 'LI', 'A', 'SPAN']);
+    const cleanNode = (node) => {
+      Array.from(node.children).forEach((child) => {
+        cleanNode(child);
+        if (!allowed.has(child.tagName)) {
+          child.replaceWith(...child.childNodes);
+          return;
+        }
+        const href = child.tagName === 'A' ? clean(child.getAttribute('href')) : '';
+        Array.from(child.attributes).forEach((attribute) => child.removeAttribute(attribute.name));
+        if (href && /^(https?:\/\/|mailto:|\/)/i.test(href)) {
+          child.setAttribute('href', href);
+          child.setAttribute('rel', 'noopener');
+        }
+      });
+    };
+    cleanNode(template.content);
+    return template.innerHTML;
+  }
+
+  function editableMarkup(owner, key, fallback = '') {
+    const rich = owner?.richText?.[key];
+    return rich ? sanitizeRichHtml(rich) : escapeHtml(owner?.[key] ?? fallback).replace(/\n/g, '<br>');
+  }
+
+  function editableStyle(owner, key) {
+    const style = owner?.textStyles?.[key] || {};
+    const declarations = [];
+    const size = Number(style.fontSize);
+    if (size >= 8 && size <= 48) declarations.push(`font-size:${size}px`);
+    if (['left', 'center', 'right'].includes(style.align)) declarations.push(`text-align:${style.align}`);
+    if (['#071a37', '#b11845', '#111111', '#ffffff'].includes(style.color)) declarations.push(`color:${style.color}`);
+    if (style.bold) declarations.push('font-weight:700');
+    if (style.italic) declarations.push('font-style:italic');
+    if (style.underline) declarations.push('text-decoration:underline');
+    return declarations.join(';');
   }
 
   function createDocument(template = 'monthly') {
@@ -202,12 +244,12 @@
       const header = state.header;
       const titleLength = clean(header.title).length;
       const titleClass = titleLength > 38 ? 'is-very-long' : (titleLength > 25 ? 'is-long' : '');
-      return `<div class="newsletter-masthead"><img class="newsletter-logo newsletter-header-logo" src="../assets/logo-rcc.png" alt="" /><div class="newsletter-masthead-copy"><span contenteditable="true" data-nl-direct-block="label">${escapeHtml(block.label || 'Racing Club Cubzaguais')}</span><h1 class="${titleClass}" contenteditable="true" data-nl-direct-header="title">${escapeHtml(header.title)}</h1><p contenteditable="true" data-nl-direct-header="subtitle">${escapeHtml(header.subtitle || '')}</p><small class="newsletter-tagline" contenteditable="true" data-nl-direct-header="tagline">${escapeHtml(header.tagline || '')}</small></div><b>N°<span contenteditable="true" data-nl-direct-header="issueNumber">${escapeHtml(header.issueNumber || '')}</span><small><span contenteditable="true" data-nl-direct-header="month">${escapeHtml(header.month)}</span> <span contenteditable="true" data-nl-direct-header="year">${escapeHtml(header.year)}</span></small><em contenteditable="true" data-nl-direct-header="season">${escapeHtml(header.season || '')}</em></b></div>`;
+      return `<div class="newsletter-masthead"><img class="newsletter-logo newsletter-header-logo" src="../assets/logo-rcc.png" alt="" /><div class="newsletter-masthead-copy"><span contenteditable="true" data-nl-direct-block="label" style="${editableStyle(block, 'label')}">${editableMarkup(block, 'label', 'Racing Club Cubzaguais')}</span><h1 class="${titleClass}" contenteditable="true" data-nl-direct-header="title" style="${editableStyle(header, 'title')}">${editableMarkup(header, 'title')}</h1><p contenteditable="true" data-nl-direct-header="subtitle" style="${editableStyle(header, 'subtitle')}">${editableMarkup(header, 'subtitle')}</p><small class="newsletter-tagline" contenteditable="true" data-nl-direct-header="tagline" style="${editableStyle(header, 'tagline')}">${editableMarkup(header, 'tagline')}</small></div><b>N°<span contenteditable="true" data-nl-direct-header="issueNumber" style="${editableStyle(header, 'issueNumber')}">${editableMarkup(header, 'issueNumber')}</span><small><span contenteditable="true" data-nl-direct-header="month" style="${editableStyle(header, 'month')}">${editableMarkup(header, 'month')}</span> <span contenteditable="true" data-nl-direct-header="year" style="${editableStyle(header, 'year')}">${editableMarkup(header, 'year')}</span></small><em contenteditable="true" data-nl-direct-header="season" style="${editableStyle(header, 'season')}">${editableMarkup(header, 'season')}</em></b></div>`;
     }
     if (block.type === 'footer') return `<div class="newsletter-footer"><img class="newsletter-logo newsletter-footer-logo" src="../assets/logo-rcc.png" alt="" /><strong>Racing Club Cubzaguais</strong><span>rccubzaguais.fr</span></div>`;
     const photos = block.type === 'gallery' && block.photos?.length
       ? `<div class="newsletter-photo-grid">${block.photos.slice(0, Number(block.photoCount) || 4).map((photo) => `<img src="${escapeHtml(photo.image || photo)}" alt="" crossorigin="anonymous" />`).join('')}</div>` : '';
-    return `${imageMarkup(block)}<div class="newsletter-block-copy" style="text-align:${block.align}"><span contenteditable="true" data-nl-direct-block="label">${escapeHtml(block.label)}</span><h2 contenteditable="true" data-nl-direct-block="title">${escapeHtml(block.title || BLOCK_TYPES[block.type])}</h2><h3 contenteditable="true" data-nl-direct-block="subtitle">${escapeHtml(block.subtitle || '')}</h3><p contenteditable="true" data-nl-direct-block="text">${escapeHtml(block.text || '').replace(/\n/g, '<br>')}</p><small contenteditable="true" data-nl-direct-block="link">${escapeHtml(block.link || '')}</small></div>${photos}`;
+    return `${imageMarkup(block)}<div class="newsletter-block-copy" style="text-align:${block.align}"><span contenteditable="true" data-nl-direct-block="label" style="${editableStyle(block, 'label')}">${editableMarkup(block, 'label')}</span><h2 contenteditable="true" data-nl-direct-block="title" style="${editableStyle(block, 'title')}">${editableMarkup(block, 'title', BLOCK_TYPES[block.type])}</h2><h3 contenteditable="true" data-nl-direct-block="subtitle" style="${editableStyle(block, 'subtitle')}">${editableMarkup(block, 'subtitle')}</h3><div class="newsletter-rich-text" contenteditable="true" data-nl-direct-block="text" style="${editableStyle(block, 'text')}">${editableMarkup(block, 'text')}</div><small contenteditable="true" data-nl-direct-block="link" style="${editableStyle(block, 'link')}">${editableMarkup(block, 'link')}</small></div>${photos}`;
   }
 
   function renderPage(page) {
@@ -218,6 +260,7 @@
   }
 
   function render() {
+    activeEditable = null;
     const pages = pageView === 'both' ? state.pages : state.pages.filter((page) => String(page.number) === pageView);
     $('[data-nl-spread]').style.setProperty('--newsletter-zoom', zoom);
     $('[data-nl-spread]').classList.toggle('is-double', pageView === 'both');
@@ -225,6 +268,7 @@
     $('[data-nl-zoom-label]').textContent = `${Math.round(zoom * 100)} %`;
     $$('[data-nl-page-view]').forEach((button) => button.classList.toggle('is-active', button.dataset.nlPageView === pageView));
     renderProperties();
+    updateContextToolbar();
     requestAnimationFrame(checkOverflow);
   }
 
@@ -234,8 +278,10 @@
     if (!panel || panel.offsetParent === null || panel.clientWidth < 120) return;
     const pageCount = pageView === 'both' ? 2 : 1;
     const available = Math.max(280, panel.clientWidth - 44);
+    const panelTop = panel.getBoundingClientRect().top;
+    const availableHeight = Math.max(360, window.innerHeight - panelTop - 105);
     const naturalWidth = (A4.width * pageCount) + (pageCount > 1 ? 16 : 0);
-    const fitted = Math.min(0.7, Math.max(0.35, available / naturalWidth));
+    const fitted = Math.min(0.78, Math.max(0.28, Math.min(available / naturalWidth, availableHeight / A4.height)));
     if (!userZoomed || zoom > fitted) {
       zoom = fitted;
       $('[data-nl-spread]').style.setProperty('--newsletter-zoom', zoom);
@@ -279,6 +325,78 @@
       const key = input.dataset.nlBlockField;
       if (input.type === 'checkbox') input.checked = Boolean(block[key]); else input.value = block[key] ?? '';
     });
+  }
+
+  function contextOwner(editable = activeEditable) {
+    if (!editable) return null;
+    if (editable.dataset.nlDirectHeader) return { owner: state.header, key: editable.dataset.nlDirectHeader };
+    const blockNode = editable.closest('[data-newsletter-block-id]');
+    const block = blockNode ? allBlocks().find((item) => item.id === blockNode.dataset.newsletterBlockId) : null;
+    return block ? { owner: block, key: editable.dataset.nlDirectBlock } : null;
+  }
+
+  function updateContextToolbar(editable = null) {
+    const toolbar = $('[data-nl-context-toolbar]');
+    const block = selectedBlock();
+    if (!toolbar || !block) {
+      if (toolbar) toolbar.hidden = true;
+      return;
+    }
+    toolbar.hidden = false;
+    const typeSelect = $('[data-nl-context-type]');
+    typeSelect.innerHTML = Object.entries(BLOCK_TYPES).map(([value, label]) => `<option value="${value}">${escapeHtml(label)}</option>`).join('');
+    typeSelect.value = block.type;
+    const textTools = $('[data-nl-text-tools]');
+    textTools.hidden = !editable;
+    if (!editable) return;
+    activeEditable = editable;
+    const context = contextOwner(editable);
+    const styles = context?.owner?.textStyles?.[context.key] || {};
+    const computedSize = Math.round(parseFloat(getComputedStyle(editable).fontSize)) || 11;
+    $('[data-nl-font-size]').value = String(styles.fontSize || computedSize);
+    $('[data-nl-text-color]').value = styles.color || '';
+  }
+
+  function syncActiveEditable() {
+    const context = contextOwner();
+    if (!context || !activeEditable) return;
+    const plain = activeEditable.innerText.replace(/\n{3,}/g, '\n\n').trim();
+    context.owner[context.key] = context.key === 'year' ? Number(plain) || '' : plain;
+    context.owner.richText = context.owner.richText || {};
+    context.owner.richText[context.key] = sanitizeRichHtml(activeEditable.innerHTML);
+    if (activeEditable.dataset.nlDirectHeader) syncLegacyHeaderFields(state);
+    setDirty();
+  }
+
+  function setActiveTextStyle(key, value) {
+    const context = contextOwner();
+    if (!context || !activeEditable) return;
+    context.owner.textStyles = context.owner.textStyles || {};
+    context.owner.textStyles[context.key] = { ...(context.owner.textStyles[context.key] || {}), [key]: value };
+    if (key === 'fontSize') activeEditable.style.fontSize = `${value}px`;
+    if (key === 'align') activeEditable.style.textAlign = value;
+    if (key === 'color') activeEditable.style.color = value || '';
+    setDirty();
+  }
+
+  function runTextCommand(command, value = null) {
+    if (!activeEditable) return;
+    const styleKey = ({ bold: 'bold', italic: 'italic', underline: 'underline' })[command];
+    if (styleKey) {
+      const context = contextOwner();
+      if (!context) return;
+      context.owner.textStyles = context.owner.textStyles || {};
+      const current = context.owner.textStyles[context.key] || {};
+      context.owner.textStyles[context.key] = { ...current, [styleKey]: !current[styleKey] };
+      activeEditable.style.fontWeight = context.owner.textStyles[context.key].bold ? '700' : '';
+      activeEditable.style.fontStyle = context.owner.textStyles[context.key].italic ? 'italic' : '';
+      activeEditable.style.textDecoration = context.owner.textStyles[context.key].underline ? 'underline' : '';
+      setDirty();
+      return;
+    }
+    activeEditable.focus();
+    document.execCommand(command, false, value);
+    syncActiveEditable();
   }
 
   function addBlock(type, source = null) {
@@ -423,7 +541,7 @@
   const exportCss = `
     *{box-sizing:border-box}body{margin:0}.newsletter-sheet{position:relative;width:794px;height:1123px;padding:22px;background:#f5f3ef;color:#111;font-family:Arial,sans-serif;overflow:hidden}
     .newsletter-sheet:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(177,24,69,.07),transparent 35%),linear-gradient(315deg,rgba(3,23,52,.07),transparent 35%);pointer-events:none}
-    .newsletter-sheet-grid{position:relative;display:grid;grid-template-columns:repeat(12,1fr);grid-auto-flow:row dense;gap:9px;align-content:start}.newsletter-content-block{grid-column:span 6;border:1px solid #cbc7c1;background:#fff;min-height:92px;overflow:hidden;position:relative;display:flex}.size-full{grid-column:span 12}.size-two-thirds{grid-column:span 8}.size-half{grid-column:span 6}.size-third,.size-small{grid-column:span 4}.newsletter-content-block figure{width:39%;margin:0;flex:none}.newsletter-content-block figure img{width:100%;height:100%;object-fit:cover}.newsletter-block-copy{padding:12px;flex:1}.newsletter-block-copy>span{font-size:10px;line-height:1.2;text-transform:uppercase;color:#b11845;font-weight:700;letter-spacing:.08em}.newsletter-block-copy h2{font-size:21px;line-height:1.05;margin:4px 0 6px;text-transform:uppercase;color:#071a37}.newsletter-block-copy h3{font-size:13px;margin:0 0 5px;color:#b11845}.newsletter-block-copy p{font-size:11px;line-height:1.42;margin:0}.newsletter-block-copy small{display:block;font-size:8px;margin-top:7px;color:#555}.accent-navy{border-top:3px solid #071a37}.accent-burgundy{border-top:3px solid #b11845}.accent-light{border-top:3px solid #c9c7c3}.block-header,.block-footer{border:0;background:#080b10;color:#fff}.block-header{min-height:118px}.newsletter-masthead{display:flex;align-items:center;width:100%;padding:16px 20px;background:linear-gradient(110deg,#080b10 65%,#3a0716)}.newsletter-masthead img{width:72px;height:72px;object-fit:contain;margin-right:16px}.newsletter-masthead span,.newsletter-masthead p{font-size:10px;text-transform:uppercase;letter-spacing:.12em;margin:0}.newsletter-masthead h1{font-size:38px;line-height:.95;text-transform:uppercase;margin:3px 0;color:#fff}.newsletter-masthead b{margin-left:auto;text-align:center;font-size:18px;color:#fff}.newsletter-masthead small{display:block;font-size:9px;margin-top:4px}.block-footer{min-height:44px}.newsletter-footer{display:flex;align-items:center;width:100%;gap:10px;padding:8px 14px}.newsletter-footer img{width:29px;height:29px;object-fit:contain}.newsletter-footer span{margin-left:auto;color:#d45a7f}.block-number .newsletter-block-copy h2{font-size:36px;color:#b11845}.block-quote{background:#0a172b;color:#fff}.block-quote h2{color:#fff}.block-important{background:#0d1015;color:#fff}.block-important h2{color:#fff}.block-leadNews{min-height:180px}.block-leadNews h2{font-size:27px}.block-gallery{display:block}.newsletter-photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:0 10px 10px}.newsletter-photo-grid img{width:100%;height:88px;object-fit:cover}.newsletter-divider{height:2px;width:100%;margin:auto;background:#b11845}.block-divider{min-height:12px;background:transparent;border:0}.newsletter-page-number{position:absolute;bottom:6px;right:12px;font-size:8px;color:#777}
+    .newsletter-sheet-grid{position:relative;display:grid;grid-template-columns:repeat(12,1fr);grid-auto-flow:row dense;gap:9px;align-content:start}.newsletter-content-block{grid-column:span 6;border:1px solid #cbc7c1;background:#fff;min-height:92px;overflow:hidden;position:relative;display:flex}.size-full{grid-column:span 12}.size-two-thirds{grid-column:span 8}.size-half{grid-column:span 6}.size-third,.size-small{grid-column:span 4}.newsletter-content-block figure{width:39%;margin:0;flex:none}.newsletter-content-block figure img{width:100%;height:100%;object-fit:cover}.newsletter-block-copy{padding:12px;flex:1}.newsletter-block-copy>span{font-size:10px;line-height:1.2;text-transform:uppercase;color:#b11845;font-weight:700;letter-spacing:.08em}.newsletter-block-copy h2{font-size:21px;line-height:1.05;margin:4px 0 6px;text-transform:uppercase;color:#071a37}.newsletter-block-copy h3{font-size:13px;margin:0 0 5px;color:#b11845}.newsletter-block-copy p,.newsletter-rich-text{font-size:11px;line-height:1.42;margin:0}.newsletter-rich-text ul,.newsletter-rich-text ol{margin:4px 0;padding-left:18px}.newsletter-block-copy small{display:block;font-size:8px;margin-top:7px;color:#555}.accent-navy{border-top:3px solid #071a37}.accent-burgundy{border-top:3px solid #b11845}.accent-light{border-top:3px solid #c9c7c3}.block-header,.block-footer{border:0;background:#080b10;color:#fff}.block-header{min-height:118px}.newsletter-masthead{display:flex;align-items:center;width:100%;padding:16px 20px;background:linear-gradient(110deg,#080b10 65%,#3a0716)}.newsletter-masthead img{width:72px;height:72px;object-fit:contain;margin-right:16px}.newsletter-masthead span,.newsletter-masthead p{font-size:10px;text-transform:uppercase;letter-spacing:.12em;margin:0}.newsletter-masthead h1{font-size:38px;line-height:.95;text-transform:uppercase;margin:3px 0;color:#fff}.newsletter-masthead b{margin-left:auto;text-align:center;font-size:18px;color:#fff}.newsletter-masthead small{display:block;font-size:9px;margin-top:4px}.block-footer{min-height:44px}.newsletter-footer{display:flex;align-items:center;width:100%;gap:10px;padding:8px 14px}.newsletter-footer img{width:29px;height:29px;object-fit:contain;margin-right:16px}.newsletter-footer span{margin-left:auto;color:#d45a7f}.block-number .newsletter-block-copy h2{font-size:36px;color:#b11845}.block-quote{background:#0a172b;color:#fff}.block-quote h2{color:#fff}.block-important{background:#0d1015;color:#fff}.block-important h2{color:#fff}.block-leadNews{min-height:180px}.block-leadNews h2{font-size:27px}.block-gallery{display:block}.newsletter-photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:0 10px 10px}.newsletter-photo-grid img{width:100%;height:88px;object-fit:cover}.newsletter-divider{height:2px;width:100%;margin:auto;background:#b11845}.block-divider{min-height:12px;background:transparent;border:0}.newsletter-page-number{position:absolute;bottom:6px;right:12px;font-size:8px;color:#777}
     .newsletter-masthead{padding:13px 20px}.newsletter-masthead-copy{min-width:0;flex:1}.newsletter-masthead span,.newsletter-masthead p{font-size:9px;letter-spacing:.1em}.newsletter-masthead h1{overflow-wrap:anywhere}.newsletter-masthead h1.is-long{font-size:31px}.newsletter-masthead h1.is-very-long{font-size:25px}.newsletter-masthead .newsletter-tagline{display:block;font-size:8px;letter-spacing:.08em;margin-top:4px;color:#d45a7f;text-transform:uppercase}.newsletter-masthead b{margin-left:16px;flex:0 0 92px}.newsletter-masthead b small,.newsletter-masthead b em{display:block;font-size:9px;margin-top:4px;font-style:normal}
   `;
 
@@ -543,6 +661,9 @@
       if (event.target.closest('[contenteditable="true"]')) {
         selectedBlockId = node.dataset.newsletterBlockId;
         activePage = Number(node.closest('[data-page]')?.dataset.page) || activePage;
+        $$('.newsletter-content-block').forEach((blockNode) => blockNode.classList.toggle('is-selected', blockNode === node));
+        activeEditable = event.target.closest('[contenteditable="true"]');
+        updateContextToolbar(activeEditable);
         event.target.focus();
         return;
       }
@@ -551,22 +672,8 @@
     spread.addEventListener('input', (event) => {
       const editable = event.target.closest('[data-nl-direct-block],[data-nl-direct-header]');
       if (!editable) return;
-      const node = blockNodeFromEvent(event);
-      const block = node ? allBlocks().find((item) => item.id === node.dataset.newsletterBlockId) : null;
-      const value = editable.innerText.replace(/\n{3,}/g, '\n\n').trim();
-      if (editable.dataset.nlDirectHeader) {
-        const key = editable.dataset.nlDirectHeader;
-        state.header[key] = key === 'year' ? Number(value) || '' : value;
-        const mirror = root.querySelector(`[data-nl-header-field="${key}"]`);
-        if (mirror) mirror.value = state.header[key];
-        syncLegacyHeaderFields(state);
-      } else if (block) {
-        const key = editable.dataset.nlDirectBlock;
-        block[key] = value;
-        const mirror = root.querySelector(`[data-nl-block-field="${key}"]`);
-        if (mirror) mirror.value = value;
-      }
-      setDirty();
+      activeEditable = editable;
+      syncActiveEditable();
     });
     spread.addEventListener('focusout', (event) => {
       if (!event.target.closest('[data-nl-direct-block],[data-nl-direct-header]')) return;
@@ -609,6 +716,39 @@
     $$('[data-nl-zoom]').forEach((button) => button.addEventListener('click', () => { userZoomed = true; zoom = Math.min(1, Math.max(0.35, zoom + (button.dataset.nlZoom === 'in' ? 0.1 : -0.1))); render(); }));
     document.querySelector('[data-studio-tab="newsletter"]')?.addEventListener('click', () => setTimeout(fitPreviewToWorkspace, 0));
     if ('ResizeObserver' in window) new ResizeObserver(() => fitPreviewToWorkspace()).observe($('.newsletter-canvas-panel'));
+    $('[data-nl-context-type]').addEventListener('change', (event) => {
+      const block = selectedBlock();
+      if (!block || !BLOCK_TYPES[event.target.value]) return;
+      block.type = event.target.value;
+      setDirty(); render();
+    });
+    $$('[data-nl-context-move]').forEach((button) => button.addEventListener('click', () => moveBlock(button.dataset.nlContextMove === 'up' ? -1 : 1)));
+    $('[data-nl-context-clone]').addEventListener('click', cloneBlock);
+    $('[data-nl-context-remove]').addEventListener('click', removeBlock);
+    $('[data-nl-context-toolbar]').addEventListener('pointerdown', (event) => {
+      if (event.target.closest('button')) event.preventDefault();
+    });
+    $('[data-nl-font-size]').addEventListener('change', (event) => setActiveTextStyle('fontSize', Math.min(48, Math.max(8, Number(event.target.value) || 11))));
+    $$('[data-nl-format]').forEach((button) => button.addEventListener('click', () => runTextCommand(button.dataset.nlFormat)));
+    $$('[data-nl-align]').forEach((button) => button.addEventListener('click', () => setActiveTextStyle('align', button.dataset.nlAlign)));
+    $('[data-nl-text-color]').addEventListener('change', (event) => setActiveTextStyle('color', event.target.value));
+    $('[data-nl-apply-link]').addEventListener('click', () => {
+      const href = clean($('[data-nl-link-url]').value);
+      if (/^(https?:\/\/|mailto:|\/)/i.test(href)) runTextCommand('createLink', href);
+    });
+    $('[data-nl-reset-text]').addEventListener('click', () => {
+      const context = contextOwner();
+      if (!context) return;
+      if (context.owner.textStyles) delete context.owner.textStyles[context.key];
+      if (context.owner.richText) delete context.owner.richText[context.key];
+      setDirty(); render();
+    });
+    document.addEventListener('pointerdown', (event) => {
+      if (event.target.closest('[data-nl-context-toolbar],[data-newsletter-block-id]')) return;
+      const toolbar = $('[data-nl-context-toolbar]');
+      if (toolbar) toolbar.hidden = true;
+      activeEditable = null;
+    });
     $$('[data-nl-header-field]').forEach((input) => input.addEventListener('input', () => {
       state.header[input.dataset.nlHeaderField] = input.type === 'number' ? Number(input.value) : input.value;
       syncLegacyHeaderFields(state); setDirty(); render();

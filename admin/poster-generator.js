@@ -1042,7 +1042,7 @@
   }
 
   function setCompositionStep(step) {
-    const steps = ['match', 'players', 'preview', 'publish'];
+    const steps = ['match', 'preview', 'publish'];
     const nextStep = steps.includes(step) ? step : 'match';
     state.activeCompositionStep = nextStep;
     compositionStepButtons.forEach((button) => {
@@ -1061,7 +1061,7 @@
   }
 
   function moveCompositionStep(direction) {
-    const steps = ['match', 'players', 'preview', 'publish'];
+    const steps = ['match', 'preview', 'publish'];
     const current = Math.max(0, steps.indexOf(state.activeCompositionStep));
     const target = clamp(current + direction, 0, steps.length - 1);
     if (steps[target] === 'preview' && !compositionTeam?.value) {
@@ -1113,15 +1113,23 @@
     picker.dataset.compositionPicker = 'true';
     picker.innerHTML = `
       <strong>N° ${slot.number} · ${escapeHtml(slot.position)}</strong>
+      <label>Rechercher
+        <input type="search" data-picker-search placeholder="Nom ou poste" />
+      </label>
+      <div class="composition-picker-results" data-picker-results></div>
       <label>Joueur
         <select data-picker-player>
-          <option value="">À définir</option>
+          <option value="">Retirer le joueur</option>
           ${players.map((player) => `<option value="${escapeHtml(player.key)}"${player.key === slot.playerKey ? ' selected' : ''}>${escapeHtml(player.name)}${player.role ? ` · ${escapeHtml(player.role)}` : ''}</option>`).join('')}
           <option value="__manual__">+ Saisie libre</option>
         </select>
       </label>
       <label data-picker-manual-wrap${slot.playerKey ? ' hidden' : ''}>Nom libre
-        <input type="text" data-picker-manual value="${escapeHtml(slot.playerKey ? '' : slot.player)}" placeholder="Prénom Nom" />
+        <span class="composition-picker-manual-fields">
+          <input type="text" data-picker-first-name value="${escapeHtml(slot.playerKey ? '' : slot.firstName || slot.player.split(' ')[0] || '')}" placeholder="Prénom" />
+          <input type="text" data-picker-last-name value="${escapeHtml(slot.playerKey ? '' : slot.lastName || slot.player.split(' ').slice(1).join(' '))}" placeholder="Nom" />
+        </span>
+        <button type="button" data-picker-manual-save>Valider la saisie libre</button>
       </label>
       <label>Numéro<input type="number" min="1" max="99" data-picker-number value="${slot.number}" /></label>
       <div>
@@ -1131,11 +1139,30 @@
       </div>
     `;
     document.body.appendChild(picker);
+    const select = picker.querySelector('[data-picker-player]');
+    const manualWrap = picker.querySelector('[data-picker-manual-wrap]');
+    const results = picker.querySelector('[data-picker-results]');
+    const renderPickerResults = (query = '') => {
+      const needle = clean(query).toLowerCase();
+      const visiblePlayers = players.filter((player) => !needle || `${player.name} ${player.role} ${player.secondaryRole}`.toLowerCase().includes(needle));
+      results.innerHTML = visiblePlayers.length ? visiblePlayers.slice(0, 20).map((player) => `
+        <button type="button" data-picker-result="${escapeHtml(player.key)}">
+          <img src="${escapeHtml(resolvePlayerPhoto(player) || resolveAssetUrl(RCC_COMPOSITION_AVATAR))}" alt="" />
+          <span><strong>${escapeHtml(player.name)}</strong><small>${escapeHtml(player.role || 'Poste non renseigné')} · ${escapeHtml(team)}</small></span>
+        </button>
+      `).join('') : '<p>Aucun joueur trouvé.</p>';
+    };
+    renderPickerResults();
     const rect = anchor.getBoundingClientRect();
     picker.style.left = `${Math.max(10, Math.min(window.innerWidth - picker.offsetWidth - 10, rect.left))}px`;
     picker.style.top = `${Math.max(10, Math.min(window.innerHeight - picker.offsetHeight - 10, rect.bottom + 8))}px`;
-    const select = picker.querySelector('[data-picker-player]');
-    const manualWrap = picker.querySelector('[data-picker-manual-wrap]');
+    picker.querySelector('[data-picker-search]')?.addEventListener('input', (event) => renderPickerResults(event.target.value));
+    results.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-picker-result]');
+      if (!button) return;
+      setCompositionSlot(slotIndex, button.dataset.pickerResult);
+      closeCompositionPicker();
+    });
     select.addEventListener('change', () => {
       manualWrap.hidden = select.value !== '__manual__';
       if (select.value && select.value !== '__manual__') {
@@ -1144,20 +1171,21 @@
       } else if (!select.value) {
         clearCompositionSlot(slotIndex);
         closeCompositionPicker();
-      } else picker.querySelector('[data-picker-manual]')?.focus();
+      } else picker.querySelector('[data-picker-first-name]')?.focus();
     });
-    const manualInput = picker.querySelector('[data-picker-manual]');
+    const manualFirstName = picker.querySelector('[data-picker-first-name]');
+    const manualLastName = picker.querySelector('[data-picker-last-name]');
     const commitManualPlayer = () => {
-      slot.player = clean(manualInput?.value);
+      slot.firstName = clean(manualFirstName?.value);
+      slot.lastName = clean(manualLastName?.value);
+      slot.player = clean(`${slot.firstName} ${slot.lastName}`);
       slot.playerKey = '';
-      slot.firstName = '';
-      slot.lastName = '';
       slot.photo = '';
       renderComposition();
       closeCompositionPicker();
     };
-    manualInput?.addEventListener('change', commitManualPlayer);
-    manualInput?.addEventListener('keydown', (event) => {
+    picker.querySelector('[data-picker-manual-save]')?.addEventListener('click', commitManualPlayer);
+    manualLastName?.addEventListener('keydown', (event) => {
       if (event.key !== 'Enter') return;
       event.preventDefault();
       commitManualPlayer();
@@ -1179,6 +1207,33 @@
       closeCompositionPicker();
     });
     picker.querySelector('[data-picker-close]').addEventListener('click', closeCompositionPicker);
+  }
+
+  function openCompositionStaffPicker(anchor) {
+    closeCompositionPicker();
+    const picker = document.createElement('div');
+    picker.className = 'composition-direct-picker';
+    picker.dataset.compositionPicker = 'true';
+    picker.innerHTML = `
+      <strong>Staff</strong>
+      <label>Coach / responsable<input type="text" data-picker-staff value="${escapeHtml(state.composition.coach || '')}" placeholder="Prénom Nom" /></label>
+      <div><button type="button" data-picker-staff-save>Valider</button><button type="button" data-picker-close>Fermer</button></div>
+    `;
+    document.body.appendChild(picker);
+    const rect = anchor.getBoundingClientRect();
+    picker.style.left = `${Math.max(10, Math.min(window.innerWidth - picker.offsetWidth - 10, rect.left))}px`;
+    picker.style.top = `${Math.max(10, Math.min(window.innerHeight - picker.offsetHeight - 10, rect.bottom + 8))}px`;
+    const input = picker.querySelector('[data-picker-staff]');
+    const save = () => {
+      state.composition.coach = clean(input?.value);
+      if (compositionCoach) compositionCoach.value = state.composition.coach;
+      renderComposition();
+      closeCompositionPicker();
+    };
+    picker.querySelector('[data-picker-staff-save]')?.addEventListener('click', save);
+    input?.addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); save(); } });
+    picker.querySelector('[data-picker-close]')?.addEventListener('click', closeCompositionPicker);
+    input?.focus();
   }
 
   function renderComposition() {
@@ -1236,7 +1291,7 @@
               `).join('')}
             </div>
             <strong>Staff</strong>
-            <p>${escapeHtml(state.composition.coach || 'Staff à compléter')}</p>
+            <button type="button" class="composition-staff-direct" data-composition-staff-edit>${escapeHtml(state.composition.coach || 'Staff à compléter')}</button>
             ${state.composition.comments ? `<small>${escapeHtml(state.composition.comments)}</small>` : ''}
           </aside>
         </div>
@@ -1249,6 +1304,7 @@
     compositionPreview.querySelectorAll('[data-composition-preview-slot]').forEach((node) => {
       node.addEventListener('click', () => openCompositionPicker(Number(node.dataset.compositionPreviewSlot), node));
     });
+    compositionPreview.querySelector('[data-composition-staff-edit]')?.addEventListener('click', (event) => openCompositionStaffPicker(event.currentTarget));
     compositionPreview.querySelectorAll('[data-composition-player-photo]').forEach((image) => {
       image.addEventListener('error', () => {
         if (image.dataset.fallbackApplied === 'true') return;

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Studio RCC - RC Cubzaguais</title>
     <meta name="description" content="Studio RCC : centre de communication officiel du RC Cubzaguais." />
-    <link rel="stylesheet" href="../styles.css?v=studio-v3-fit-1" />
+    <link rel="stylesheet" href="../styles.css?v=studio-v3-simple-2" />
     <meta name="theme-color" content="#b11845" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="RCC" />
@@ -435,9 +435,8 @@
         <div class="composition-workflow" data-composition-workflow>
           <nav class="composition-steps" aria-label="Etapes composition">
             <button class="is-active" type="button" data-composition-step="match"><span>1.</span> Match</button>
-            <button type="button" data-composition-step="players"><span>2.</span> Joueurs</button>
-            <button type="button" data-composition-step="preview"><span>3.</span> Apercu</button>
-            <button type="button" data-composition-step="publish"><span>4.</span> Publication</button>
+            <button type="button" data-composition-step="preview"><span>2.</span> Composition</button>
+            <button type="button" data-composition-step="publish"><span>3.</span> Publication</button>
           </nav>
 
           <section class="composition-step-panel is-active" data-composition-step-panel="match">
@@ -487,22 +486,7 @@
             </aside>
           </section>
 
-          <section class="composition-step-panel" data-composition-step-panel="players" hidden>
-            <aside class="studio-sidebar composition-card-panel composition-players-panel">
-              <div class="poster-panel-head">
-                <span>Joueurs</span>
-                <strong>Feuille compacte</strong>
-              </div>
-              <label class="composition-search-label">Recherche joueur
-                <input type="search" data-composition-search placeholder="Nom, poste..." />
-              </label>
-              <div class="composition-list" data-composition-list></div>
-              <div class="composition-step-actions">
-                <button class="button ghost" type="button" data-composition-prev>Precedent</button>
-                <button class="button primary" type="button" data-composition-next>Suivant</button>
-              </div>
-            </aside>
-          </section>
+          <div data-composition-list hidden aria-hidden="true"></div>
 
           <section class="composition-step-panel" data-composition-step-panel="preview" hidden>
             <section class="studio-preview-panel composition-preview-panel">
@@ -610,10 +594,36 @@
                 </div>
               </div>
               <div class="newsletter-overflow-warning" data-nl-overflow hidden>Une page dépasse le format A4. Réduisez ou déplacez un bloc avant l’export.</div>
+              <div class="newsletter-context-toolbar" data-nl-context-toolbar hidden role="toolbar" aria-label="Mise en forme du texte">
+                <select data-nl-context-type aria-label="Type du bloc"></select>
+                <button type="button" data-nl-context-move="up">Monter</button>
+                <button type="button" data-nl-context-move="down">Descendre</button>
+                <button type="button" data-nl-context-clone>Dupliquer</button>
+                <button type="button" data-nl-context-remove>Supprimer</button>
+                <span data-nl-text-tools hidden>
+                  <select data-nl-font-size aria-label="Taille du texte">
+                    <option value="8">8 px</option><option value="10">10 px</option><option value="11">11 px</option>
+                    <option value="12">12 px</option><option value="14">14 px</option><option value="16">16 px</option>
+                    <option value="18">18 px</option><option value="21">21 px</option><option value="24">24 px</option>
+                    <option value="28">28 px</option><option value="32">32 px</option><option value="38">38 px</option>
+                  </select>
+                  <button type="button" data-nl-format="bold" aria-label="Gras"><b>G</b></button>
+                  <button type="button" data-nl-format="italic" aria-label="Italique"><i>I</i></button>
+                  <button type="button" data-nl-format="underline" aria-label="Souligné"><u>S</u></button>
+                  <button type="button" data-nl-align="left">Gauche</button>
+                  <button type="button" data-nl-align="center">Centré</button>
+                  <button type="button" data-nl-align="right">Droite</button>
+                  <select data-nl-text-color aria-label="Couleur du texte"><option value="">Auto</option><option value="#071a37">Bleu marine</option><option value="#b11845">Bordeaux</option><option value="#111111">Noir</option><option value="#ffffff">Blanc</option></select>
+                  <button type="button" data-nl-format="insertUnorderedList">Liste</button>
+                  <input type="url" data-nl-link-url placeholder="https://..." aria-label="Lien" />
+                  <button type="button" data-nl-apply-link>Ajouter le lien</button>
+                  <button type="button" data-nl-reset-text>Réinitialiser</button>
+                </span>
+              </div>
               <div class="newsletter-spread" data-nl-spread></div>
             </section>
 
-            <aside class="newsletter-properties" aria-label="Réglages de la newsletter">
+            <aside class="newsletter-properties" aria-label="Réglages de la newsletter" hidden aria-hidden="true">
               <div class="newsletter-panel-title"><strong>Réglages</strong><span data-nl-selection-label>Document</span></div>
               <div data-nl-document-properties>
                 <p class="newsletter-selection-help">Sélectionnez un bloc dans la page pour le modifier. Les réglages généraux restent disponibles ci-dessous.</p>
@@ -735,7 +745,7 @@
     <script src="../notification-categories.js"></script>
     <script src="./poster-auth.js?v=studio-v3-direct-2"></script>
     <script src="../script.js"></script>
-    <script src="./poster-generator.js?v=studio-v3-fit-1"></script>
-    <script src="./newsletter-editor.js?v=studio-v3-direct-2"></script>
+    <script src="./poster-generator.js?v=studio-v3-simple-2"></script>
+    <script src="./newsletter-editor.js?v=studio-v3-simple-2"></script>
   </body>
 </html>

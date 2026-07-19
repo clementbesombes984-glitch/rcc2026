@@ -5831,6 +5831,9 @@ body{
   z-index:1000;
   display:grid;
   width:min(340px,calc(100vw - 20px));
+  max-height:calc(100dvh - 24px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
   gap:9px;
   border:1px solid rgba(211,26,82,.7);
   border-radius:8px;
@@ -6213,6 +6216,12 @@ body{
   display:none!important;
 }
 
+.studio-page #studio-panel-publications[hidden],
+.studio-page #studio-panel-composition[hidden],
+.studio-page #studio-panel-newsletter[hidden]{
+  display:none!important;
+}
+
 .studio-page .composition-steps{
   display:flex!important;
   grid-template-columns:none!important;
@@ -6258,6 +6267,113 @@ body{
 
 .studio-page .composition-steps button.is-complete{
   border-color:rgba(211,26,82,.35)!important;
+}
+
+/* Studio RCC - composition simplifiee et edition directe Newsletter */
+.studio-page #studio-panel-newsletter .newsletter-properties[hidden]{
+  display:none!important;
+}
+
+.studio-page #studio-panel-newsletter .newsletter-workspace{
+  grid-template-columns:minmax(230px,280px) minmax(0,1fr)!important;
+}
+
+.studio-page #studio-panel-newsletter .newsletter-canvas-panel{
+  min-width:0;
+}
+
+.newsletter-rich-text{
+  margin:0;
+  font-size:11px;
+  line-height:1.42;
+}
+
+.newsletter-rich-text ul,
+.newsletter-rich-text ol{
+  margin:4px 0;
+  padding-left:18px;
+}
+
+.newsletter-context-toolbar{
+  position:sticky;
+  top:0;
+  z-index:12;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  max-width:100%;
+  overflow-x:auto;
+  border-bottom:1px solid #303236;
+  background:#101214;
+  padding:6px 8px;
+}
+
+.newsletter-context-toolbar[hidden],
+.newsletter-context-toolbar [hidden]{
+  display:none!important;
+}
+
+.newsletter-context-toolbar>select,
+.newsletter-context-toolbar button,
+.newsletter-context-toolbar input,
+.newsletter-context-toolbar>span>select,
+.newsletter-context-toolbar>span>button,
+.newsletter-context-toolbar>span>input{
+  flex:0 0 auto;
+  min-height:32px;
+  border:1px solid #35383c;
+  border-radius:5px;
+  background:#191b1e;
+  color:#eee;
+  padding:5px 8px;
+  font:600 11px/1.2 Arial,sans-serif;
+}
+
+.newsletter-context-toolbar>span{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+.newsletter-context-toolbar [data-nl-link-url]{width:150px}
+.newsletter-context-toolbar button:hover,
+.newsletter-context-toolbar button:focus-visible{border-color:#b11845;outline:none}
+
+.composition-picker-results{
+  display:grid!important;
+  max-height:220px;
+  gap:5px;
+  overflow:auto;
+}
+
+.composition-picker-results button{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr);
+  align-items:center;
+  gap:8px;
+  width:100%;
+  text-align:left;
+}
+
+.composition-picker-results img{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  background:#071a37;
+  object-fit:cover;
+}
+
+.composition-picker-results span,
+.composition-picker-results small{display:block;min-width:0}
+.composition-picker-results small{margin-top:2px;color:#aaa;font-size:10px}
+.composition-picker-manual-fields{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.composition-staff-direct{display:block!important;width:100%!important;margin:0 0 8px!important}
+
+@media(max-width:768px){
+  .studio-page #studio-panel-newsletter .newsletter-workspace{display:flex!important}
+  .studio-page #studio-panel-newsletter .newsletter-library{order:2}
+  .studio-page #studio-panel-newsletter .newsletter-canvas-panel{order:1}
+  .newsletter-context-toolbar{position:sticky;top:0}
 }
 
 @media(max-width:680px){
