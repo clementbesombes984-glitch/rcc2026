@@ -12,6 +12,7 @@
   const STORAGE_KEY = 'rcc-notification-preferences';
   const SUBSCRIPTION_KEY = 'rcc-push-subscription';
   const SEEN_KEY = 'rcc-notification-seen-items';
+  const RESUBSCRIBE_PROMPT_KEY = 'rcc-push-resubscribe-prompt';
   const CHECK_INTERVAL = 60000;
   const OFFICIAL_ORIGIN = 'https://rccubzaguais.fr';
   const categoryConfig = globalThis.RCCNotificationCategories;
@@ -135,7 +136,7 @@
     lines.push('Vrai push serveur : ' + ('PushManager' in window ? 'possible' : 'non supporte ici'));
     lines.push('Autorisation : ' + (('Notification' in window) ? Notification.permission : 'indisponible'));
     lines.push('Notifications RCC : ' + (isEnabled() ? 'activees' : 'desactivees'));
-    lines.push('Cache PWA : version rcc-pwa-v43 attendue');
+    lines.push('Cache PWA : version rcc-pwa-v44 attendue');
     try {
       const items = await collectNotificationItems();
       const matching = items.filter((item) => matchesPreferences(item.audience));
@@ -188,6 +189,7 @@
   }
 
   function itemId(type, item) {
+    if (item.id) return `${type}|${item.id}`.toLowerCase();
     return [
       type,
       item.date || '',
@@ -235,6 +237,43 @@
     }
   }
 
+  function notificationEventPayload(item) {
+    const rawType = String(item.type_evenement || item.type || 'match').toLowerCase();
+    const eventType = rawType.includes('tournoi')
+      ? 'tournoi'
+      : rawType.includes('entrain')
+        ? 'entrainement'
+        : rawType.includes('reunion') || rawType.includes('evenement')
+          ? 'evenement'
+          : rawType.includes('match')
+            ? 'match'
+            : 'evenement';
+    if (eventType === 'evenement' && !/(reunion|evenement)/.test(rawType)) {
+      console.warn('[RCC notifications] Type d’événement inconnu, traité comme événement général :', rawType);
+    }
+    const status = String(item.status || '').toLowerCase();
+    const isResult = status === 'win' || status === 'loss' || Boolean(String(item.result || '').trim());
+    const audience = itemAudiences(item, 'actualites');
+    const teams = asList(item.teams).length ? asList(item.teams) : asList(item.team);
+    const teamsLabel = teams.join(', ');
+    const title = eventType === 'tournoi'
+      ? (item.title || item.tournamentName || ('Tournoi ' + (teamsLabel || 'RCC')))
+      : eventType === 'entrainement'
+        ? (item.title || ('Entrainement ' + (teamsLabel || 'RCC')))
+        : eventType === 'evenement'
+          ? (item.title || 'Evenement RCC')
+          : (item.title || 'RCC vs ' + (item.opponent || item.away || 'Adversaire'));
+    const place = item.location || item.venue || '';
+    return {
+      id: itemId(eventType, item),
+      type: isResult ? 'resultat' : eventType,
+      title: title.length > 40 ? title.slice(0, 37).trimEnd() + '...' : title,
+      body: [eventType === 'tournoi' || eventType === 'entrainement' || eventType === 'evenement' ? teamsLabel : '', item.date, item.time, place, item.result].filter(Boolean).join(' - '),
+      url: '/calendrier.html',
+      audience
+    };
+  }
+
   async function collectNotificationItems() {
     const [newsData, matchesData] = await Promise.all([
       fetchJson('/data/news.json'),
@@ -251,45 +290,29 @@
           type: 'news',
           title: item.title || 'Actualite RCC',
           body: item.summary || item.category || 'Nouvelle actualite du club.',
-          url: '/actualites.html',
+          url: item.id ? `/actualite.html?id=${encodeURIComponent(item.id)}` : '/actualites.html',
           audience
         };
       }),
-      ...matches.filter((item) => item.notification).map((item) => {
-        const rawType = String(item.type_evenement || item.type || 'match').toLowerCase();
-        const eventType = rawType.includes('tournoi') ? 'tournoi' : rawType.includes('entrain') ? 'entrainement' : rawType.includes('evenement') ? 'evenement' : 'match';
-        const audience = itemAudiences(item, 'actualites');
-        const teams = asList(item.teams).length ? asList(item.teams) : asList(item.team);
-        const teamsLabel = teams.join(', ');
-        const title = eventType === 'tournoi'
-          ? (item.title || item.tournamentName || ('Tournoi ' + (teamsLabel || 'RCC')))
-          : eventType === 'entrainement'
-            ? (item.title || ('Entrainement ' + (teamsLabel || 'RCC')))
-            : eventType === 'evenement'
-              ? (item.title || 'Evenement RCC')
-              : (item.title || (item.home || 'RCC') + ' vs ' + (item.opponent || item.away || 'Adversaire'));
-        const place = item.location || item.venue || '';
-        return {
-          id: itemId(eventType, item),
-          type: isResult ? 'resultat' : eventType,
-          title: title.length > 40 ? title.slice(0, 37).trimEnd() + '...' : title,
-          body: [eventType === 'tournoi' || eventType === 'entrainement' || eventType === 'evenement' ? teamsLabel : '', item.date, item.time, place, item.result].filter(Boolean).join(' - '),
-          url: '/calendrier.html',
-          audience
-        };
-      })
+      ...matches.filter((item) => item.notification).map(notificationEventPayload)
     ];
   }
 
   async function markCurrentItemsAsSeen() {
-    const items = await collectNotificationItems().catch(() => []);
+    const items = await collectNotificationItems().catch((error) => {
+      console.warn('[RCC notifications] Collecte initiale impossible :', error);
+      return [];
+    });
     saveSeenItems([...loadSeenItems(), ...items.map((item) => item.id)]);
   }
 
   async function checkForLocalNotifications() {
     if (!isEnabled() || Notification.permission !== 'granted') return;
     const seen = new Set(loadSeenItems());
-    const items = await collectNotificationItems().catch(() => []);
+    const items = await collectNotificationItems().catch((error) => {
+      console.warn('[RCC notifications] Vérification locale impossible :', error);
+      return [];
+    });
     if (!items.length) return;
 
     if (!seen.size) {
@@ -478,7 +501,10 @@
       await enableNotifications();
     }
     if (Notification.permission !== 'granted') return;
-    const items = await collectNotificationItems().catch(() => []);
+    const items = await collectNotificationItems().catch((error) => {
+      console.warn('[RCC notifications] Vérification manuelle impossible :', error);
+      return [];
+    });
     const item = items.find((entry) => matchesPreferences(entry.audience));
     if (!item) {
       setStatus('Aucun contenu avec notification active ne correspond a vos preferences.', 'neutral');
@@ -510,6 +536,7 @@
   async function initializeNotifications() {
     const migrated = await migrateForeignOriginSubscription();
     if (migrated) return;
+    await maybePromptOfficialResubscription();
     if (supportsPush() && localStorage.getItem(SUBSCRIPTION_KEY)) {
       await syncSubscriptionPreferences(loadPreferences());
     }
@@ -555,6 +582,35 @@
       'neutral'
     );
     return true;
+  }
+
+  async function maybePromptOfficialResubscription() {
+    if (window.location.origin !== OFFICIAL_ORIGIN || !supportsPush() || Notification.permission !== 'granted') return;
+    const registration = await navigator.serviceWorker.getRegistration().catch(() => null);
+    const subscription = registration ? await registration.pushManager.getSubscription().catch(() => null) : null;
+    let stored = {};
+    try {
+      stored = JSON.parse(localStorage.getItem(SUBSCRIPTION_KEY) || '{}');
+    } catch (error) {
+      stored = {};
+    }
+    if (subscription && stored.enabled && stored.siteOrigin === OFFICIAL_ORIGIN) return;
+
+    const lastPrompt = Number(localStorage.getItem(RESUBSCRIBE_PROMPT_KEY) || 0);
+    if (Date.now() - lastPrompt < 30 * 24 * 60 * 60 * 1000) return;
+    localStorage.setItem(RESUBSCRIBE_PROMPT_KEY, String(Date.now()));
+    showPageNotice(
+      'Notifications à réactiver',
+      'Votre ancien abonnement ne peut pas être transféré. Ouvrez la page Notifications pour vous réabonner sur rccubzaguais.fr ; vos préférences locales seront conservées.',
+      'neutral'
+    );
+    if (document.querySelector('[data-notifications-page]')) {
+      setStatus('Réactivez les notifications sur le domaine officiel. Vos catégories sont conservées.', 'neutral');
+    }
+  }
+
+  if (globalThis.__RCC_TEST__) {
+    globalThis.RCCNotificationTest = Object.freeze({ notificationEventPayload });
   }
 
   if (document.readyState === 'loading') {

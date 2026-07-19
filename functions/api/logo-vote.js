@@ -101,7 +101,10 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'Cette proposition n’est pas disponible.' }, 400);
   }
 
-  const salt = env.RCC_LOGO_VOTE_SALT || env.ADMIN_SESSION_SECRET || 'rcc-logo-vote';
+  const salt = env.RCC_LOGO_VOTE_SALT || env.ADMIN_SESSION_SECRET || '';
+  if (salt.length < 32) {
+    return json({ ok: false, error: 'Configuration du vote indisponible. Contactez l’administrateur du site.' }, 503);
+  }
   const emailHash = await sha256Hex(`${salt}:${email}`);
   const key = `vote:${emailHash}`;
   const existing = await env.RCC_LOGO_VOTES.get(key);

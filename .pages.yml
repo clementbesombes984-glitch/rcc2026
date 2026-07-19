@@ -19,6 +19,11 @@ content:
             collapsed: true
             summary: "{date} - {category} - {title}"
         fields:
+          - name: id
+            label: Identifiant permanent
+            type: string
+            required: true
+            description: Identifiant unique conserve meme si le titre change (ex. staff-u8-2026-07-09-01).
           - name: title
             label: Titre
             type: string

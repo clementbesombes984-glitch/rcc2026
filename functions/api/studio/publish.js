@@ -1,7 +1,11 @@
 import '../../../notification-categories.js';
-
-const SESSION_COOKIE = 'rcc_admin_session';
-const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
+import {
+  ADMIN_CONFIGURATION_MESSAGE,
+  adminConfiguration,
+  createAdminSessionCookie,
+  hasValidAdminSession,
+  matchesAdminPassword
+} from '../../_lib/admin-auth.js';
 
 function json(body, status = 200, extraHeaders = {}) {
   return Response.json(body, {
@@ -15,57 +19,6 @@ function json(body, status = 200, extraHeaders = {}) {
 
 function clean(value) {
   return String(value || '').replace(/\s+/g, ' ').trim();
-}
-
-function base64Url(bytes) {
-  let binary = '';
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
-}
-
-function adminPassword(env) {
-  return env.PAGES_CMS_PASSWORD
-    || env.CMS_PASSWORD
-    || env.ADMIN_PASSWORD
-    || env.STUDIO_PASSWORD
-    || 'RCCdemain';
-}
-
-async function signSession(value, env) {
-  const secret = env.ADMIN_SESSION_SECRET || adminPassword(env);
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign', 'verify']
-  );
-  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(value));
-  return base64Url(new Uint8Array(signature));
-}
-
-function readCookie(request, name) {
-  const cookies = request.headers.get('cookie') || '';
-  return cookies
-    .split(';')
-    .map((item) => item.trim())
-    .find((item) => item.startsWith(`${name}=`))
-    ?.slice(name.length + 1) || '';
-}
-
-async function validSession(request, env) {
-  const token = readCookie(request, SESSION_COOKIE);
-  const [expires, signature] = token.split('.');
-  if (!expires || !signature || Number(expires) < Math.floor(Date.now() / 1000)) return false;
-  return signature === await signSession(expires, env);
-}
-
-async function sessionCookie(request, env) {
-  const expires = Math.floor(Date.now() / 1000) + SESSION_MAX_AGE;
-  const payload = String(expires);
-  const signature = await signSession(payload, env);
-  const secure = new URL(request.url).protocol === 'https:' ? '; Secure' : '';
-  return `${SESSION_COOKIE}=${payload}.${signature}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_MAX_AGE}${secure}`;
 }
 
 function slugify(value) {
@@ -161,12 +114,15 @@ async function putGithubFile(path, contentBase64, message, env, sha = undefined)
 
 function normalizeArticle(article = {}, imagePath = '') {
   const title = clean(article.title || 'Publication RCC');
+  const date = clean(article.date || new Date().toISOString().slice(0, 10));
+  const id = clean(article.id || `${slugify(title)}-${date}-${Date.now().toString(36)}`);
   const summary = clean(article.summary || article.body || 'Nouvelle publication du RC Cubzaguais.');
   const audience = globalThis.RCCNotificationCategories.normalizeAudience(
     Array.isArray(article.audience) && article.audience.length ? article.audience : ['actualites']
   );
 
   return {
+    id,
     title,
     summary,
     body: String(article.body || summary || ''),
@@ -176,7 +132,7 @@ function normalizeArticle(article = {}, imagePath = '') {
     important: Boolean(article.important),
     notification: Boolean(article.notification),
     featured: Boolean(article.featured),
-    date: clean(article.date || new Date().toISOString().slice(0, 10)),
+    date,
     ...(Array.isArray(article.hashtags) && article.hashtags.length ? { hashtags: article.hashtags } : {})
   };
 }
@@ -213,8 +169,58 @@ async function publishArticle(article, env) {
 
   return {
     article: nextArticle,
-    url: '/actualites.html'
+    url: `/actualite.html?id=${encodeURIComponent(nextArticle.id)}`
   };
+}
+
+function normalizeComposition(composition = {}) {
+  const title = clean(composition.title || 'Composition RCC');
+  const id = clean(composition.id || `${slugify(title)}-${Date.now().toString(36)}`);
+  const players = Array.isArray(composition.players)
+    ? composition.players.map((player) => ({
+      number: Number(player.number || 0),
+      position: clean(player.position || player.role || ''),
+      name: clean(player.name || ''),
+      firstName: clean(player.firstName || ''),
+      lastName: clean(player.lastName || ''),
+      role: clean(player.role || player.position || ''),
+      photo: clean(player.photo || '')
+    }))
+    : [];
+
+  return {
+    id,
+    status: 'Enregistrée côté serveur',
+    title,
+    team: clean(composition.team || 'Seniors'),
+    match: clean(composition.match || ''),
+    eventTitle: clean(composition.eventTitle || ''),
+    eventDetails: clean(composition.eventDetails || ''),
+    date: clean(composition.date || new Date().toISOString().slice(0, 10)),
+    players,
+    captain: clean(composition.captain || ''),
+    viceCaptain: clean(composition.viceCaptain || ''),
+    coach: clean(composition.coach || ''),
+    comments: String(composition.comments || ''),
+    channels: composition.channels && typeof composition.channels === 'object' ? composition.channels : {},
+    savedAt: new Date().toISOString()
+  };
+}
+
+async function saveCompositionOnServer(composition, env) {
+  const { sha, json: current } = await readGithubJson('data/compositions.json', env);
+  const entries = Array.isArray(current) ? current : (Array.isArray(current.compositions) ? current.compositions : []);
+  const normalized = normalizeComposition(composition);
+  const nextEntries = [normalized, ...entries.filter((entry) => clean(entry.id) !== normalized.id)];
+  const next = Array.isArray(current) ? nextEntries : { ...current, compositions: nextEntries };
+  await putGithubFile(
+    'data/compositions.json',
+    utf8ToBase64(`${JSON.stringify(next, null, 2)}\n`),
+    `Studio RCC: enregistre ${normalized.title}`,
+    env,
+    sha
+  );
+  return normalized;
 }
 
 async function sendPush(push, env, request) {
@@ -321,6 +327,9 @@ export async function onRequestGet({ env }) {
 }
 
 export async function onRequestPost({ request, env }) {
+  if (!adminConfiguration(env || {}).ok) {
+    return json({ ok: false, configurationUnavailable: true, error: ADMIN_CONFIGURATION_MESSAGE }, 503);
+  }
   let payload;
   try {
     payload = await request.json();
@@ -328,10 +337,9 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'JSON invalide.' }, 400);
   }
 
-  const expectedPassword = adminPassword(env || {});
-  const passwordOk = Boolean(expectedPassword && payload.password && payload.password === expectedPassword);
-  const sessionOk = await validSession(request, env);
-  const authHeaders = passwordOk ? { 'Set-Cookie': await sessionCookie(request, env) } : {};
+  const passwordOk = Boolean(payload.password && matchesAdminPassword(payload.password, env));
+  const sessionOk = await hasValidAdminSession(request, env);
+  const authHeaders = passwordOk ? { 'Set-Cookie': await createAdminSessionCookie(request, env) } : {};
 
   if (!sessionOk && !passwordOk) {
     return json({
@@ -349,7 +357,10 @@ export async function onRequestPost({ request, env }) {
   };
 
   try {
-    if (payload.kind === 'newsletter') {
+    if (payload.kind === 'composition') {
+      result.composition = await saveCompositionOnServer(payload.composition || {}, env);
+      result.url = '/admin/generateur-affiche.html#composition';
+    } else if (payload.kind === 'newsletter') {
       const newsletter = await publishNewsletter(payload.newsletter || {}, env);
       result.newsletter = newsletter;
       result.url = '/actualites.html?filtre=newsletters';

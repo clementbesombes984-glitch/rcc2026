@@ -1,3 +1,10 @@
+import {
+  ADMIN_CONFIGURATION_MESSAGE,
+  adminConfiguration,
+  createAdminSessionCookie,
+  matchesAdminPassword
+} from './_lib/admin-auth.js';
+
 function escapeHtml(value = "") {
   return String(value).replace(/[&<>\"]/g, (char) => ({
     "&": "&amp;",
@@ -41,24 +48,23 @@ function page(error = "") {
   return new Response(body, { headers: { "content-type": "text/html;charset=UTF-8" } });
 }
 
-function adminPassword(env) {
-  return env.PAGES_CMS_PASSWORD
-    || env.CMS_PASSWORD
-    || env.ADMIN_PASSWORD
-    || env.STUDIO_PASSWORD
-    || "RCCdemain";
-}
-
 export async function onRequestGet() {
   return page();
 }
 
 export async function onRequestPost(context) {
-  const expected = adminPassword(context.env || {});
+  const env = context.env || {};
+  if (!adminConfiguration(env).ok) return page(ADMIN_CONFIGURATION_MESSAGE);
   const form = await context.request.formData();
   const password = form.get("password");
 
-  if (password !== expected) return page("Mot de passe incorrect.");
+  if (!matchesAdminPassword(password, env)) return page("Mot de passe incorrect.");
 
-  return Response.redirect("https://app.pagescms.org/", 302);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: 'https://app.pagescms.org/',
+      'Set-Cookie': await createAdminSessionCookie(context.request, env)
+    }
+  });
 }

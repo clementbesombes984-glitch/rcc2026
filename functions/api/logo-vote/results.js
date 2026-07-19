@@ -1,4 +1,8 @@
-const SESSION_COOKIE = 'rcc_admin_session';
+import {
+  ADMIN_CONFIGURATION_MESSAGE,
+  adminConfiguration,
+  hasValidAdminSession
+} from '../../_lib/admin-auth.js';
 
 const jsonHeaders = {
   'Content-Type': 'application/json; charset=UTF-8',
@@ -7,47 +11,6 @@ const jsonHeaders = {
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: jsonHeaders });
-}
-
-function base64Url(bytes) {
-  let binary = '';
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
-}
-
-function adminPassword(env) {
-  return env.PAGES_CMS_PASSWORD
-    || env.CMS_PASSWORD
-    || env.ADMIN_PASSWORD
-    || env.STUDIO_PASSWORD
-    || 'RCCdemain';
-}
-
-async function signSession(value, env) {
-  const secret = env.ADMIN_SESSION_SECRET || adminPassword(env);
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
-  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(value));
-  return base64Url(new Uint8Array(signature));
-}
-
-function cookieValue(request, name) {
-  const cookie = request.headers.get('cookie') || '';
-  const match = cookie.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${name}=`));
-  return match ? match.slice(name.length + 1) : '';
-}
-
-async function hasAdminSession(request, env) {
-  const raw = cookieValue(request, SESSION_COOKIE);
-  const [expires, signature] = raw.split('.');
-  if (!expires || !signature) return false;
-  if (Number(expires) < Math.floor(Date.now() / 1000)) return false;
-  return signature === await signSession(expires, env);
 }
 
 async function loadConfig(request) {
@@ -119,7 +82,8 @@ function csv(results) {
 }
 
 export async function onRequestGet({ request, env }) {
-  if (!await hasAdminSession(request, env || {})) {
+  if (!adminConfiguration(env || {}).ok) return json({ ok: false, error: ADMIN_CONFIGURATION_MESSAGE }, 503);
+  if (!await hasValidAdminSession(request, env || {})) {
     return json({ ok: false, error: 'Accès administration requis.' }, 401);
   }
   if (!env.RCC_LOGO_VOTES) {
@@ -145,7 +109,8 @@ export async function onRequestGet({ request, env }) {
 }
 
 export async function onRequestPost({ request, env }) {
-  if (!await hasAdminSession(request, env || {})) {
+  if (!adminConfiguration(env || {}).ok) return json({ ok: false, error: ADMIN_CONFIGURATION_MESSAGE }, 503);
+  if (!await hasValidAdminSession(request, env || {})) {
     return json({ ok: false, error: 'Accès administration requis.' }, 401);
   }
   if (!env.RCC_LOGO_VOTES) {

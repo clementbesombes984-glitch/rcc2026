@@ -74,8 +74,8 @@ Utiliser le Studio RCC, onglet Compositions. Les joueurs seniors sont proposés 
 
 À configurer dans Cloudflare Pages :
 
-- `PAGES_CMS_PASSWORD`
-- `ADMIN_SESSION_SECRET`
+- `PAGES_CMS_PASSWORD` (obligatoire, aucun mot de passe de secours)
+- `ADMIN_SESSION_SECRET` (obligatoire, au moins 32 caracteres et distinct du mot de passe)
 - `RCC_GITHUB_TOKEN`
 - `VAPID_PUBLIC_KEY`
 - `VAPID_PRIVATE_KEY`

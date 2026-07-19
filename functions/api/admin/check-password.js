@@ -1,43 +1,18 @@
-const SESSION_COOKIE = 'rcc_admin_session';
-const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
-
-function base64Url(bytes) {
-  let binary = '';
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
-}
-
-function adminPassword(env) {
-  return env.PAGES_CMS_PASSWORD
-    || env.CMS_PASSWORD
-    || env.ADMIN_PASSWORD
-    || env.STUDIO_PASSWORD
-    || 'RCCdemain';
-}
-
-async function signSession(value, env) {
-  const secret = env.ADMIN_SESSION_SECRET || adminPassword(env);
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
-  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(value));
-  return base64Url(new Uint8Array(signature));
-}
-
-async function sessionCookie(request, env) {
-  const expires = Math.floor(Date.now() / 1000) + SESSION_MAX_AGE;
-  const payload = String(expires);
-  const signature = await signSession(payload, env);
-  const secure = new URL(request.url).protocol === 'https:' ? '; Secure' : '';
-  return `${SESSION_COOKIE}=${payload}.${signature}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_MAX_AGE}${secure}`;
-}
+import {
+  ADMIN_CONFIGURATION_MESSAGE,
+  adminConfiguration,
+  createAdminSessionCookie,
+  matchesAdminPassword
+} from '../../_lib/admin-auth.js';
 
 export async function onRequestPost({ request, env }) {
-  const expected = adminPassword(env || {});
+  if (!adminConfiguration(env || {}).ok) {
+    return Response.json({
+      ok: false,
+      configurationUnavailable: true,
+      error: ADMIN_CONFIGURATION_MESSAGE
+    }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
+  }
   let password = '';
 
   try {
@@ -53,7 +28,7 @@ export async function onRequestPost({ request, env }) {
     password = '';
   }
 
-  const ok = password === expected;
-  const headers = ok ? { 'Set-Cookie': await sessionCookie(request, env) } : {};
+  const ok = matchesAdminPassword(password, env);
+  const headers = ok ? { 'Set-Cookie': await createAdminSessionCookie(request, env) } : {};
   return Response.json({ ok }, { headers });
 }

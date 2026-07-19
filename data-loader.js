@@ -30,8 +30,10 @@
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '') || 'article';
 
-  const newsId = (item, index = 0) =>
-    item.id || item.slug || slugify(`${item.date || index}-${item.title || 'actualite-rcc'}`);
+  const legacyNewsId = (item, index = 0) =>
+    item.slug || slugify(`${item.date || index}-${item.title || 'actualite-rcc'}`);
+
+  const newsId = (item, index = 0) => item.id || legacyNewsId(item, index);
 
   const newsUrl = (item, index = 0) => `./actualite.html?id=${encodeURIComponent(newsId(item, index))}`;
 
@@ -372,7 +374,10 @@
     const requestedId = params.get('id') || '';
     const data = await fetchData('news');
     const news = (Array.isArray(data) ? data : (data.news || [])).map((item, index) => ({ ...item, _index: index }));
-    const item = news.find((entry) => newsId(entry, entry._index) === requestedId);
+    const item = news.find((entry) =>
+      newsId(entry, entry._index) === requestedId
+      || legacyNewsId(entry, entry._index) === requestedId
+    );
 
     if (!item) {
       reader.innerHTML = `

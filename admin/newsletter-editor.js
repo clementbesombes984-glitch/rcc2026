@@ -373,13 +373,51 @@
     });
   }
 
-  async function inlineImages(node) {
-    const images = Array.from(node.querySelectorAll('img'));
-    await Promise.all(images.map(async (image) => {
+  function newsletterPageSource(pageNumber) {
+    const rendered = root.querySelector(`.newsletter-sheet[data-page="${pageNumber}"]`);
+    if (rendered) return rendered;
+    const holder = document.createElement('div');
+    holder.innerHTML = renderPage(state.pages.find((page) => page.number === pageNumber));
+    return holder.firstElementChild;
+  }
+
+  async function prepareNewsletterImages(pageNumbers) {
+    const references = new Map();
+    pageNumbers.forEach((pageNumber) => {
+      newsletterPageSource(pageNumber).querySelectorAll('img').forEach((image) => {
+        if (image.src && !references.has(image.src)) references.set(image.src, image.alt || `Image page ${pageNumber}`);
+      });
+    });
+
+    const dataUrls = new Map();
+    const failures = [];
+    await Promise.all([...references.entries()].map(async ([src, label]) => {
       try {
-        const response = await fetch(image.src); const blob = await response.blob(); image.src = await fileToDataUrl(blob);
-      } catch { image.removeAttribute('src'); }
+        const response = await fetch(src, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const blob = await response.blob();
+        if (!blob.type.startsWith('image/')) throw new Error('Le fichier reçu n’est pas une image');
+        dataUrls.set(src, await fileToDataUrl(blob));
+      } catch (error) {
+        failures.push({ src, label, reason: error.message || 'chargement impossible' });
+      }
     }));
+
+    if (!failures.length) return { dataUrls, missing: new Set() };
+    const details = failures.map((failure) => `• ${failure.label} — ${failure.src}`).join('\n');
+    setAction(`${failures.length} image(s) impossible(s) à intégrer. Export en attente de confirmation.`, true);
+    const proceed = window.confirm(
+      `Certaines images ne peuvent pas être intégrées à l’export :\n\n${details}\n\nOK : exporter malgré les images manquantes.\nAnnuler : revenir à la newsletter.`
+    );
+    if (!proceed) throw new Error('Export annulé : corrigez les images signalées avant de recommencer.');
+    return { dataUrls, missing: new Set(failures.map((failure) => failure.src)) };
+  }
+
+  function inlineImages(node, imageContext) {
+    Array.from(node.querySelectorAll('img')).forEach((image) => {
+      if (imageContext.dataUrls.has(image.src)) image.src = imageContext.dataUrls.get(image.src);
+      else if (imageContext.missing.has(image.src)) image.removeAttribute('src');
+    });
   }
 
   const exportCss = `
@@ -389,13 +427,11 @@
     .newsletter-masthead{padding:13px 20px}.newsletter-masthead-copy{min-width:0;flex:1}.newsletter-masthead span,.newsletter-masthead p{font-size:9px;letter-spacing:.1em}.newsletter-masthead h1{overflow-wrap:anywhere}.newsletter-masthead h1.is-long{font-size:31px}.newsletter-masthead h1.is-very-long{font-size:25px}.newsletter-masthead .newsletter-tagline{display:block;font-size:8px;letter-spacing:.08em;margin-top:4px;color:#d45a7f;text-transform:uppercase}.newsletter-masthead b{margin-left:16px;flex:0 0 92px}.newsletter-masthead b small,.newsletter-masthead b em{display:block;font-size:9px;margin-top:4px;font-style:normal}
   `;
 
-  async function pageToCanvas(pageNumber) {
-    const source = root.querySelector(`.newsletter-sheet[data-page="${pageNumber}"]`) || (() => {
-      const holder = document.createElement('div'); holder.innerHTML = renderPage(state.pages.find((page) => page.number === pageNumber)); return holder.firstElementChild;
-    })();
+  async function pageToCanvas(pageNumber, imageContext) {
+    const source = newsletterPageSource(pageNumber);
     const clone = source.cloneNode(true);
     clone.style.transform = 'none'; clone.style.margin = '0';
-    await inlineImages(clone);
+    inlineImages(clone, imageContext);
     const markup = new XMLSerializer().serializeToString(clone);
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${A4.exportWidth}" height="${A4.exportHeight}" viewBox="0 0 ${A4.width} ${A4.height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml"><style>${exportCss}</style>${markup}</div></foreignObject></svg>`;
     const svgBytes = new TextEncoder().encode(svg);
@@ -413,10 +449,16 @@
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = filename; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   }
   async function exportPng(pageNumber, suffix = '') {
-    setAction('Génération du PNG…');
-    const canvas = await pageToCanvas(pageNumber);
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 1));
-    downloadBlob(blob, `newsletter-rcc-${slug(state.title)}-${suffix || `page-${pageNumber}`}.png`); setAction('PNG téléchargé.');
+    try {
+      setAction('Vérification des images…');
+      const imageContext = await prepareNewsletterImages([pageNumber]);
+      setAction('Génération du PNG…');
+      const canvas = await pageToCanvas(pageNumber, imageContext);
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 1));
+      downloadBlob(blob, `newsletter-rcc-${slug(state.title)}-${suffix || `page-${pageNumber}`}.png`); setAction('PNG téléchargé.');
+    } catch (error) {
+      setAction(error.message || 'Export PNG impossible.', true);
+    }
   }
   const bytesFromDataUrl = (dataUrl) => Uint8Array.from(atob(dataUrl.split(',')[1]), (char) => char.charCodeAt(0));
   function buildPdf(jpegs) {
@@ -443,27 +485,43 @@
     add(`trailer\n<< /Size 9 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
     return new Blob(chunks, { type: 'application/pdf' });
   }
-  async function createPdf() {
-    const canvases = await Promise.all([pageToCanvas(1), pageToCanvas(2)]);
+  async function createPdf(imageContext) {
+    const canvases = await Promise.all([pageToCanvas(1, imageContext), pageToCanvas(2, imageContext)]);
     return buildPdf(canvases.map((canvas) => bytesFromDataUrl(canvas.toDataURL('image/jpeg', 0.94))));
   }
-  async function exportPdf() { setAction('Génération du PDF deux pages…'); const pdf = await createPdf(); downloadBlob(pdf, `newsletter-rcc-${slug(state.title)}.pdf`); setAction('PDF téléchargé.'); return pdf; }
+  async function exportPdf() {
+    try {
+      setAction('Vérification des images…');
+      const imageContext = await prepareNewsletterImages([1, 2]);
+      setAction('Génération du PDF deux pages…');
+      const pdf = await createPdf(imageContext);
+      downloadBlob(pdf, `newsletter-rcc-${slug(state.title)}.pdf`);
+      setAction('PDF téléchargé.');
+      return pdf;
+    } catch (error) {
+      setAction(error.message || 'Export PDF impossible.', true);
+      return null;
+    }
+  }
   const slug = (value) => clean(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'journal';
   function setAction(message, error = false) { const node = $('[data-nl-action-status]'); node.textContent = message; node.classList.toggle('is-error', error); }
   async function blobToDataUrl(blob) { return fileToDataUrl(blob); }
 
   async function publishNewsletter() {
     try {
-      state.status = 'published'; state.published = true; saveDraft(); render(); setAction('Préparation des fichiers…');
-      const [pdf, coverCanvas] = await Promise.all([createPdf(), pageToCanvas(1)]);
+      setAction('Vérification des images…');
+      const imageContext = await prepareNewsletterImages([1, 2]);
+      setAction('Préparation des fichiers…');
+      const [pdf, coverCanvas] = await Promise.all([createPdf(imageContext), pageToCanvas(1, imageContext)]);
       const coverBlob = await new Promise((resolve) => coverCanvas.toBlob(resolve, 'image/jpeg', 0.92));
       const payload = {
         kind: 'newsletter', publishSite: true,
-        newsletter: { ...state, published: state.status === 'published', date: new Date().toISOString().slice(0, 10), pdfData: await blobToDataUrl(pdf), coverData: await blobToDataUrl(coverBlob) }
+        newsletter: { ...state, status: 'published', published: true, date: new Date().toISOString().slice(0, 10), pdfData: await blobToDataUrl(pdf), coverData: await blobToDataUrl(coverBlob) }
       };
       const response = await fetch('/api/studio/publish', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify(payload) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || 'Publication impossible.');
+      state.status = 'published'; state.published = true;
       state.pdf = result.newsletter?.pdf || state.pdf; state.cover = result.newsletter?.cover || state.cover;
       setAction('Newsletter publiée et archivée.'); saveDraft();
     } catch (error) { setAction(error.message || 'Publication impossible.', true); }

@@ -1068,11 +1068,13 @@
     };
   }
 
-  function saveCompositionHistory(status = 'Brouillon') {
+  function saveCompositionHistory(status = 'Brouillon', sourceRecord = null) {
     const history = readCompositionHistory();
-    history.unshift(currentCompositionRecord(status));
+    const record = sourceRecord ? { ...sourceRecord, status } : currentCompositionRecord(status);
+    history.unshift(record);
     localStorage.setItem(compositionHistoryKey(), JSON.stringify(history.slice(0, 20)));
     renderCompositionHistory();
+    return record;
   }
 
   function renderCompositionHistory() {
@@ -1121,12 +1123,30 @@
     setStatus('Composition dupliquee dans l historique.');
   }
 
-  function publishComposition() {
-    saveCompositionHistory('Publiee');
-    const record = currentCompositionRecord('Publiee');
-    const channels = Object.entries(record.channels).filter(([, active]) => active).map(([key]) => key).join(', ') || 'aucun canal coche';
-    setStatus(`Composition prete pour publication : ${channels}.`);
-    recordPublication('Composition publiee', `${record.team} - ${record.title} (${channels})`);
+  async function publishComposition() {
+    const button = document.querySelector('[data-composition-publish]');
+    const record = currentCompositionRecord('Enregistrement serveur en cours');
+    if (button) button.disabled = true;
+    setStatus('Enregistrement de la composition côté serveur…');
+    try {
+      const response = await fetch('/api/studio/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ kind: 'composition', composition: record })
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || 'Enregistrement serveur impossible.');
+      const saved = result.composition || record;
+      saveCompositionHistory('Enregistrée côté serveur', saved);
+      setStatus('Composition enregistrée côté serveur. Téléchargez ensuite le visuel pour le diffuser.');
+      recordPublication('Composition enregistrée côté serveur', `${saved.team} - ${saved.title}`);
+    } catch (error) {
+      setStatus(error.message || 'Enregistrement serveur impossible. La sauvegarde locale reste disponible.');
+      recordPublication('Erreur enregistrement composition', error.message || 'Erreur inconnue');
+    } finally {
+      if (button) button.disabled = false;
+    }
   }
 
   function saveCompositionDraft() {

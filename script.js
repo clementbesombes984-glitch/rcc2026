@@ -289,7 +289,3 @@ window.addEventListener('appinstalled', () => {
   const button = document.querySelector('[data-install-app]');
   if (button) button.hidden = true;
 });
-// Chargement Google Analytics
-const analytics = document.createElement("script");
-analytics.src = "analytics.js";
-document.body.appendChild(analytics);

@@ -149,7 +149,7 @@ function newsPayload(item) {
     type: 'news',
     title: shortTitle(item.title, 'Actualite RCC'),
     body: item.summary || item.body || item.category || 'Nouvelle actualite du club.',
-    url: item.url || '/actualites.html',
+    url: item.url || (item.id ? `/actualite.html?id=${encodeURIComponent(item.id)}` : '/actualites.html'),
     audience: audiences(item, 'actualites'),
     tag: `news-${idFor('news', item)}`
   };
