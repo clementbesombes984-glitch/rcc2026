@@ -198,6 +198,20 @@
       "notification": true,
       "featured": true,
       "date": "2026-07-18"
+    },
+    {
+      "id": "Journee-essai-22-07",
+      "title": "Journée d'essai 22 Juillet ",
+      "body": "🏉 𝗣𝗿𝗲𝗺𝗶𝗲̀𝗿𝗲 𝘀𝗼𝗶𝗿𝗲́𝗲 𝗿𝗲́𝘂𝘀𝘀𝗶𝗲 ! ❤️💙\nHier soir avait lieu notre première séance \"Viens faire l'essai !\" et quel plaisir de voir autant de monde au bord du terrain !\nUne quinzaine de joueurs et joueuses ont répondu présents pour découvrir le RC Cubzaguais dans une ambiance chaleureuse, conviviale et pleine de bonne humeur. Une belle soirée de partage qui reflète parfaitement les valeurs de notre club.\nUn grand merci à tous les participants, aux éducateurs, aux joueurs et aux bénévoles pour leur accueil.\n📅 Rendez-vous mercredi prochain pour une nouvelle séance d'essai. N'hésitez pas à venir nous rejoindre !\n#RCCubzaguais #Rugby #ViensFaireLEssai #EspritRCC #SaintAndreDeCubzac #RugbyPourTous 🏉",
+      "image": "/assets/uploads/img-20260722-wa0035.jpg",
+      "category": "Pole jeunes",
+      "audience": [
+        "cadettes"
+      ],
+      "important": false,
+      "notification": true,
+      "featured": true,
+      "date": "2026-07-23"
     }
   ]
 }
