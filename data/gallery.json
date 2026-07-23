@@ -1,47 +1,35 @@
 {
   "albums": [
     {
-      "title": "Entrainement seniors",
+      "title": "Journée essai 22/07",
       "category": "Entrainements",
-      "date": "2026-07-01",
-      "description": "Quelques images des seances de preparation du groupe RCC.",
-      "cover": "",
+      "date": "2026-07-22",
+      "description": "Journée d'essai du 22 Juillet ",
+      "cover": "/assets/uploads/img-20260722-wa0035-1.jpg",
       "photos": [
         {
-          "image": "",
-          "alt": "Joueurs du RCC pendant un entrainement"
+          "image": "/assets/uploads/img-20260722-wa0055.jpg"
         },
         {
-          "image": "",
-          "alt": "Atelier rugby au stade"
-        }
-      ]
-    },
-    {
-      "title": "Matchs du RCC",
-      "category": "Matchs",
-      "date": "2026-07-02",
-      "description": "Les temps forts des rencontres du club.",
-      "cover": "",
-      "photos": [
+          "image": "/assets/uploads/img-20260722-wa0054-1.jpg"
+        },
         {
-          "image": "",
-          "alt": "Action de match du RC Cubzaguais"
-        }
-      ]
-    },
-    {
-      "title": "Ecole de rugby",
-      "category": "Ecole de rugby",
-      "date": "2026-07-03",
-      "description": "La vie des jeunes pousses du RCC.",
-      "cover": "",
-      "photos": [
+          "image": "/assets/uploads/img-20260722-wa0053.jpg"
+        },
         {
-          "image": "",
-          "alt": "Jeunes de l ecole de rugby"
+          "image": "/assets/uploads/img-20260722-wa0052.jpg"
+        },
+        {
+          "image": "/assets/uploads/img-20260722-wa0051.jpg"
+        },
+        {
+          "image": "/assets/uploads/img-20260722-wa0050.jpg"
+        },
+        {
+          "image": "/assets/uploads/img-20260722-wa0049.jpg"
         }
-      ]
+      ],
+      "featured": false
     }
   ]
 }
