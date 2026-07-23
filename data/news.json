@@ -212,6 +212,17 @@
       "notification": true,
       "featured": true,
       "date": "2026-07-23"
+    },
+    {
+      "id": "Reprise-polejeune",
+      "title": "Reprise Entraînement Pôle jeune ",
+      "body": "🏉 Le Pôle Jeunes reprend du service !\nLes U16 et U19 sont de retour sur les terrains pour lancer cette nouvelle saison. Rendez-vous le 21 août à 19h00 à la Plaine des Sports de Saint-André-de-Cubzac. On vous attend nombreux pour cette reprise ! 💪🔴💙",
+      "image": "/assets/uploads/file00000000517c8246a575861de5f52a7e.png",
+      "category": "Pole jeunes",
+      "important": false,
+      "notification": true,
+      "featured": false,
+      "date": "2026-07-23"
     }
   ]
 }
