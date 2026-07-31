@@ -223,6 +223,23 @@
       "notification": true,
       "featured": false,
       "date": "2026-07-23"
+    },
+    {
+      "id": "Reprises entraînement",
+      "title": "Reprise Entraînement RCC",
+      "body": "🏉 La saison 2026-2027 approche... il est temps de retrouver les terrains ! 🔴⚫\nLes dates de reprise sont désormais connues pour toutes nos catégories. Que vous soyez joueur, parent, dirigeant ou supporter, notez-les dès maintenant dans vos agendas !\n📅 Reprises : 🔴 \n4 août : Seniors\n🔴 18 août : U14\n🔴 21 août : U16 & U19\n🔴 25 août : Cadettes\n🔴 5 septembre : École de Rugby (U6, U8, U10 et U12)\nUne nouvelle saison commence, avec de nouveaux défis, de nouveaux objectifs et toujours la même passion pour nos couleurs. ❤️🖤\nNous avons hâte de vous retrouver au bord des terrains !",
+      "image": "/assets/uploads/file00000000ca5482439e873fe1fa199523.png",
+      "category": "Club",
+      "audience": [
+        "cadettes",
+        "seniors",
+        "ecole",
+        "jeunes"
+      ],
+      "important": true,
+      "notification": true,
+      "featured": true,
+      "date": "2026-07-31"
     }
   ]
 }
