@@ -240,6 +240,17 @@
       "notification": true,
       "featured": true,
       "date": "2026-07-31"
+    },
+    {
+      "id": "Calendrier match senior",
+      "title": "Le Calendrier phase aller de la saison Senior",
+      "body": "Phase aller du championnat des seniors",
+      "image": "/assets/uploads/file000000005778820a816484ed60cbf675.png",
+      "category": "Seniors",
+      "important": true,
+      "notification": true,
+      "featured": false,
+      "date": "2026-08-04"
     }
   ]
 }
