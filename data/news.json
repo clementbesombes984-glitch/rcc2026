@@ -251,6 +251,16 @@
       "notification": true,
       "featured": false,
       "date": "2026-08-04"
+    },
+    {
+      "id": "Phase retour senior ",
+      "title": "Calendrier phase retour senior",
+      "image": "/assets/uploads/file0000000025e481f4a03c47f2f577ec52-1.png",
+      "category": "Seniors",
+      "important": true,
+      "notification": true,
+      "featured": false,
+      "date": "2026-08-04"
     }
   ]
 }
