@@ -136,6 +136,7 @@
   const directLayer = document.querySelector('[data-poster-direct-layer]');
   const directImageInput = document.querySelector('[data-direct-poster-image]');
   const posterBlockList = document.querySelector('[data-poster-block-list]');
+  const photoSettingInputs = document.querySelectorAll('[data-photo-setting]');
   const canvasWrap = canvas?.closest('.studio-canvas-wrap');
   const posterStage = document.querySelector('[data-poster-stage]');
   const documentFitButton = document.querySelector('[data-document-fit]');
@@ -492,6 +493,22 @@
   function setField(name, value) {
     const field = form?.elements[name];
     if (field && value !== undefined && value !== null) field.value = value;
+  }
+
+  function syncPhotoSettings(data = readForm()) {
+    photoSettingInputs.forEach((input) => {
+      const name = input.dataset.photoSetting;
+      if (!name) return;
+      if (input.type === 'checkbox') input.checked = data[name] !== 'no';
+      else input.value = data[name] || input.value;
+    });
+  }
+
+  function updatePhotoSetting(input) {
+    const name = input?.dataset?.photoSetting;
+    if (!name) return;
+    setField(name, input.type === 'checkbox' ? (input.checked ? 'yes' : 'no') : input.value);
+    render();
   }
 
   function defaultPosterBlocks() {
@@ -2448,6 +2465,11 @@
 
   function drawRccStudioPosterBackground(w, h, data, scale) {
     const zoom = clamp(Number(data.photoZoom || 112) / 100, 1, 1.7);
+    const hasPhoto = Boolean(state.image && posterBlockVisible('photo'));
+    const brightness = clamp(Number(data.photoBrightness || 108), 70, 140);
+    const contrast = clamp(Number(data.photoContrast || 104), 80, 135);
+    const saturation = clamp(Number(data.photoSaturation || 108), 70, 145);
+    const veil = clamp(Number(data.photoVeil ?? 28), 0, 70) / 100;
     const base = ctx.createLinearGradient(0, 0, w, h);
     base.addColorStop(0, '#010104');
     base.addColorStop(0.52, '#06070b');
@@ -2455,14 +2477,17 @@
     ctx.fillStyle = base;
     ctx.fillRect(0, 0, w, h);
 
-    if (state.image && posterBlockVisible('photo')) {
+    if (hasPhoto) {
+      ctx.save();
+      ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
       coverImage(state.image, 0, 0, w, h, zoom, Number(data.photoOffsetX || 0) / 100, Number(data.photoOffsetY || 0) / 100);
-      ctx.fillStyle = 'rgba(0,0,0,.72)';
+      ctx.restore();
+      ctx.fillStyle = `rgba(0,0,0,${veil})`;
       ctx.fillRect(0, 0, w, h);
       const photoTint = ctx.createLinearGradient(0, 0, w, h);
-      photoTint.addColorStop(0, 'rgba(0,0,0,.72)');
-      photoTint.addColorStop(0.52, 'rgba(3,3,4,.58)');
-      photoTint.addColorStop(1, 'rgba(177,24,69,.2)');
+      photoTint.addColorStop(0, 'rgba(0,0,0,.18)');
+      photoTint.addColorStop(0.5, 'rgba(3,3,4,.08)');
+      photoTint.addColorStop(1, 'rgba(177,24,69,.14)');
       ctx.fillStyle = photoTint;
       ctx.fillRect(0, 0, w, h);
     }
@@ -2475,7 +2500,7 @@
     ctx.fillRect(0, 0, w, h);
 
     drawPosterHexPattern(w, h, scale);
-    drawPosterWatermark(w, h, scale);
+    drawPosterWatermark(w, h, data, scale, hasPhoto);
     drawPosterScratches(w, h, scale);
     drawNoise(w, h);
     drawVignette(w, h);
@@ -2507,11 +2532,18 @@
     ctx.restore();
   }
 
-  function drawPosterWatermark(w, h, scale) {
+  function drawPosterWatermark(w, h, data, scale, hasPhoto = false) {
+    const opacityDefault = hasPhoto ? 8 : 11;
+    const logoOpacity = clamp(Number(data.logoOpacity ?? opacityDefault), 0, 40) / 100;
+    const showLogo = data.showLogoWatermark !== 'no' && posterBlockVisible('logo');
     ctx.save();
-    ctx.globalAlpha = 0.11;
+    ctx.globalAlpha = showLogo ? logoOpacity : 0;
     ctx.globalCompositeOperation = 'screen';
-    if (posterBlockVisible('logo')) fitImage(logo, w * 0.55, h * 0.07, w * 0.52, h * 0.44);
+    if (showLogo) fitImage(logo, w * 0.55, h * 0.07, w * 0.52, h * 0.44);
+    ctx.restore();
+    ctx.save();
+    ctx.globalAlpha = hasPhoto ? 0.05 : 0.11;
+    ctx.globalCompositeOperation = 'screen';
     ctx.strokeStyle = COLORS.red;
     ctx.lineWidth = 8 * scale;
     ctx.beginPath();
@@ -3841,6 +3873,10 @@
     if (!button || !item || button.dataset.posterBlockAction === 'toggle') return;
     updatePosterBlock(item.dataset.posterBlock, button.dataset.posterBlockAction);
   });
+  photoSettingInputs.forEach((input) => {
+    input.addEventListener('input', () => updatePhotoSetting(input));
+    input.addEventListener('change', () => updatePhotoSetting(input));
+  });
   documentFitButton?.addEventListener('click', fitDocumentToViewport);
   documentZoomOutButton?.addEventListener('click', () => changeDocumentZoom(-0.25));
   documentZoomInButton?.addEventListener('click', () => changeDocumentZoom(0.25));
@@ -3914,6 +3950,7 @@
   loadPosterBlocks();
   renderPosterBlockList();
   syncPushSettings(readForm());
+  syncPhotoSettings(readForm());
   loadFonts();
   setCompositionStep('match');
   switchStudioTab((location.hash || '').replace('#', '') || sessionStorage.getItem('rcc-studio-active-module') || 'posters', { silentHash: true });

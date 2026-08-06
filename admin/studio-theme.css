@@ -1197,7 +1197,8 @@
   flex: 0 0 auto;
 }
 
-.studio-page #studio-panel-publications .poster-block-manager {
+.studio-page #studio-panel-publications .poster-block-manager,
+.studio-page #studio-panel-publications .poster-photo-settings {
   margin: 0 0 10px;
   border: 1px solid var(--studio-line);
   border-radius: 10px;
@@ -1205,7 +1206,8 @@
   box-shadow: 0 12px 34px rgba(0, 0, 0, .14);
 }
 
-.studio-page #studio-panel-publications .poster-block-manager summary {
+.studio-page #studio-panel-publications .poster-block-manager summary,
+.studio-page #studio-panel-publications .poster-photo-settings summary {
   display: flex;
   align-items: center;
   min-height: 36px;
@@ -1217,22 +1219,26 @@
   text-transform: uppercase;
 }
 
-.studio-page #studio-panel-publications .poster-block-manager summary::-webkit-details-marker {
+.studio-page #studio-panel-publications .poster-block-manager summary::-webkit-details-marker,
+.studio-page #studio-panel-publications .poster-photo-settings summary::-webkit-details-marker {
   display: none;
 }
 
-.studio-page #studio-panel-publications .poster-block-manager summary::after {
+.studio-page #studio-panel-publications .poster-block-manager summary::after,
+.studio-page #studio-panel-publications .poster-photo-settings summary::after {
   margin-left: auto;
   color: var(--studio-red);
   content: '+';
   font-size: 1rem;
 }
 
-.studio-page #studio-panel-publications .poster-block-manager[open] summary::after {
+.studio-page #studio-panel-publications .poster-block-manager[open] summary::after,
+.studio-page #studio-panel-publications .poster-photo-settings[open] summary::after {
   content: '-';
 }
 
-.studio-page .poster-block-manager-body {
+.studio-page .poster-block-manager-body,
+.studio-page .poster-photo-settings-body {
   padding: 0 10px 10px;
 }
 
@@ -1240,6 +1246,35 @@
   margin: 0 0 8px;
   color: var(--studio-muted);
   font-size: .76rem;
+}
+
+.studio-page .poster-photo-settings-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 9px;
+}
+
+.studio-page .poster-photo-settings-body label {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  color: var(--studio-muted);
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.studio-page .poster-photo-settings-body input[type='range'] {
+  width: 100%;
+}
+
+.studio-page .poster-photo-settings-body .poster-check {
+  display: flex;
+  align-items: center;
+  min-height: 35px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .035);
 }
 
 .studio-page .poster-block-list {

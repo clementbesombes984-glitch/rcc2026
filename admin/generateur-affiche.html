@@ -97,6 +97,17 @@
               <div class="poster-block-list" data-poster-block-list></div>
             </div>
           </details>
+          <details class="poster-photo-settings" data-poster-photo-settings>
+            <summary>Reglages photo</summary>
+            <div class="poster-photo-settings-body">
+              <label>Luminosite <input type="range" min="70" max="140" value="108" data-photo-setting="photoBrightness" /></label>
+              <label>Contraste <input type="range" min="80" max="135" value="104" data-photo-setting="photoContrast" /></label>
+              <label>Saturation <input type="range" min="70" max="145" value="108" data-photo-setting="photoSaturation" /></label>
+              <label>Voile sombre <input type="range" min="0" max="70" value="28" data-photo-setting="photoVeil" /></label>
+              <label>Opacite logo <input type="range" min="0" max="40" value="8" data-photo-setting="logoOpacity" /></label>
+              <label class="poster-check"><input type="checkbox" checked data-photo-setting="showLogoWatermark" /> Afficher le logo RCC</label>
+            </div>
+          </details>
           <div class="poster-canvas-wrap studio-canvas-wrap">
             <div class="poster-stage" data-poster-stage>
               <canvas id="posterCanvas" width="1080" height="1350" aria-label="Apercu de la communication RCC"></canvas>
@@ -148,6 +159,12 @@
           <input name="photoZoom" type="hidden" value="112" />
           <input name="photoOffsetX" type="hidden" value="0" />
           <input name="photoOffsetY" type="hidden" value="0" />
+          <input name="photoBrightness" type="hidden" value="108" />
+          <input name="photoContrast" type="hidden" value="104" />
+          <input name="photoSaturation" type="hidden" value="108" />
+          <input name="photoVeil" type="hidden" value="28" />
+          <input name="logoOpacity" type="hidden" value="8" />
+          <input name="showLogoWatermark" type="hidden" value="yes" />
 
           <input name="publishSite" type="hidden" value="yes" />
           <input name="publishFacebook" type="hidden" value="" />
