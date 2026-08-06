@@ -94,7 +94,7 @@
     photoVeil: '20',
     logoOpacity: '0',
     showLogoWatermark: 'yes',
-    photoZoom: '112',
+    photoZoom: '100',
     photoOffsetX: '0',
     photoOffsetY: '0'
   };
@@ -662,10 +662,10 @@
             <input type="checkbox" data-poster-block-action="toggle" ${visible ? 'checked' : ''} ${deleted ? 'disabled' : ''} />
             <span>Afficher</span>
           </label>
-          <button type="button" data-poster-block-action="up" ${posterBlockIndex(block.key) <= 0 ? 'disabled' : ''}>Monter</button>
-          <button type="button" data-poster-block-action="down" ${posterBlockIndex(block.key) >= ordered.length - 1 ? 'disabled' : ''}>Descendre</button>
-          <button type="button" data-poster-block-action="restore" ${!deleted ? 'hidden' : ''}>Retablir</button>
-          <button type="button" data-poster-block-action="delete" ${block.required || deleted ? 'hidden' : ''}>Supprimer</button>
+          <button type="button" data-poster-block-action="up" aria-label="Monter ${escapeHtml(block.label)}" ${posterBlockIndex(block.key) <= 0 ? 'disabled' : ''}>Monter</button>
+          <button type="button" data-poster-block-action="down" aria-label="Descendre ${escapeHtml(block.label)}" ${posterBlockIndex(block.key) >= ordered.length - 1 ? 'disabled' : ''}>Descendre</button>
+          <button type="button" data-poster-block-action="restore" aria-label="Retablir ${escapeHtml(block.label)}" ${!deleted ? 'hidden' : ''}>Retablir</button>
+          <button type="button" data-poster-block-action="delete" aria-label="Supprimer ${escapeHtml(block.label)}" ${block.required || deleted ? 'hidden' : ''}>Supprimer</button>
         </div>
       `;
     }).join('');
@@ -2026,7 +2026,7 @@
     };
     const requestedOverlay = clamp(Number(data.overlay || 65) / 100, 0.45, 0.82);
     const overlay = clamp((requestedOverlay + (styleOverlay[style] || requestedOverlay)) / 2, 0.42, 0.84);
-    const zoom = clamp(Number(data.photoZoom || 112) / 100, 1, 1.7);
+    const zoom = clamp(Number(data.photoZoom || 100) / 100, 1, 1.7);
 
     const base = ctx.createLinearGradient(0, 0, w, h);
     base.addColorStop(0, COLORS.black);
@@ -2586,12 +2586,12 @@
   }
 
   function drawRccStudioPosterBackground(w, h, data, scale) {
-    const zoom = clamp(Number(data.photoZoom || 112) / 100, 1, 1.7);
+    const zoom = clamp(Number(data.photoZoom || 100) / 100, 1, 1.7);
     const hasPhoto = Boolean(state.image && posterBlockVisible('photo'));
-    const brightness = clamp(Number(data.photoBrightness || 108), 70, 140);
-    const contrast = clamp(Number(data.photoContrast || 104), 80, 135);
-    const saturation = clamp(Number(data.photoSaturation || 108), 70, 145);
-    const veil = clamp(Number(data.photoVeil ?? 28), 0, 70) / 100;
+    const brightness = clamp(Number(data.photoBrightness || 100), 70, 140);
+    const contrast = clamp(Number(data.photoContrast || 105), 80, 135);
+    const saturation = clamp(Number(data.photoSaturation || 100), 70, 145);
+    const veil = clamp(Number(data.photoVeil ?? 20), 0, 70) / 100;
     const base = ctx.createLinearGradient(0, 0, w, h);
     base.addColorStop(0, '#010104');
     base.addColorStop(0.52, '#06070b');
@@ -3954,14 +3954,14 @@
   checkMetaButton?.addEventListener('click', checkMetaStatus);
   zoomInButton?.addEventListener('click', () => {
     const field = form.elements.photoZoom;
-    field.value = String(clamp(Number(field.value || 112) + 8, 100, 170));
+    field.value = String(clamp(Number(field.value || 100) + 8, 100, 170));
     savePhotoSettings();
     syncPhotoSettings(readForm());
     render();
   });
   zoomOutButton?.addEventListener('click', () => {
     const field = form.elements.photoZoom;
-    field.value = String(clamp(Number(field.value || 112) - 8, 100, 170));
+    field.value = String(clamp(Number(field.value || 100) - 8, 100, 170));
     savePhotoSettings();
     syncPhotoSettings(readForm());
     render();
@@ -3972,7 +3972,7 @@
     render();
   });
   resetPhotoButton?.addEventListener('click', () => {
-    setField('photoZoom', 112);
+    setField('photoZoom', 100);
     setField('photoOffsetX', 0);
     setField('photoOffsetY', 0);
     savePhotoSettings();
