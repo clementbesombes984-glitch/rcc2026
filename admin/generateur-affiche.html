@@ -80,20 +80,23 @@
             <button type="button" data-toggle-grid aria-label="Afficher ou masquer la grille de composition">Grille</button>
             <button type="button" data-reset-photo aria-label="Recentrer la photo principale">Recentrer photo</button>
             <button type="button" data-remove-photo aria-label="Supprimer la photo principale">Supprimer photo</button>
-            <output data-document-zoom-label>Adapter</output>
           </div>
           <div class="poster-canvas-wrap studio-canvas-wrap">
             <div class="poster-stage" data-poster-stage>
               <canvas id="posterCanvas" width="1080" height="1350" aria-label="Apercu de la communication RCC"></canvas>
               <div class="poster-direct-layer" data-poster-direct-layer aria-label="Textes modifiables de l'affiche">
                 <span role="button" tabindex="0" data-direct-field="category" aria-label="Modifier le petit titre"></span>
+                <span role="button" tabindex="0" data-direct-field="season" aria-label="Modifier la saison"></span>
                 <span role="button" tabindex="0" data-direct-field="title" aria-label="Modifier le titre principal"></span>
                 <span role="button" tabindex="0" data-direct-field="subtitle" aria-label="Modifier le sous-titre"></span>
+                <span role="button" tabindex="0" data-direct-field="shortText" aria-label="Modifier le texte court"></span>
                 <span role="button" tabindex="0" data-direct-field="date" aria-label="Modifier la date"></span>
                 <span role="button" tabindex="0" data-direct-field="time" aria-label="Modifier l'heure"></span>
                 <span role="button" tabindex="0" data-direct-field="location" aria-label="Modifier le lieu"></span>
-                <span role="button" tabindex="0" data-direct-field="summary" aria-label="Modifier le texte libre"></span>
+                <span role="button" tabindex="0" data-direct-field="summary" aria-label="Modifier le bloc d'informations"></span>
                 <span role="button" tabindex="0" data-direct-field="contact" aria-label="Modifier le contact"></span>
+                <span role="button" tabindex="0" data-direct-field="website" aria-label="Modifier le site internet"></span>
+                <span role="button" tabindex="0" data-direct-field="social" aria-label="Modifier les reseaux sociaux"></span>
                 <span role="button" tabindex="0" data-direct-field="footer" aria-label="Modifier le texte de bas de page"></span>
               </div>
             </div>
@@ -108,13 +111,17 @@
 
         <form class="studio-state-form" data-poster-form hidden>
           <input name="category" type="hidden" value="" />
+          <input name="season" type="hidden" value="" />
           <input name="title" type="hidden" value="" />
           <input name="subtitle" type="hidden" value="" />
+          <input name="shortText" type="hidden" value="" />
           <input name="date" type="hidden" value="" />
           <input name="time" type="hidden" value="" />
           <input name="location" type="hidden" value="" />
           <input name="summary" type="hidden" value="" />
           <input name="contact" type="hidden" value="" />
+          <input name="website" type="hidden" value="" />
+          <input name="social" type="hidden" value="" />
           <input name="footer" type="hidden" value="" />
           <input name="photoZoom" type="hidden" value="112" />
           <input name="photoOffsetX" type="hidden" value="0" />

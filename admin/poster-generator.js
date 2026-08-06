@@ -118,7 +118,6 @@
   const documentFitButton = document.querySelector('[data-document-fit]');
   const documentZoomInButton = document.querySelector('[data-document-zoom-in]');
   const documentZoomOutButton = document.querySelector('[data-document-zoom-out]');
-  const documentZoomLabel = document.querySelector('[data-document-zoom-label]');
   const studioTabButtons = document.querySelectorAll('[data-studio-tab]');
   const studioTabPanels = document.querySelectorAll('[data-studio-tab-panel]');
   const studioCurrentModule = document.querySelector('[data-studio-current-module]');
@@ -468,13 +467,17 @@
   function directFieldLabel(name) {
     return ({
       category: 'Petit titre',
+      season: 'Saison',
       title: 'Titre principal',
       subtitle: 'Sous-titre',
+      shortText: 'Texte court',
       date: 'Date',
       time: 'Heure',
       location: 'Lieu',
-      summary: 'Texte libre',
+      summary: 'Bloc informations',
       contact: 'Contact',
+      website: 'Site internet',
+      social: 'Reseaux sociaux',
       footer: 'Texte de bas de page'
     })[name] || 'Texte';
   }
@@ -482,14 +485,18 @@
   function directFieldLayout() {
     return {
       category: [7, 16, 62, 5, 23],
+      season: [70, 7, 23, 4, 18],
       title: [7, 22, 86, 18, 58],
       subtitle: [7, 41, 86, 7, 30],
-      date: [7, 51, 25, 5, 22],
-      time: [36, 51, 20, 5, 22],
-      location: [60, 51, 33, 5, 22],
-      summary: [7, 64, 86, 12, 25],
-      contact: [7, 79, 86, 6, 22],
-      footer: [7, 91, 86, 4, 18]
+      shortText: [7, 48, 86, 6, 25],
+      date: [7, 56, 25, 5, 22],
+      time: [36, 56, 20, 5, 22],
+      location: [60, 56, 33, 5, 22],
+      summary: [7, 66, 86, 11, 25],
+      contact: [7, 80, 86, 5, 22],
+      website: [7, 91, 38, 4, 18],
+      social: [55, 91, 38, 4, 18],
+      footer: [7, 95, 86, 3, 16]
     };
   }
 
@@ -539,7 +546,6 @@
     canvasWrap.classList.toggle('is-document-fit', state.documentZoomMode === 'fit');
     canvasWrap.classList.toggle('is-document-manual', state.documentZoomMode !== 'fit');
     documentFitButton?.classList.toggle('is-active', state.documentZoomMode === 'fit');
-    if (documentZoomLabel) documentZoomLabel.textContent = state.documentZoomMode === 'fit' ? 'Adapter' : `${Math.round(scale * 100)} %`;
     positionDirectFields(readForm());
   }
 
@@ -2312,6 +2318,14 @@
       ctx.fillText(upper(data.category), pad, h * 0.16);
     }
 
+    if (clean(data.season)) {
+      ctx.fillStyle = 'rgba(255,248,239,.82)';
+      ctx.font = `700 ${21 * scale}px ${BODY_FONT}`;
+      ctx.textAlign = 'right';
+      ctx.fillText(data.season, w - pad, h * 0.095);
+      ctx.textAlign = 'left';
+    }
+
     if (clean(data.title)) {
       drawFittedLines(data.title, pad, h * 0.22, w - pad * 2, 78 * scale, 72 * scale, 3, COLORS.white, TITLE_FONT);
     }
@@ -2322,28 +2336,34 @@
       wrapParagraph(data.subtitle, pad, h * 0.41, w - pad * 2, 36 * scale, 44 * scale, 2);
     }
 
-    const facts = [data.date, data.time, data.location].filter((value) => clean(value));
-    if (facts.length) {
+    if (clean(data.shortText)) {
+      ctx.fillStyle = COLORS.white;
+      ctx.font = `600 ${30 * scale}px ${BODY_FONT}`;
+      wrapParagraph(data.shortText, pad, h * 0.48, w - pad * 2, 30 * scale, 38 * scale, 2);
+    }
+
+    const facts = [data.date, data.time, data.location];
+    if (facts.some((value) => clean(value))) {
       ctx.fillStyle = 'rgba(3,3,3,.68)';
-      ctx.fillRect(pad, h * 0.495, w - pad * 2, h * 0.085);
+      ctx.fillRect(pad, h * 0.55, w - pad * 2, h * 0.075);
       ctx.fillStyle = COLORS.white;
       ctx.font = `700 ${27 * scale}px ${BODY_FONT}`;
       const columns = [pad + 22 * scale, w * 0.36, w * 0.6];
       facts.forEach((value, index) => {
-        wrapParagraph(value, columns[index], h * 0.52, index === 2 ? w * 0.31 : w * 0.22, 27 * scale, 33 * scale, 2);
+        if (clean(value)) wrapParagraph(value, columns[index], h * 0.57, index === 2 ? w * 0.31 : w * 0.22, 27 * scale, 33 * scale, 2);
       });
     }
 
     if (clean(data.summary)) {
       ctx.fillStyle = COLORS.white;
       ctx.font = `600 ${30 * scale}px ${BODY_FONT}`;
-      wrapParagraph(data.summary, pad, h * 0.64, w - pad * 2, 30 * scale, 42 * scale, 4);
+      wrapParagraph(data.summary, pad, h * 0.66, w - pad * 2, 30 * scale, 42 * scale, 4);
     }
 
     if (clean(data.contact)) {
       ctx.fillStyle = COLORS.redBright;
       ctx.font = `700 ${26 * scale}px ${BODY_FONT}`;
-      wrapParagraph(data.contact, pad, h * 0.79, w - pad * 2, 26 * scale, 34 * scale, 2);
+      wrapParagraph(data.contact, pad, h * 0.8, w - pad * 2, 26 * scale, 34 * scale, 2);
     }
 
     ctx.strokeStyle = 'rgba(255,248,239,.22)';
@@ -2351,10 +2371,25 @@
     ctx.moveTo(pad, h * 0.885);
     ctx.lineTo(w - pad, h * 0.885);
     ctx.stroke();
-    if (clean(data.footer)) {
+
+    if (clean(data.website)) {
       ctx.fillStyle = 'rgba(255,248,239,.84)';
       ctx.font = `600 ${21 * scale}px ${BODY_FONT}`;
-      ctx.fillText(data.footer, pad, h * 0.91);
+      ctx.fillText(data.website, pad, h * 0.91);
+    }
+
+    if (clean(data.social)) {
+      ctx.fillStyle = 'rgba(255,248,239,.84)';
+      ctx.font = `600 ${21 * scale}px ${BODY_FONT}`;
+      ctx.textAlign = 'right';
+      ctx.fillText(data.social, w - pad, h * 0.91);
+      ctx.textAlign = 'left';
+    }
+
+    if (clean(data.footer)) {
+      ctx.fillStyle = 'rgba(255,248,239,.84)';
+      ctx.font = `600 ${18 * scale}px ${BODY_FONT}`;
+      ctx.fillText(data.footer, pad, h * 0.965);
     }
     ctx.restore();
     drawGrid(w, h);
@@ -2540,12 +2575,6 @@
   }
 
   async function prepareExport() {
-    const data = readForm();
-    if (!clean(data.title)) {
-      form.elements.title?.focus();
-      setStatus('Ajoute un titre avant de telecharger le visuel.');
-      return false;
-    }
     if (document.fonts && !state.fontsReady) {
       setStatus('Preparation des polices avant export...');
       await loadFonts();

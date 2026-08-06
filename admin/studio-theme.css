@@ -700,7 +700,17 @@
 .studio-page #studio-panel-publications .studio-preview-panel {
   position: static !important;
   width: 100% !important;
-  padding: 12px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.studio-page #studio-panel-publications .poster-preview-toolbar {
+  padding: 0 0 8px;
+  border: 0;
+  background: transparent;
 }
 
 .studio-page #studio-panel-publications .studio-universal-tools {
@@ -708,7 +718,15 @@
   flex-wrap: wrap !important;
   align-items: center;
   gap: 7px;
-  margin: 10px 0;
+  width: 100%;
+  margin: 0;
+  padding: 8px 0;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, .09);
+  border-bottom: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   overflow: visible !important;
 }
 
@@ -730,19 +748,29 @@
 }
 
 .studio-page #studio-panel-publications .studio-canvas-wrap {
-  height: calc(100dvh - 286px) !important;
-  min-height: 520px !important;
+  width: 100%;
+  height: calc(100dvh - 276px) !important;
+  min-height: 560px !important;
+  margin: 0;
+  padding: 8px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: #03050a !important;
+  box-shadow: none !important;
 }
 
 .studio-page #studio-panel-publications .studio-direct-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  margin-top: 10px;
+  margin: 0;
+  padding: 8px 0 0;
+  border: 0;
+  background: transparent;
 }
 
 .studio-page #studio-panel-publications .studio-universal-status {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
 }
 
 .studio-page .poster-direct-layer [data-direct-field].is-empty::before {
@@ -759,14 +787,15 @@
 
 @media (max-width: 900px) {
   .studio-page #studio-panel-publications .studio-canvas-wrap {
-    height: 64dvh !important;
-    min-height: 420px !important;
+    height: min(72dvh, 720px) !important;
+    min-height: 460px !important;
+    padding: 6px !important;
   }
 }
 
 @media (max-width: 560px) {
   .studio-page #studio-panel-publications .studio-preview-panel {
-    padding: 8px !important;
+    padding: 0 !important;
   }
 
   .studio-page #studio-panel-publications .studio-universal-tools {
@@ -780,7 +809,7 @@
   }
 
   .studio-page #studio-panel-publications .studio-canvas-wrap {
-    height: 62dvh !important;
-    min-height: 360px !important;
+    height: min(64dvh, 610px) !important;
+    min-height: 390px !important;
   }
 }
