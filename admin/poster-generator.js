@@ -85,6 +85,28 @@
     recruitment: 'studio-style-recrutement',
     tournament: 'studio-style-tournoi'
   };
+  const POSTER_BLOCK_STORAGE_KEY = 'rcc_studio_poster_blocks_v1';
+  const POSTER_BLOCKS = [
+    { key: 'category', label: 'Petit titre', required: true },
+    { key: 'season', label: 'Saison' },
+    { key: 'title', label: 'Titre principal', required: true },
+    { key: 'subtitle', label: 'Sous-titre' },
+    { key: 'shortText', label: 'Texte court' },
+    { key: 'freeText', label: 'Texte libre' },
+    { key: 'summary', label: 'Bloc information' },
+    { key: 'date', label: 'Date' },
+    { key: 'time', label: 'Heure' },
+    { key: 'location', label: 'Lieu' },
+    { key: 'address', label: 'Adresse' },
+    { key: 'contact', label: 'Contact' },
+    { key: 'phone', label: 'Telephone' },
+    { key: 'email', label: 'Email' },
+    { key: 'website', label: 'Site internet' },
+    { key: 'social', label: 'Reseaux sociaux' },
+    { key: 'footer', label: 'Signature' },
+    { key: 'logo', label: 'Logo RCC' },
+    { key: 'photo', label: 'Photo' }
+  ];
 
   const canvas = document.getElementById('posterCanvas');
   const ctx = canvas?.getContext('2d');
@@ -113,6 +135,7 @@
   const removePhotoButton = document.querySelector('[data-remove-photo]');
   const directLayer = document.querySelector('[data-poster-direct-layer]');
   const directImageInput = document.querySelector('[data-direct-poster-image]');
+  const posterBlockList = document.querySelector('[data-poster-block-list]');
   const canvasWrap = canvas?.closest('.studio-canvas-wrap');
   const posterStage = document.querySelector('[data-poster-stage]');
   const documentFitButton = document.querySelector('[data-document-fit]');
@@ -224,6 +247,7 @@
     pushAudienceManual: false,
     activeDirectField: '',
     directOriginalValue: '',
+    posterBlocks: {},
     documentZoomMode: 'fit',
     documentZoomFactor: 1,
     documentScale: 1,
@@ -470,6 +494,93 @@
     if (field && value !== undefined && value !== null) field.value = value;
   }
 
+  function defaultPosterBlocks() {
+    return Object.fromEntries(POSTER_BLOCKS.map((block) => [block.key, {
+      visible: true,
+      deleted: false
+    }]));
+  }
+
+  function loadPosterBlocks() {
+    state.posterBlocks = defaultPosterBlocks();
+    try {
+      const saved = JSON.parse(localStorage.getItem(POSTER_BLOCK_STORAGE_KEY) || '{}');
+      POSTER_BLOCKS.forEach((block) => {
+        if (!saved[block.key]) return;
+        state.posterBlocks[block.key] = {
+          visible: saved[block.key].visible !== false,
+          deleted: block.required ? false : saved[block.key].deleted === true
+        };
+      });
+    } catch (error) {
+      state.posterBlocks = defaultPosterBlocks();
+    }
+  }
+
+  function savePosterBlocks() {
+    try {
+      localStorage.setItem(POSTER_BLOCK_STORAGE_KEY, JSON.stringify(state.posterBlocks));
+    } catch (error) {
+      // La sauvegarde locale des blocs n'est pas critique pour l'export.
+    }
+  }
+
+  function posterBlockState(key) {
+    if (!state.posterBlocks[key]) state.posterBlocks[key] = { visible: true, deleted: false };
+    return state.posterBlocks[key];
+  }
+
+  function posterBlockVisible(key) {
+    const block = posterBlockState(key);
+    return block.visible !== false && block.deleted !== true;
+  }
+
+  function posterBlockAvailable(key) {
+    return posterBlockState(key).deleted !== true;
+  }
+
+  function renderPosterBlockList() {
+    if (!posterBlockList) return;
+    posterBlockList.innerHTML = POSTER_BLOCKS.map((block) => {
+      const item = posterBlockState(block.key);
+      const deleted = item.deleted === true;
+      const visible = item.visible !== false && !deleted;
+      return `
+        <div class="poster-block-item ${deleted ? 'is-deleted' : ''}" data-poster-block="${escapeHtml(block.key)}">
+          <div>
+            <strong>${escapeHtml(block.label)}</strong>
+            <span>${deleted ? 'Supprime du visuel' : (visible ? 'Visible' : 'Masque')}</span>
+          </div>
+          <label class="poster-block-toggle">
+            <input type="checkbox" data-poster-block-action="toggle" ${visible ? 'checked' : ''} ${deleted ? 'disabled' : ''} />
+            <span>Afficher</span>
+          </label>
+          <button type="button" data-poster-block-action="restore" ${!deleted ? 'hidden' : ''}>Retablir</button>
+          <button type="button" data-poster-block-action="delete" ${block.required || deleted ? 'hidden' : ''}>Supprimer</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function updatePosterBlock(key, action, checked = true) {
+    const blockMeta = POSTER_BLOCKS.find((block) => block.key === key);
+    if (!blockMeta) return;
+    const item = posterBlockState(key);
+    if (action === 'toggle') {
+      item.visible = Boolean(checked);
+      if (checked) item.deleted = false;
+    } else if (action === 'delete' && !blockMeta.required) {
+      item.deleted = true;
+      item.visible = false;
+    } else if (action === 'restore') {
+      item.deleted = false;
+      item.visible = true;
+    }
+    savePosterBlocks();
+    renderPosterBlockList();
+    render();
+  }
+
   function directFieldLabel(name) {
     return ({
       category: 'Petit titre',
@@ -477,33 +588,59 @@
       title: 'Titre principal',
       subtitle: 'Sous-titre',
       shortText: 'Texte court',
+      freeText: 'Texte libre',
       date: 'Date',
       time: 'Heure',
       location: 'Lieu',
+      address: 'Adresse',
       summary: 'Bloc informations',
       contact: 'Contact',
+      phone: 'Telephone',
+      email: 'Email',
       website: 'Site internet',
       social: 'Reseaux sociaux',
       footer: 'Texte de bas de page'
     })[name] || 'Texte';
   }
 
-  function directFieldLayout() {
-    return {
+  function directFieldLayout(data = readForm()) {
+    const layout = {
       category: [8, 7, 66, 5, 24],
       season: [74, 7, 18, 4, 16],
-      title: [5, 13, 88, 23, 74],
-      subtitle: [9, 37, 82, 7, 30],
-      shortText: [9, 43, 82, 6, 24],
-      summary: [25, 53, 62, 10, 24],
-      date: [23, 70, 25, 5, 34],
-      time: [23, 76, 20, 4, 24],
-      location: [58, 72, 31, 7, 22],
-      contact: [25, 83, 62, 6, 32],
-      website: [12, 92, 28, 3, 15],
-      social: [60, 92, 28, 3, 15],
-      footer: [14, 88, 72, 4, 18]
+      title: [5, 13, 88, 22, 74]
     };
+    let cursor = 37;
+    if (posterBlockVisible('subtitle') || posterBlockVisible('shortText') || posterBlockVisible('freeText')) {
+      if (posterBlockVisible('subtitle')) layout.subtitle = [9, cursor, 82, 6, 30];
+      if (posterBlockVisible('shortText')) layout.shortText = [9, cursor + 6, 82, 5, 24];
+      if (posterBlockVisible('freeText')) layout.freeText = [9, cursor + 11, 82, 5, 22];
+      cursor += 14;
+    }
+    if (posterBlockVisible('summary')) {
+      layout.summary = [25, cursor + 2, 62, 10, 24];
+      cursor += 16;
+    }
+    if (['date', 'time', 'location', 'address'].some((key) => posterBlockVisible(key))) {
+      layout.date = [23, cursor + 2, 25, 5, 34];
+      layout.time = [23, cursor + 8, 20, 4, 24];
+      layout.location = [58, cursor + 4, 31, 5, 22];
+      layout.address = [58, cursor + 9, 31, 4, 18];
+      cursor += 15;
+    }
+    if (['contact', 'phone', 'email'].some((key) => posterBlockVisible(key))) {
+      layout.contact = [25, cursor + 2, 62, 4, 26];
+      layout.phone = [25, cursor + 6, 30, 4, 26];
+      layout.email = [56, cursor + 6, 30, 4, 18];
+      cursor += 10;
+    }
+    layout.footer = [14, 88, 72, 4, 18];
+    layout.website = [12, 92, 28, 3, 15];
+    layout.social = [60, 92, 28, 3, 15];
+    Object.keys(layout).forEach((key) => {
+      if (!posterBlockVisible(key)) delete layout[key];
+      else if (!clean(data[key]) && !['title', 'category', 'season'].includes(key)) layout[key][3] = Math.max(3, layout[key][3] * 0.8);
+    });
+    return layout;
   }
 
   function positionDirectFields(data) {
@@ -511,7 +648,11 @@
     const layout = directFieldLayout(data);
     directLayer.querySelectorAll('[data-direct-field]').forEach((node) => {
       const region = layout[node.dataset.directField];
-      if (!region) return;
+      if (!region) {
+        node.hidden = true;
+        return;
+      }
+      node.hidden = false;
       const [left, top, width, height, fontSize] = region;
       node.style.left = `${left}%`;
       node.style.top = `${top}%`;
@@ -529,11 +670,14 @@
     directLayer.dataset.template = data.template || 'upcoming';
     directLayer.querySelectorAll('[data-direct-field]').forEach((node) => {
       if (node.dataset.directField === state.activeDirectField && node.isContentEditable) return;
+      if (!posterBlockVisible(node.dataset.directField)) {
+        node.hidden = true;
+        return;
+      }
       const value = directTextValue(data[node.dataset.directField]);
       node.textContent = value;
       node.dataset.placeholder = directFieldLabel(node.dataset.directField);
       node.classList.toggle('is-empty', !value);
-      node.hidden = false;
     });
     positionDirectFields(data);
   }
@@ -2311,7 +2455,7 @@
     ctx.fillStyle = base;
     ctx.fillRect(0, 0, w, h);
 
-    if (state.image) {
+    if (state.image && posterBlockVisible('photo')) {
       coverImage(state.image, 0, 0, w, h, zoom, Number(data.photoOffsetX || 0) / 100, Number(data.photoOffsetY || 0) / 100);
       ctx.fillStyle = 'rgba(0,0,0,.72)';
       ctx.fillRect(0, 0, w, h);
@@ -2367,7 +2511,7 @@
     ctx.save();
     ctx.globalAlpha = 0.11;
     ctx.globalCompositeOperation = 'screen';
-    fitImage(logo, w * 0.55, h * 0.07, w * 0.52, h * 0.44);
+    if (posterBlockVisible('logo')) fitImage(logo, w * 0.55, h * 0.07, w * 0.52, h * 0.44);
     ctx.strokeStyle = COLORS.red;
     ctx.lineWidth = 8 * scale;
     ctx.beginPath();
@@ -2542,10 +2686,12 @@
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(255,248,239,.82)';
-    ctx.font = `800 italic ${23 * scale}px ${BODY_FONT}`;
-    const footer = upper(data.footer || 'ENSEMBLE. FIERS DE NOS COULEURS.');
-    ctx.fillText(footer, w / 2, y);
+    if (posterBlockVisible('footer')) {
+      ctx.fillStyle = 'rgba(255,248,239,.82)';
+      ctx.font = `800 italic ${23 * scale}px ${BODY_FONT}`;
+      const footer = upper(data.footer || 'ENSEMBLE. FIERS DE NOS COULEURS.');
+      ctx.fillText(footer, w / 2, y);
+    }
     ctx.strokeStyle = COLORS.red;
     ctx.lineWidth = 2 * scale;
     ctx.beginPath();
@@ -2557,11 +2703,15 @@
     ctx.fillStyle = COLORS.redBright;
     ctx.font = `900 ${22 * scale}px ${BODY_FONT}`;
     ctx.fillText('>>', w / 2, y + 45 * scale);
-    ctx.fillStyle = 'rgba(211,26,82,.85)';
-    ctx.font = `800 ${17 * scale}px ${BODY_FONT}`;
-    const site = clean(data.website || 'RCCUBZAGUAIS.FR');
-    const social = clean(data.social || '@RCCUBZAGUAIS');
-    ctx.fillText(`${site}   ${social}`, w / 2, y + 88 * scale);
+    const footerInfos = [
+      posterBlockVisible('website') ? clean(data.website || 'RCCUBZAGUAIS.FR') : '',
+      posterBlockVisible('social') ? clean(data.social || '@RCCUBZAGUAIS') : ''
+    ].filter(Boolean);
+    if (footerInfos.length) {
+      ctx.fillStyle = 'rgba(211,26,82,.85)';
+      ctx.font = `800 ${17 * scale}px ${BODY_FONT}`;
+      ctx.fillText(footerInfos.join('   '), w / 2, y + 88 * scale);
+    }
     ctx.restore();
   }
 
@@ -2570,11 +2720,27 @@
     applyPreviewStyle('club');
 
     const pad = w * 0.058;
+    const blockRows = [];
+    if (['subtitle', 'shortText', 'freeText'].some((key) => posterBlockVisible(key) && clean(data[key]))) blockRows.push('lead');
+    if (posterBlockVisible('summary') && clean(data.summary)) blockRows.push('summary');
+    if (['date', 'time', 'location', 'address'].some((key) => posterBlockVisible(key) && clean(data[key]))) blockRows.push('info');
+    if (['contact', 'phone', 'email'].some((key) => posterBlockVisible(key) && clean(data[key]))) blockRows.push('contact');
+    const rowTops = {};
+    const availableTop = h * 0.37;
+    const availableBottom = h * 0.865;
+    const rowHeights = { lead: h * 0.11, summary: h * 0.14, info: h * 0.13, contact: h * 0.09 };
+    const totalRowsHeight = blockRows.reduce((sum, row) => sum + rowHeights[row], 0);
+    const rowGap = blockRows.length > 1 ? Math.max(18 * scale, (availableBottom - availableTop - totalRowsHeight) / (blockRows.length - 1)) : 0;
+    let rowY = availableTop;
+    blockRows.forEach((row) => {
+      rowTops[row] = rowY;
+      rowY += rowHeights[row] + rowGap;
+    });
 
     ctx.save();
     ctx.textBaseline = 'top';
 
-    if (clean(data.category)) {
+    if (posterBlockVisible('category') && clean(data.category)) {
       ctx.fillStyle = COLORS.redBright;
       ctx.font = `800 italic ${25 * scale}px ${BODY_FONT}`;
       ctx.letterSpacing = `${7 * scale}px`;
@@ -2582,7 +2748,7 @@
       ctx.letterSpacing = '0px';
     }
 
-    if (clean(data.season)) {
+    if (posterBlockVisible('season') && clean(data.season)) {
       ctx.fillStyle = 'rgba(255,248,239,.68)';
       ctx.font = `800 ${17 * scale}px ${BODY_FONT}`;
       ctx.textAlign = 'right';
@@ -2590,74 +2756,90 @@
       ctx.textAlign = 'left';
     }
 
-    drawPosterTitleBlock(w, h, data, scale);
+    if (posterBlockVisible('title')) drawPosterTitleBlock(w, h, data, scale);
 
-    const leadY = h * 0.37;
-    ctx.strokeStyle = COLORS.redBright;
-    ctx.lineWidth = 2.5 * scale;
-    ctx.beginPath();
-    ctx.moveTo(pad, leadY + 4 * scale);
-    ctx.lineTo(pad, leadY + 78 * scale);
-    ctx.stroke();
+    const leadY = rowTops.lead;
+    if (leadY !== undefined) {
+      ctx.strokeStyle = COLORS.redBright;
+      ctx.lineWidth = 2.5 * scale;
+      ctx.beginPath();
+      ctx.moveTo(pad, leadY + 4 * scale);
+      ctx.lineTo(pad, leadY + rowHeights.lead - 12 * scale);
+      ctx.stroke();
+    }
 
-    if (clean(data.subtitle)) {
+    if (leadY !== undefined && posterBlockVisible('subtitle') && clean(data.subtitle)) {
       ctx.fillStyle = COLORS.white;
       ctx.font = `900 italic ${36 * scale}px ${TITLE_FONT}`;
       wrapParagraph(data.subtitle, pad + 42 * scale, leadY, w - pad * 2 - 42 * scale, 36 * scale, 43 * scale, 2);
     }
 
-    if (clean(data.shortText)) {
+    if (leadY !== undefined && posterBlockVisible('shortText') && clean(data.shortText)) {
       ctx.fillStyle = COLORS.redBright;
       ctx.font = `800 italic ${30 * scale}px ${BODY_FONT}`;
       wrapParagraph(data.shortText, pad + 42 * scale, leadY + 74 * scale, w - pad * 2 - 42 * scale, 30 * scale, 36 * scale, 2);
     }
 
+    if (leadY !== undefined && posterBlockVisible('freeText') && clean(data.freeText)) {
+      ctx.fillStyle = 'rgba(255,248,239,.78)';
+      ctx.font = `800 italic ${24 * scale}px ${BODY_FONT}`;
+      wrapParagraph(data.freeText, pad + 42 * scale, leadY + (posterBlockVisible('shortText') && clean(data.shortText) ? 108 : 74) * scale, w - pad * 2 - 42 * scale, 24 * scale, 30 * scale, 2);
+    }
+
     const cardX = pad;
     const cardW = w - pad * 2;
-    const summaryY = h * 0.485;
+    const summaryY = rowTops.summary;
     const summaryH = h * 0.15;
-    drawPosterCard(cardX, summaryY, cardW * 0.76, summaryH, scale);
-    drawPosterIcon('toast', cardX + 92 * scale, summaryY + summaryH * 0.48, 82 * scale, scale);
-    if (clean(data.summary)) {
+    if (summaryY !== undefined) {
+      drawPosterCard(cardX, summaryY, cardW * 0.76, summaryH, scale);
+      drawPosterIcon('toast', cardX + 92 * scale, summaryY + summaryH * 0.48, 82 * scale, scale);
       ctx.fillStyle = COLORS.white;
       ctx.font = `900 italic ${31 * scale}px ${TITLE_FONT}`;
       wrapParagraph(data.summary, cardX + 210 * scale, summaryY + 34 * scale, cardW * 0.54, 31 * scale, 38 * scale, 3);
-    } else {
-      drawPosterAccentText(data.template === 'universal' ? 'INFO RCC' : TEMPLATE_TITLES[data.template], cardX + 210 * scale, summaryY + 42 * scale, 35 * scale, COLORS.white, scale);
     }
 
-    const infoY = h * 0.675;
+    const infoY = rowTops.info;
     const infoH = h * 0.132;
-    drawPosterCard(cardX, infoY, cardW, infoH, scale, { splitX: w * 0.52 });
-    drawPosterIcon('date', cardX + 92 * scale, infoY + infoH * 0.5, 78 * scale, scale);
-    if (clean(data.date)) drawPosterAccentText(data.date, cardX + 198 * scale, infoY + 22 * scale, 53 * scale, COLORS.redBright, scale);
-    if (clean(data.time)) {
-      ctx.fillStyle = COLORS.white;
-      ctx.font = `900 italic ${31 * scale}px ${TITLE_FONT}`;
-      ctx.fillText(upper(data.time), cardX + 198 * scale, infoY + 80 * scale);
-    }
-    drawPosterIcon('pin', w * 0.66, infoY + infoH * 0.43, 78 * scale, scale);
-    if (clean(data.location)) {
-      ctx.fillStyle = COLORS.white;
-      ctx.font = `900 italic ${27 * scale}px ${TITLE_FONT}`;
-      ctx.textAlign = 'center';
-      wrapParagraph(data.location, w * 0.61, infoY + 68 * scale, cardW * 0.32, 27 * scale, 32 * scale, 2);
-      ctx.textAlign = 'left';
+    if (infoY !== undefined) {
+      drawPosterCard(cardX, infoY, cardW, infoH, scale, { splitX: w * 0.52 });
+      drawPosterIcon('date', cardX + 92 * scale, infoY + infoH * 0.5, 78 * scale, scale);
+      if (posterBlockVisible('date') && clean(data.date)) drawPosterAccentText(data.date, cardX + 198 * scale, infoY + 22 * scale, 53 * scale, COLORS.redBright, scale);
+      if (posterBlockVisible('time') && clean(data.time)) {
+        ctx.fillStyle = COLORS.white;
+        ctx.font = `900 italic ${31 * scale}px ${TITLE_FONT}`;
+        ctx.fillText(upper(data.time), cardX + 198 * scale, infoY + 80 * scale);
+      }
+      drawPosterIcon('pin', w * 0.66, infoY + infoH * 0.43, 78 * scale, scale);
+      if (posterBlockVisible('location') && clean(data.location)) {
+        ctx.fillStyle = COLORS.white;
+        ctx.font = `900 italic ${27 * scale}px ${TITLE_FONT}`;
+        ctx.textAlign = 'center';
+        wrapParagraph(data.location, w * 0.61, infoY + 48 * scale, cardW * 0.32, 27 * scale, 32 * scale, 2);
+        ctx.textAlign = 'left';
+      }
+      if (posterBlockVisible('address') && clean(data.address)) {
+        ctx.fillStyle = COLORS.redBright;
+        ctx.font = `800 italic ${18 * scale}px ${BODY_FONT}`;
+        ctx.textAlign = 'center';
+        wrapParagraph(data.address, w * 0.61, infoY + 101 * scale, cardW * 0.32, 18 * scale, 23 * scale, 2);
+        ctx.textAlign = 'left';
+      }
     }
 
-    const contactY = h * 0.82;
+    const contactY = rowTops.contact;
     const contactH = h * 0.085;
-    drawPosterCard(cardX, contactY, cardW, contactH, scale);
-    drawPosterIcon('info', cardX + 92 * scale, contactY + contactH * 0.5, 74 * scale, scale);
-    if (clean(data.contact)) {
+    if (contactY !== undefined) {
+      drawPosterCard(cardX, contactY, cardW, contactH, scale);
+      drawPosterIcon('info', cardX + 92 * scale, contactY + contactH * 0.5, 74 * scale, scale);
       ctx.fillStyle = COLORS.white;
-      ctx.font = `900 italic ${28 * scale}px ${TITLE_FONT}`;
-      ctx.fillText('POUR LES RENSEIGNEMENTS', cardX + 190 * scale, contactY + 19 * scale);
+      ctx.font = `900 italic ${26 * scale}px ${TITLE_FONT}`;
+      ctx.fillText(upper(data.contact || 'POUR LES RENSEIGNEMENTS'), cardX + 190 * scale, contactY + 16 * scale);
       ctx.fillStyle = COLORS.redBright;
-      drawSingleLine(upper(data.contact), cardX + 190 * scale, contactY + 53 * scale, cardW - 220 * scale, 50 * scale, IMPACT_FONT);
+      const contactLine = [posterBlockVisible('phone') ? data.phone : '', posterBlockVisible('email') ? data.email : ''].filter((item) => clean(item)).join('   ');
+      drawSingleLine(upper(contactLine || data.contact), cardX + 190 * scale, contactY + 52 * scale, cardW - 220 * scale, 44 * scale, IMPACT_FONT);
     }
 
-    drawPosterFooter(w, h, data, scale);
+    if (posterBlockVisible('footer') || posterBlockVisible('website') || posterBlockVisible('social')) drawPosterFooter(w, h, data, scale);
     ctx.restore();
     drawGrid(w, h);
   }
@@ -3613,6 +3795,7 @@
   });
   publishDialogCancel?.addEventListener('click', () => publishDialog?.close());
   studioSaveButtons.forEach((button) => button.addEventListener('click', () => {
+    savePosterBlocks();
     recordPublication('Brouillon enregistre');
     setStatus('Brouillon enregistre localement.');
   }));
@@ -3647,6 +3830,17 @@
     render();
   });
   directImageInput?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'image'));
+  posterBlockList?.addEventListener('change', (event) => {
+    const item = event.target.closest('[data-poster-block]');
+    if (!item || event.target.dataset.posterBlockAction !== 'toggle') return;
+    updatePosterBlock(item.dataset.posterBlock, 'toggle', event.target.checked);
+  });
+  posterBlockList?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-poster-block-action]');
+    const item = event.target.closest('[data-poster-block]');
+    if (!button || !item || button.dataset.posterBlockAction === 'toggle') return;
+    updatePosterBlock(item.dataset.posterBlock, button.dataset.posterBlockAction);
+  });
   documentFitButton?.addEventListener('click', fitDocumentToViewport);
   documentZoomOutButton?.addEventListener('click', () => changeDocumentZoom(-0.25));
   documentZoomInButton?.addEventListener('click', () => changeDocumentZoom(0.25));
@@ -3717,6 +3911,8 @@
   if (canvasWrap) documentResizeObserver?.observe(canvasWrap);
   window.addEventListener('resize', updateDocumentViewport, { passive: true });
 
+  loadPosterBlocks();
+  renderPosterBlockList();
   syncPushSettings(readForm());
   loadFonts();
   setCompositionStep('match');

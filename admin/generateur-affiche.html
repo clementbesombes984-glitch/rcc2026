@@ -34,12 +34,9 @@
         <a class="poster-admin-brand" href="../index.html">
           <img src="../assets/logo-rcc.png" alt="RC Cubzaguais" />
           <span>Studio RCC</span>
-        </a>
-        <div class="studio-topbar-title">
-          <h1>Studio RCC</h1>
           <strong class="studio-current-module" data-studio-current-module>Publications</strong>
           <span class="studio-doc-status" data-studio-document-status>Brouillon</span>
-        </div>
+        </a>
         <div class="studio-topbar-actions">
           <button class="button ghost" type="button" data-studio-save>Enregistrer</button>
           <button class="button primary" type="button" data-publish-dialog-open>Publier</button>
@@ -93,6 +90,13 @@
               <button class="button primary" type="button" data-publish-dialog-open>Publier</button>
             </div>
           </div>
+          <details class="poster-block-manager" data-poster-block-manager>
+            <summary>Blocs de l'affiche</summary>
+            <div class="poster-block-manager-body">
+              <p>Ajoutez, masquez ou retablissez les zones de contenu sans modifier les donnees saisies.</p>
+              <div class="poster-block-list" data-poster-block-list></div>
+            </div>
+          </details>
           <div class="poster-canvas-wrap studio-canvas-wrap">
             <div class="poster-stage" data-poster-stage>
               <canvas id="posterCanvas" width="1080" height="1350" aria-label="Apercu de la communication RCC"></canvas>
@@ -102,11 +106,15 @@
                 <span role="button" tabindex="0" data-direct-field="title" aria-label="Modifier le titre principal"></span>
                 <span role="button" tabindex="0" data-direct-field="subtitle" aria-label="Modifier le sous-titre"></span>
                 <span role="button" tabindex="0" data-direct-field="shortText" aria-label="Modifier le texte court"></span>
+                <span role="button" tabindex="0" data-direct-field="freeText" aria-label="Modifier le texte libre"></span>
                 <span role="button" tabindex="0" data-direct-field="date" aria-label="Modifier la date"></span>
                 <span role="button" tabindex="0" data-direct-field="time" aria-label="Modifier l'heure"></span>
                 <span role="button" tabindex="0" data-direct-field="location" aria-label="Modifier le lieu"></span>
+                <span role="button" tabindex="0" data-direct-field="address" aria-label="Modifier l'adresse"></span>
                 <span role="button" tabindex="0" data-direct-field="summary" aria-label="Modifier le bloc d'informations"></span>
                 <span role="button" tabindex="0" data-direct-field="contact" aria-label="Modifier le contact"></span>
+                <span role="button" tabindex="0" data-direct-field="phone" aria-label="Modifier le telephone"></span>
+                <span role="button" tabindex="0" data-direct-field="email" aria-label="Modifier l'email"></span>
                 <span role="button" tabindex="0" data-direct-field="website" aria-label="Modifier le site internet"></span>
                 <span role="button" tabindex="0" data-direct-field="social" aria-label="Modifier les reseaux sociaux"></span>
                 <span role="button" tabindex="0" data-direct-field="footer" aria-label="Modifier le texte de bas de page"></span>
@@ -125,11 +133,15 @@
           <input name="title" type="hidden" value="" />
           <input name="subtitle" type="hidden" value="" />
           <input name="shortText" type="hidden" value="" />
+          <input name="freeText" type="hidden" value="" />
           <input name="date" type="hidden" value="" />
           <input name="time" type="hidden" value="" />
           <input name="location" type="hidden" value="" />
+          <input name="address" type="hidden" value="" />
           <input name="summary" type="hidden" value="" />
           <input name="contact" type="hidden" value="" />
+          <input name="phone" type="hidden" value="" />
+          <input name="email" type="hidden" value="" />
           <input name="website" type="hidden" value="" />
           <input name="social" type="hidden" value="" />
           <input name="footer" type="hidden" value="" />
