@@ -93,19 +93,29 @@
           <details class="poster-block-manager" data-poster-block-manager>
             <summary>Blocs de l'affiche</summary>
             <div class="poster-block-manager-body">
-              <p>Ajoutez, masquez ou retablissez les zones de contenu sans modifier les donnees saisies.</p>
+              <div class="poster-block-add">
+                <select data-poster-block-add-select aria-label="Bloc a ajouter"></select>
+                <button type="button" data-poster-block-add>Ajouter un bloc</button>
+              </div>
               <div class="poster-block-list" data-poster-block-list></div>
             </div>
           </details>
           <details class="poster-photo-settings" data-poster-photo-settings>
             <summary>Reglages photo</summary>
             <div class="poster-photo-settings-body">
-              <label>Luminosite <input type="range" min="70" max="140" value="108" data-photo-setting="photoBrightness" /></label>
-              <label>Contraste <input type="range" min="80" max="135" value="104" data-photo-setting="photoContrast" /></label>
-              <label>Saturation <input type="range" min="70" max="145" value="108" data-photo-setting="photoSaturation" /></label>
-              <label>Voile sombre <input type="range" min="0" max="70" value="28" data-photo-setting="photoVeil" /></label>
-              <label>Opacite logo <input type="range" min="0" max="40" value="8" data-photo-setting="logoOpacity" /></label>
+              <label>Luminosite <input type="range" min="70" max="140" value="100" data-photo-setting="photoBrightness" /></label>
+              <label>Contraste <input type="range" min="80" max="135" value="105" data-photo-setting="photoContrast" /></label>
+              <label>Saturation <input type="range" min="70" max="145" value="100" data-photo-setting="photoSaturation" /></label>
+              <label>Voile sombre <input type="range" min="0" max="70" value="20" data-photo-setting="photoVeil" /></label>
+              <label>Opacite logo <input type="range" min="0" max="40" value="0" data-photo-setting="logoOpacity" /></label>
+              <label>Zoom photo <input type="range" min="100" max="170" value="112" data-photo-setting="photoZoom" /></label>
+              <label>Position horizontale <input type="range" min="-35" max="35" value="0" data-photo-setting="photoOffsetX" /></label>
+              <label>Position verticale <input type="range" min="-35" max="35" value="0" data-photo-setting="photoOffsetY" /></label>
               <label class="poster-check"><input type="checkbox" checked data-photo-setting="showLogoWatermark" /> Afficher le logo RCC</label>
+              <div class="poster-photo-actions">
+                <button type="button" data-photo-recenter>Recentrer</button>
+                <button type="button" data-photo-reset>Reinitialiser les reglages</button>
+              </div>
             </div>
           </details>
           <div class="poster-canvas-wrap studio-canvas-wrap">
@@ -159,11 +169,11 @@
           <input name="photoZoom" type="hidden" value="112" />
           <input name="photoOffsetX" type="hidden" value="0" />
           <input name="photoOffsetY" type="hidden" value="0" />
-          <input name="photoBrightness" type="hidden" value="108" />
-          <input name="photoContrast" type="hidden" value="104" />
-          <input name="photoSaturation" type="hidden" value="108" />
-          <input name="photoVeil" type="hidden" value="28" />
-          <input name="logoOpacity" type="hidden" value="8" />
+          <input name="photoBrightness" type="hidden" value="100" />
+          <input name="photoContrast" type="hidden" value="105" />
+          <input name="photoSaturation" type="hidden" value="100" />
+          <input name="photoVeil" type="hidden" value="20" />
+          <input name="logoOpacity" type="hidden" value="0" />
           <input name="showLogoWatermark" type="hidden" value="yes" />
 
           <input name="publishSite" type="hidden" value="yes" />

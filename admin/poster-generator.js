@@ -86,6 +86,18 @@
     tournament: 'studio-style-tournoi'
   };
   const POSTER_BLOCK_STORAGE_KEY = 'rcc_studio_poster_blocks_v1';
+  const PHOTO_SETTINGS_STORAGE_KEY = 'rcc_studio_photo_settings_v1';
+  const PHOTO_SETTING_DEFAULTS = {
+    photoBrightness: '100',
+    photoContrast: '105',
+    photoSaturation: '100',
+    photoVeil: '20',
+    logoOpacity: '0',
+    showLogoWatermark: 'yes',
+    photoZoom: '112',
+    photoOffsetX: '0',
+    photoOffsetY: '0'
+  };
   const POSTER_BLOCKS = [
     { key: 'category', label: 'Petit titre', required: true },
     { key: 'season', label: 'Saison' },
@@ -136,7 +148,11 @@
   const directLayer = document.querySelector('[data-poster-direct-layer]');
   const directImageInput = document.querySelector('[data-direct-poster-image]');
   const posterBlockList = document.querySelector('[data-poster-block-list]');
+  const posterBlockAddSelect = document.querySelector('[data-poster-block-add-select]');
+  const posterBlockAddButton = document.querySelector('[data-poster-block-add]');
   const photoSettingInputs = document.querySelectorAll('[data-photo-setting]');
+  const photoRecenterButton = document.querySelector('[data-photo-recenter]');
+  const photoResetButton = document.querySelector('[data-photo-reset]');
   const canvasWrap = canvas?.closest('.studio-canvas-wrap');
   const posterStage = document.querySelector('[data-poster-stage]');
   const documentFitButton = document.querySelector('[data-document-fit]');
@@ -249,6 +265,8 @@
     activeDirectField: '',
     directOriginalValue: '',
     posterBlocks: {},
+    posterBlockOrder: [],
+    photoSettingsTouched: false,
     documentZoomMode: 'fit',
     documentZoomFactor: 1,
     documentScale: 1,
@@ -504,11 +522,47 @@
     });
   }
 
+  function loadPhotoSettings() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(PHOTO_SETTINGS_STORAGE_KEY) || '{}');
+      Object.entries(PHOTO_SETTING_DEFAULTS).forEach(([name, value]) => setField(name, saved[name] ?? value));
+      state.photoSettingsTouched = Object.keys(saved).length > 0;
+    } catch (error) {
+      Object.entries(PHOTO_SETTING_DEFAULTS).forEach(([name, value]) => setField(name, value));
+      state.photoSettingsTouched = false;
+    }
+  }
+
+  function savePhotoSettings() {
+    try {
+      const data = readForm();
+      localStorage.setItem(PHOTO_SETTINGS_STORAGE_KEY, JSON.stringify(Object.fromEntries(
+        Object.keys(PHOTO_SETTING_DEFAULTS).map((name) => [name, data[name] ?? PHOTO_SETTING_DEFAULTS[name]])
+      )));
+    } catch (error) {
+      // La sauvegarde locale des reglages photo n'est pas critique pour l'export.
+    }
+  }
+
   function updatePhotoSetting(input) {
     const name = input?.dataset?.photoSetting;
     if (!name) return;
+    state.photoSettingsTouched = true;
     setField(name, input.type === 'checkbox' ? (input.checked ? 'yes' : 'no') : input.value);
+    savePhotoSettings();
     render();
+  }
+
+  function applyPhotoDefaultsForImportedImage() {
+    if (state.photoSettingsTouched) return;
+    setField('photoBrightness', '100');
+    setField('photoContrast', '105');
+    setField('photoSaturation', '100');
+    setField('photoVeil', '20');
+    setField('logoOpacity', '0');
+    setField('showLogoWatermark', 'no');
+    savePhotoSettings();
+    syncPhotoSettings(readForm());
   }
 
   function defaultPosterBlocks() {
@@ -518,25 +572,39 @@
     }]));
   }
 
+  function defaultPosterBlockOrder() {
+    return POSTER_BLOCKS.map((block) => block.key);
+  }
+
   function loadPosterBlocks() {
     state.posterBlocks = defaultPosterBlocks();
+    state.posterBlockOrder = defaultPosterBlockOrder();
     try {
       const saved = JSON.parse(localStorage.getItem(POSTER_BLOCK_STORAGE_KEY) || '{}');
+      const savedBlocks = saved.blocks || saved;
       POSTER_BLOCKS.forEach((block) => {
-        if (!saved[block.key]) return;
+        if (!savedBlocks[block.key]) return;
         state.posterBlocks[block.key] = {
-          visible: saved[block.key].visible !== false,
-          deleted: block.required ? false : saved[block.key].deleted === true
+          visible: savedBlocks[block.key].visible !== false,
+          deleted: block.required ? false : savedBlocks[block.key].deleted === true
         };
       });
+      if (Array.isArray(saved.order)) {
+        const known = new Set(defaultPosterBlockOrder());
+        state.posterBlockOrder = [...saved.order.filter((key) => known.has(key)), ...defaultPosterBlockOrder().filter((key) => !saved.order.includes(key))];
+      }
     } catch (error) {
       state.posterBlocks = defaultPosterBlocks();
+      state.posterBlockOrder = defaultPosterBlockOrder();
     }
   }
 
   function savePosterBlocks() {
     try {
-      localStorage.setItem(POSTER_BLOCK_STORAGE_KEY, JSON.stringify(state.posterBlocks));
+      localStorage.setItem(POSTER_BLOCK_STORAGE_KEY, JSON.stringify({
+        blocks: state.posterBlocks,
+        order: state.posterBlockOrder
+      }));
     } catch (error) {
       // La sauvegarde locale des blocs n'est pas critique pour l'export.
     }
@@ -556,9 +624,31 @@
     return posterBlockState(key).deleted !== true;
   }
 
+  function orderedPosterBlocks() {
+    const known = new Set(POSTER_BLOCKS.map((block) => block.key));
+    const order = state.posterBlockOrder.length ? state.posterBlockOrder : defaultPosterBlockOrder();
+    return [...order.filter((key) => known.has(key)), ...POSTER_BLOCKS.map((block) => block.key).filter((key) => !order.includes(key))];
+  }
+
+  function posterBlockIndex(key) {
+    const index = orderedPosterBlocks().indexOf(key);
+    return index === -1 ? 999 : index;
+  }
+
+  function renderPosterBlockAddOptions() {
+    if (!posterBlockAddSelect) return;
+    const options = POSTER_BLOCKS.filter((block) => !posterBlockAvailable(block.key) || !posterBlockVisible(block.key));
+    posterBlockAddSelect.innerHTML = options.length
+      ? options.map((block) => `<option value="${escapeHtml(block.key)}">${escapeHtml(block.label)}</option>`).join('')
+      : '<option value="">Tous les blocs sont actifs</option>';
+    if (posterBlockAddButton) posterBlockAddButton.disabled = !options.length;
+  }
+
   function renderPosterBlockList() {
     if (!posterBlockList) return;
-    posterBlockList.innerHTML = POSTER_BLOCKS.map((block) => {
+    const byKey = new Map(POSTER_BLOCKS.map((block) => [block.key, block]));
+    const ordered = orderedPosterBlocks().map((key) => byKey.get(key)).filter(Boolean);
+    posterBlockList.innerHTML = ordered.map((block) => {
       const item = posterBlockState(block.key);
       const deleted = item.deleted === true;
       const visible = item.visible !== false && !deleted;
@@ -572,11 +662,14 @@
             <input type="checkbox" data-poster-block-action="toggle" ${visible ? 'checked' : ''} ${deleted ? 'disabled' : ''} />
             <span>Afficher</span>
           </label>
+          <button type="button" data-poster-block-action="up" ${posterBlockIndex(block.key) <= 0 ? 'disabled' : ''}>Monter</button>
+          <button type="button" data-poster-block-action="down" ${posterBlockIndex(block.key) >= ordered.length - 1 ? 'disabled' : ''}>Descendre</button>
           <button type="button" data-poster-block-action="restore" ${!deleted ? 'hidden' : ''}>Retablir</button>
           <button type="button" data-poster-block-action="delete" ${block.required || deleted ? 'hidden' : ''}>Supprimer</button>
         </div>
       `;
     }).join('');
+    renderPosterBlockAddOptions();
   }
 
   function updatePosterBlock(key, action, checked = true) {
@@ -592,10 +685,40 @@
     } else if (action === 'restore') {
       item.deleted = false;
       item.visible = true;
+    } else if (action === 'add') {
+      item.deleted = false;
+      item.visible = true;
+    } else if (action === 'up' || action === 'down') {
+      const order = orderedPosterBlocks();
+      const index = order.indexOf(key);
+      const nextIndex = action === 'up' ? index - 1 : index + 1;
+      if (index >= 0 && nextIndex >= 0 && nextIndex < order.length) {
+        [order[index], order[nextIndex]] = [order[nextIndex], order[index]];
+        state.posterBlockOrder = order;
+      }
     }
     savePosterBlocks();
     renderPosterBlockList();
     render();
+  }
+
+  function addPosterBlock(key) {
+    if (!key) return;
+    updatePosterBlock(key, 'add');
+    const node = directLayer?.querySelector(`[data-direct-field="${key}"]`);
+    if (node && !['logo', 'photo'].includes(key)) window.setTimeout(() => openDirectEditor(node), 0);
+  }
+
+  function posterRowDefinitions(data = readForm(), requireContent = false) {
+    const rowDefs = [
+      { id: 'lead', keys: ['subtitle', 'shortText', 'freeText'] },
+      { id: 'summary', keys: ['summary'] },
+      { id: 'info', keys: ['date', 'time', 'location', 'address'] },
+      { id: 'contact', keys: ['contact', 'phone', 'email'] }
+    ];
+    return rowDefs
+      .filter((row) => row.keys.some((key) => posterBlockVisible(key) && (!requireContent || clean(data[key]))))
+      .sort((a, b) => Math.min(...a.keys.map(posterBlockIndex)) - Math.min(...b.keys.map(posterBlockIndex)));
   }
 
   function directFieldLabel(name) {
@@ -627,29 +750,28 @@
       title: [5, 13, 88, 22, 74]
     };
     let cursor = 37;
-    if (posterBlockVisible('subtitle') || posterBlockVisible('shortText') || posterBlockVisible('freeText')) {
-      if (posterBlockVisible('subtitle')) layout.subtitle = [9, cursor, 82, 6, 30];
-      if (posterBlockVisible('shortText')) layout.shortText = [9, cursor + 6, 82, 5, 24];
-      if (posterBlockVisible('freeText')) layout.freeText = [9, cursor + 11, 82, 5, 22];
-      cursor += 14;
-    }
-    if (posterBlockVisible('summary')) {
-      layout.summary = [25, cursor + 2, 62, 10, 24];
-      cursor += 16;
-    }
-    if (['date', 'time', 'location', 'address'].some((key) => posterBlockVisible(key))) {
-      layout.date = [23, cursor + 2, 25, 5, 34];
-      layout.time = [23, cursor + 8, 20, 4, 24];
-      layout.location = [58, cursor + 4, 31, 5, 22];
-      layout.address = [58, cursor + 9, 31, 4, 18];
-      cursor += 15;
-    }
-    if (['contact', 'phone', 'email'].some((key) => posterBlockVisible(key))) {
-      layout.contact = [25, cursor + 2, 62, 4, 26];
-      layout.phone = [25, cursor + 6, 30, 4, 26];
-      layout.email = [56, cursor + 6, 30, 4, 18];
-      cursor += 10;
-    }
+    posterRowDefinitions(data).forEach((row) => {
+      if (row.id === 'lead') {
+        if (posterBlockVisible('subtitle')) layout.subtitle = [9, cursor, 82, 6, 30];
+        if (posterBlockVisible('shortText')) layout.shortText = [9, cursor + 6, 82, 5, 24];
+        if (posterBlockVisible('freeText')) layout.freeText = [9, cursor + 11, 82, 5, 22];
+        cursor += 14;
+      } else if (row.id === 'summary') {
+        layout.summary = [25, cursor + 2, 62, 10, 24];
+        cursor += 16;
+      } else if (row.id === 'info') {
+        layout.date = [23, cursor + 2, 25, 5, 34];
+        layout.time = [23, cursor + 8, 20, 4, 24];
+        layout.location = [58, cursor + 4, 31, 5, 22];
+        layout.address = [58, cursor + 9, 31, 4, 18];
+        cursor += 15;
+      } else if (row.id === 'contact') {
+        layout.contact = [25, cursor + 2, 62, 4, 26];
+        layout.phone = [25, cursor + 6, 30, 4, 26];
+        layout.email = [56, cursor + 6, 30, 4, 18];
+        cursor += 10;
+      }
+    });
     layout.footer = [14, 88, 72, 4, 18];
     layout.website = [12, 92, 28, 3, 15];
     layout.social = [60, 92, 28, 3, 15];
@@ -2752,11 +2874,7 @@
     applyPreviewStyle('club');
 
     const pad = w * 0.058;
-    const blockRows = [];
-    if (['subtitle', 'shortText', 'freeText'].some((key) => posterBlockVisible(key) && clean(data[key]))) blockRows.push('lead');
-    if (posterBlockVisible('summary') && clean(data.summary)) blockRows.push('summary');
-    if (['date', 'time', 'location', 'address'].some((key) => posterBlockVisible(key) && clean(data[key]))) blockRows.push('info');
-    if (['contact', 'phone', 'email'].some((key) => posterBlockVisible(key) && clean(data[key]))) blockRows.push('contact');
+    const blockRows = posterRowDefinitions(data, true).map((row) => row.id);
     const rowTops = {};
     const availableTop = h * 0.37;
     const availableBottom = h * 0.865;
@@ -3828,6 +3946,7 @@
   publishDialogCancel?.addEventListener('click', () => publishDialog?.close());
   studioSaveButtons.forEach((button) => button.addEventListener('click', () => {
     savePosterBlocks();
+    savePhotoSettings();
     recordPublication('Brouillon enregistre');
     setStatus('Brouillon enregistre localement.');
   }));
@@ -3836,11 +3955,15 @@
   zoomInButton?.addEventListener('click', () => {
     const field = form.elements.photoZoom;
     field.value = String(clamp(Number(field.value || 112) + 8, 100, 170));
+    savePhotoSettings();
+    syncPhotoSettings(readForm());
     render();
   });
   zoomOutButton?.addEventListener('click', () => {
     const field = form.elements.photoZoom;
     field.value = String(clamp(Number(field.value || 112) - 8, 100, 170));
+    savePhotoSettings();
+    syncPhotoSettings(readForm());
     render();
   });
   toggleGridButton?.addEventListener('click', () => {
@@ -3852,6 +3975,8 @@
     setField('photoZoom', 112);
     setField('photoOffsetX', 0);
     setField('photoOffsetY', 0);
+    savePhotoSettings();
+    syncPhotoSettings(readForm());
     render();
   });
   removePhotoButton?.addEventListener('click', () => {
@@ -3861,7 +3986,11 @@
     if (legacyImage) legacyImage.value = '';
     render();
   });
-  directImageInput?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'image'));
+  directImageInput?.addEventListener('change', (event) => {
+    applyPhotoDefaultsForImportedImage();
+    loadImageFromFile(event.target.files?.[0], 'image');
+  });
+  posterBlockAddButton?.addEventListener('click', () => addPosterBlock(posterBlockAddSelect?.value));
   posterBlockList?.addEventListener('change', (event) => {
     const item = event.target.closest('[data-poster-block]');
     if (!item || event.target.dataset.posterBlockAction !== 'toggle') return;
@@ -3876,6 +4005,20 @@
   photoSettingInputs.forEach((input) => {
     input.addEventListener('input', () => updatePhotoSetting(input));
     input.addEventListener('change', () => updatePhotoSetting(input));
+  });
+  photoRecenterButton?.addEventListener('click', () => {
+    setField('photoOffsetX', '0');
+    setField('photoOffsetY', '0');
+    savePhotoSettings();
+    syncPhotoSettings(readForm());
+    render();
+  });
+  photoResetButton?.addEventListener('click', () => {
+    Object.entries(PHOTO_SETTING_DEFAULTS).forEach(([name, value]) => setField(name, value));
+    state.photoSettingsTouched = false;
+    savePhotoSettings();
+    syncPhotoSettings(readForm());
+    render();
   });
   documentFitButton?.addEventListener('click', fitDocumentToViewport);
   documentZoomOutButton?.addEventListener('click', () => changeDocumentZoom(-0.25));
@@ -3917,6 +4060,7 @@
   });
   canvasWrap?.addEventListener('pointerdown', (event) => {
     if (event.target !== canvas || !state.image) return;
+    state.photoSettingsTouched = true;
     photoDrag = {
       x: event.clientX,
       y: event.clientY,
@@ -3932,9 +4076,11 @@
     const height = Math.max(1, canvas.getBoundingClientRect().height);
     setField('photoOffsetX', clamp(photoDrag.offsetX + ((event.clientX - photoDrag.x) / width) * 100, -35, 35));
     setField('photoOffsetY', clamp(photoDrag.offsetY + ((event.clientY - photoDrag.y) / height) * 100, -35, 35));
+    syncPhotoSettings(readForm());
     render();
   });
   const endPhotoDrag = () => {
+    if (photoDrag) savePhotoSettings();
     photoDrag = null;
     canvasWrap?.classList.remove('is-dragging-photo');
   };
@@ -3949,6 +4095,7 @@
 
   loadPosterBlocks();
   renderPosterBlockList();
+  loadPhotoSettings();
   syncPushSettings(readForm());
   syncPhotoSettings(readForm());
   loadFonts();
