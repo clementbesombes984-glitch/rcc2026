@@ -22,7 +22,7 @@
     interview: 'Interview', portrait: 'Portrait', match: 'Retour sur un match', result: 'Résultat',
     upcoming: 'Prochain rendez-vous', calendar: 'Calendrier', academy: 'École de rugby', youth: 'Pôle jeunes U16 / U19',
     cadettes: 'Cadettes', seniors: 'Seniors', partner: 'Partenaire', number: 'Chiffre du mois',
-    important: 'Informations importantes', progress: 'Avancées du club', tomorrow: 'RCC Demain',
+    important: 'Informations importantes', progress: 'Avancées du club', tomorrow: 'Projet du club',
     thanks: 'Remerciements', gallery: 'Galerie photos', photo: 'Photo', quote: 'Citation', text: 'Texte libre',
     divider: 'Séparateur', footer: 'Pied de page'
   };

@@ -9,10 +9,10 @@
     a3: { width: 2480, height: 3508 }
   };
 
-  const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=League+Spartan:wght@700;800;900&family=Montserrat:wght@800;900&family=Oswald:wght@500;600;700&family=Rajdhani:wght@600;700&display=swap';
-  const TITLE_FONT = '"Bebas Neue", "Anton", Impact, sans-serif';
-  const IMPACT_FONT = '"Anton", "League Spartan", Impact, sans-serif';
-  const BODY_FONT = '"Rajdhani", "Oswald", Arial, sans-serif';
+  const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700;800;900&family=Oswald:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&family=Inter:wght@400;500;600;700;800&display=swap';
+  const TITLE_FONT = '"Barlow Condensed", "Anton", Impact, sans-serif';
+  const IMPACT_FONT = '"Anton", "Barlow Condensed", Impact, sans-serif';
+  const BODY_FONT = '"Inter", "Oswald", Arial, sans-serif';
   const CURRENT_SEASON = '2026-2027';
   const OFFICIAL_ORIGIN = 'https://rccubzaguais.fr';
   const notificationCategories = globalThis.RCCNotificationCategories;
@@ -235,6 +235,10 @@
   let photoDrag = null;
 
   const clean = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+  const directTextValue = (value) => String(value || '')
+    .replace(/\u00a0/g, ' ')
+    .replace(/[\r\n]+/g, ' ')
+    .trim();
   const upper = (value) => clean(value).toUpperCase();
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const asList = (value) => Array.isArray(value) ? value.filter(Boolean) : (value ? [value] : []);
@@ -516,7 +520,7 @@
     directLayer.dataset.template = data.template || 'upcoming';
     directLayer.querySelectorAll('[data-direct-field]').forEach((node) => {
       if (node.dataset.directField === state.activeDirectField && node.isContentEditable) return;
-      const value = clean(data[node.dataset.directField]);
+      const value = directTextValue(data[node.dataset.directField]);
       node.textContent = value || directFieldLabel(node.dataset.directField);
       node.classList.toggle('is-empty', !value);
       node.hidden = false;
@@ -561,9 +565,10 @@
     const node = directLayer?.querySelector('[contenteditable="true"]');
     if (node) {
       const fieldName = node.dataset.directField;
-      if (commit) setField(fieldName, clean(node.textContent));
+      if (commit) setField(fieldName, directTextValue(node.textContent));
       else node.textContent = state.directOriginalValue;
       node.contentEditable = 'false';
+      node.setAttribute('role', 'button');
       node.classList.remove('is-editing');
     }
     state.activeDirectField = '';
@@ -578,6 +583,7 @@
     state.directOriginalValue = form.elements[state.activeDirectField]?.value || '';
     node.textContent = state.directOriginalValue;
     node.contentEditable = 'true';
+    node.setAttribute('role', 'textbox');
     node.classList.add('is-editing');
     if (contextToolbar) {
       contextToolbar.hidden = false;
@@ -3452,18 +3458,30 @@
   directLayer?.addEventListener('click', (event) => {
     const node = event.target.closest('[data-direct-field]');
     if (!node) return;
+    if (node.isContentEditable || state.activeDirectField === node.dataset.directField) return;
     event.preventDefault();
     openDirectEditor(node);
   });
   directLayer?.addEventListener('keydown', (event) => {
     if (!event.target.matches('[data-direct-field]')) return;
-    if (event.key === 'Enter' && !event.shiftKey) {
+    if (!event.target.isContentEditable && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      openDirectEditor(event.target);
+    } else if (event.target.isContentEditable && event.key === ' ') {
+      event.preventDefault();
+      document.execCommand('insertText', false, ' ');
+    } else if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       closeDirectEditor(true);
     } else if (event.key === 'Escape') {
       event.preventDefault();
       closeDirectEditor(false);
     }
+  });
+  directLayer?.addEventListener('input', (event) => {
+    const node = event.target.closest('[data-direct-field]');
+    if (!node?.isContentEditable) return;
+    setField(node.dataset.directField, directTextValue(node.textContent));
   });
   directLayer?.addEventListener('focusout', (event) => {
     if (!event.target.matches('[data-direct-field]')) return;
