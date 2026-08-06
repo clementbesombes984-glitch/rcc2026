@@ -490,19 +490,19 @@
 
   function directFieldLayout() {
     return {
-      category: [7, 16, 62, 5, 23],
-      season: [70, 7, 23, 4, 18],
-      title: [7, 22, 86, 18, 58],
-      subtitle: [7, 41, 86, 7, 30],
-      shortText: [7, 48, 86, 6, 25],
-      date: [7, 56, 25, 5, 22],
-      time: [36, 56, 20, 5, 22],
-      location: [60, 56, 33, 5, 22],
-      summary: [7, 66, 86, 11, 25],
-      contact: [7, 80, 86, 5, 22],
-      website: [7, 91, 38, 4, 18],
-      social: [55, 91, 38, 4, 18],
-      footer: [7, 95, 86, 3, 16]
+      category: [8, 7, 66, 5, 24],
+      season: [74, 7, 18, 4, 16],
+      title: [5, 13, 88, 23, 74],
+      subtitle: [9, 37, 82, 7, 30],
+      shortText: [9, 43, 82, 6, 24],
+      summary: [25, 53, 62, 10, 24],
+      date: [23, 70, 25, 5, 34],
+      time: [23, 76, 20, 4, 24],
+      location: [58, 72, 31, 7, 22],
+      contact: [25, 83, 62, 6, 32],
+      website: [12, 92, 28, 3, 15],
+      social: [60, 92, 28, 3, 15],
+      footer: [14, 88, 72, 4, 18]
     };
   }
 
@@ -2302,101 +2302,362 @@
     wrapParagraph(data.summary || data.subtitle || data.title || 'Retrouvez les informations du RCC.', pad + 24 * scale, y + 58 * scale, w - pad * 2 - 48 * scale, Math.min(w * 0.036, h * 0.028), Math.min(w * 0.043, h * 0.033), 3);
   }
 
-  function drawUniversalPoster(w, h, data, scale) {
-    drawBackground(w, h, data, 'club');
-    applyPreviewStyle('club');
+  function drawRccStudioPosterBackground(w, h, data, scale) {
+    const zoom = clamp(Number(data.photoZoom || 112) / 100, 1, 1.7);
+    const base = ctx.createLinearGradient(0, 0, w, h);
+    base.addColorStop(0, '#010104');
+    base.addColorStop(0.52, '#06070b');
+    base.addColorStop(1, '#17020a');
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, w, h);
 
-    const pad = w * 0.07;
-    const logoSize = w * 0.105;
-    fitImage(logo, pad, h * 0.045, logoSize, logoSize);
+    if (state.image) {
+      coverImage(state.image, 0, 0, w, h, zoom, Number(data.photoOffsetX || 0) / 100, Number(data.photoOffsetY || 0) / 100);
+      ctx.fillStyle = 'rgba(0,0,0,.72)';
+      ctx.fillRect(0, 0, w, h);
+      const photoTint = ctx.createLinearGradient(0, 0, w, h);
+      photoTint.addColorStop(0, 'rgba(0,0,0,.72)');
+      photoTint.addColorStop(0.52, 'rgba(3,3,4,.58)');
+      photoTint.addColorStop(1, 'rgba(177,24,69,.2)');
+      ctx.fillStyle = photoTint;
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    const redGlow = ctx.createRadialGradient(w * 0.88, h * 0.13, 20 * scale, w * 0.88, h * 0.13, w * 0.56);
+    redGlow.addColorStop(0, 'rgba(177,24,69,.34)');
+    redGlow.addColorStop(0.44, 'rgba(177,24,69,.12)');
+    redGlow.addColorStop(1, 'rgba(177,24,69,0)');
+    ctx.fillStyle = redGlow;
+    ctx.fillRect(0, 0, w, h);
+
+    drawPosterHexPattern(w, h, scale);
+    drawPosterWatermark(w, h, scale);
+    drawPosterScratches(w, h, scale);
+    drawNoise(w, h);
+    drawVignette(w, h);
+  }
+
+  function drawPosterHexPattern(w, h, scale) {
+    ctx.save();
+    ctx.globalAlpha = 0.13;
+    ctx.strokeStyle = COLORS.red;
+    ctx.lineWidth = Math.max(1, 1.2 * scale);
+    const r = 22 * scale;
+    const dx = r * 1.72;
+    const dy = r * 1.5;
+    for (let y = -r; y < h * 0.28; y += dy) {
+      for (let x = -r; x < w * 0.28; x += dx) {
+        const ox = Math.round(y / dy) % 2 ? dx / 2 : 0;
+        ctx.beginPath();
+        for (let i = 0; i < 6; i += 1) {
+          const angle = Math.PI / 6 + i * Math.PI / 3;
+          const px = x + ox + Math.cos(angle) * r;
+          const py = y + Math.sin(angle) * r;
+          if (i) ctx.lineTo(px, py);
+          else ctx.moveTo(px, py);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawPosterWatermark(w, h, scale) {
+    ctx.save();
+    ctx.globalAlpha = 0.11;
+    ctx.globalCompositeOperation = 'screen';
+    fitImage(logo, w * 0.55, h * 0.07, w * 0.52, h * 0.44);
+    ctx.strokeStyle = COLORS.red;
+    ctx.lineWidth = 8 * scale;
+    ctx.beginPath();
+    ctx.arc(w * 0.87, h * 0.22, w * 0.18, -0.7, 1.35);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(w * 0.61, h * 0.16);
+    ctx.lineTo(w * 0.78, h * 0.28);
+    ctx.lineTo(w * 0.93, h * 0.12);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawPosterScratches(w, h, scale) {
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.strokeStyle = 'rgba(255,255,255,.16)';
+    ctx.lineWidth = Math.max(1, scale);
+    for (let i = 0; i < 20; i += 1) {
+      const x = (i * 71) % w;
+      const y = h * 0.18 + ((i * 137) % Math.round(h * 0.68));
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + 90 * scale, y - 28 * scale);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawPosterAccentText(text, x, y, size, color, scale) {
+    if (!clean(text)) return;
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.font = `900 italic ${size}px ${TITLE_FONT}`;
+    ctx.textBaseline = 'top';
+    ctx.shadowColor = color === COLORS.redBright ? 'rgba(177,24,69,.24)' : 'rgba(255,248,239,.18)';
+    ctx.shadowBlur = 14 * scale;
+    ctx.fillText(upper(text), x, y);
+    ctx.restore();
+  }
+
+  function splitHeroTitle(text) {
+    const words = upper(text || 'INFO RCC').split(/\s+/).filter(Boolean);
+    if (words.length <= 1) return [words.join(' '), ''];
+    if (words.length === 2) return [words[0], words[1]];
+    return [words.slice(0, Math.ceil(words.length / 2)).join(' '), words.slice(Math.ceil(words.length / 2)).join(' ')];
+  }
+
+  function drawPosterTitleBlock(w, h, data, scale) {
+    const pad = w * 0.058;
+    const title = clean(data.title || TEMPLATE_TITLES[data.template] || 'Info RCC');
+    const [firstLine, secondLine] = splitHeroTitle(title);
+    const maxWidth = w - pad * 1.45;
+    let firstSize = 155 * scale;
+    let secondSize = 142 * scale;
 
     ctx.save();
-    ctx.strokeStyle = 'rgba(211,26,82,.72)';
-    ctx.lineWidth = Math.max(2, 2 * scale);
-    ctx.beginPath();
-    ctx.moveTo(pad, h * 0.145);
-    ctx.lineTo(w - pad, h * 0.145);
+    ctx.textBaseline = 'top';
+    ctx.font = `900 italic ${firstSize}px ${IMPACT_FONT}`;
+    while (firstSize > 58 * scale && ctx.measureText(firstLine).width > maxWidth) {
+      firstSize -= 4 * scale;
+      ctx.font = `900 italic ${firstSize}px ${IMPACT_FONT}`;
+    }
+    ctx.shadowColor = 'rgba(255,248,239,.18)';
+    ctx.shadowBlur = 18 * scale;
+    ctx.fillStyle = COLORS.white;
+    ctx.fillText(firstLine, pad, h * 0.112);
+
+    if (secondLine) {
+      ctx.font = `900 italic ${secondSize}px ${IMPACT_FONT}`;
+      while (secondSize > 54 * scale && ctx.measureText(secondLine).width > maxWidth) {
+        secondSize -= 4 * scale;
+        ctx.font = `900 italic ${secondSize}px ${IMPACT_FONT}`;
+      }
+      ctx.shadowColor = 'rgba(177,24,69,.28)';
+      ctx.fillStyle = COLORS.redBright;
+      ctx.fillText(secondLine, pad, h * 0.235);
+    }
+    ctx.restore();
+  }
+
+  function drawPosterCard(x, y, w, h, scale, options = {}) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(177,24,69,.3)';
+    ctx.shadowBlur = 22 * scale;
+    fillRounded(x, y, w, h, 16 * scale, 'rgba(0,0,0,.58)', 'rgba(211,26,82,.82)', 1.6 * scale);
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(255,248,239,.08)';
+    ctx.lineWidth = 1 * scale;
+    roundRect(x + 5 * scale, y + 5 * scale, w - 10 * scale, h - 10 * scale, 12 * scale);
     ctx.stroke();
+    if (options.splitX) {
+      ctx.strokeStyle = 'rgba(255,248,239,.38)';
+      ctx.beginPath();
+      ctx.moveTo(options.splitX, y + 22 * scale);
+      ctx.lineTo(options.splitX, y + h - 22 * scale);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawPosterIcon(type, cx, cy, size, scale) {
+    ctx.save();
+    ctx.strokeStyle = COLORS.red;
+    ctx.fillStyle = COLORS.red;
+    ctx.lineWidth = Math.max(3, 4 * scale);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    if (type === 'date') {
+      const x = cx - size * 0.45;
+      const y = cy - size * 0.35;
+      ctx.strokeRect(x, y, size * 0.9, size * 0.72);
+      ctx.beginPath();
+      ctx.moveTo(x, y + size * 0.18);
+      ctx.lineTo(x + size * 0.9, y + size * 0.18);
+      ctx.moveTo(x + size * 0.22, y - size * 0.1);
+      ctx.lineTo(x + size * 0.22, y + size * 0.1);
+      ctx.moveTo(x + size * 0.68, y - size * 0.1);
+      ctx.lineTo(x + size * 0.68, y + size * 0.1);
+      ctx.stroke();
+      for (let row = 0; row < 2; row += 1) {
+        for (let col = 0; col < 3; col += 1) ctx.fillRect(x + size * (0.2 + col * 0.22), y + size * (0.34 + row * 0.18), size * 0.08, size * 0.07);
+      }
+    } else if (type === 'pin') {
+      ctx.beginPath();
+      ctx.arc(cx, cy - size * 0.1, size * 0.26, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + size * 0.5);
+      ctx.quadraticCurveTo(cx - size * 0.45, cy, cx, cy - size * 0.48);
+      ctx.quadraticCurveTo(cx + size * 0.45, cy, cx, cy + size * 0.5);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx, cy - size * 0.1, size * 0.08, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (type === 'info') {
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.42, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.font = `900 italic ${size * 0.62}px ${TITLE_FONT}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('i', cx, cy + size * 0.03);
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(cx - size * 0.36, cy - size * 0.18);
+      ctx.lineTo(cx - size * 0.1, cy + size * 0.28);
+      ctx.lineTo(cx + size * 0.1, cy + size * 0.28);
+      ctx.lineTo(cx + size * 0.36, cy - size * 0.18);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx - size * 0.18, cy + size * 0.28);
+      ctx.lineTo(cx - size * 0.28, cy + size * 0.48);
+      ctx.moveTo(cx + size * 0.18, cy + size * 0.28);
+      ctx.lineTo(cx + size * 0.28, cy + size * 0.48);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx - size * 0.28, cy + size * 0.48);
+      ctx.lineTo(cx - size * 0.44, cy + size * 0.48);
+      ctx.moveTo(cx + size * 0.28, cy + size * 0.48);
+      ctx.lineTo(cx + size * 0.44, cy + size * 0.48);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawPosterFooter(w, h, data, scale) {
+    const pad = w * 0.09;
+    const y = h * 0.9;
+    const leftLine = pad;
+    const rightLine = w - pad;
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(255,248,239,.82)';
+    ctx.font = `800 italic ${23 * scale}px ${BODY_FONT}`;
+    const footer = upper(data.footer || 'ENSEMBLE. FIERS DE NOS COULEURS.');
+    ctx.fillText(footer, w / 2, y);
+    ctx.strokeStyle = COLORS.red;
+    ctx.lineWidth = 2 * scale;
+    ctx.beginPath();
+    ctx.moveTo(leftLine, y + 46 * scale);
+    ctx.lineTo(w * 0.45, y + 46 * scale);
+    ctx.moveTo(w * 0.55, y + 46 * scale);
+    ctx.lineTo(rightLine, y + 46 * scale);
+    ctx.stroke();
+    ctx.fillStyle = COLORS.redBright;
+    ctx.font = `900 ${22 * scale}px ${BODY_FONT}`;
+    ctx.fillText('>>', w / 2, y + 45 * scale);
+    ctx.fillStyle = 'rgba(211,26,82,.85)';
+    ctx.font = `800 ${17 * scale}px ${BODY_FONT}`;
+    const site = clean(data.website || 'RCCUBZAGUAIS.FR');
+    const social = clean(data.social || '@RCCUBZAGUAIS');
+    ctx.fillText(`${site}   ${social}`, w / 2, y + 88 * scale);
+    ctx.restore();
+  }
+
+  function drawUniversalPoster(w, h, data, scale) {
+    drawRccStudioPosterBackground(w, h, data, scale);
+    applyPreviewStyle('club');
+
+    const pad = w * 0.058;
+
+    ctx.save();
+    ctx.textBaseline = 'top';
 
     if (clean(data.category)) {
       ctx.fillStyle = COLORS.redBright;
-      ctx.font = `800 ${28 * scale}px ${BODY_FONT}`;
-      ctx.fillText(upper(data.category), pad, h * 0.16);
+      ctx.font = `800 italic ${25 * scale}px ${BODY_FONT}`;
+      ctx.letterSpacing = `${7 * scale}px`;
+      ctx.fillText(upper(data.category), pad + 30 * scale, h * 0.055);
+      ctx.letterSpacing = '0px';
     }
 
     if (clean(data.season)) {
-      ctx.fillStyle = 'rgba(255,248,239,.82)';
-      ctx.font = `700 ${21 * scale}px ${BODY_FONT}`;
+      ctx.fillStyle = 'rgba(255,248,239,.68)';
+      ctx.font = `800 ${17 * scale}px ${BODY_FONT}`;
       ctx.textAlign = 'right';
-      ctx.fillText(data.season, w - pad, h * 0.095);
+      ctx.fillText(upper(data.season), w - pad, h * 0.056);
       ctx.textAlign = 'left';
     }
 
-    if (clean(data.title)) {
-      drawFittedLines(data.title, pad, h * 0.22, w - pad * 2, 78 * scale, 72 * scale, 3, COLORS.white, TITLE_FONT);
-    }
+    drawPosterTitleBlock(w, h, data, scale);
+
+    const leadY = h * 0.37;
+    ctx.strokeStyle = COLORS.redBright;
+    ctx.lineWidth = 2.5 * scale;
+    ctx.beginPath();
+    ctx.moveTo(pad, leadY + 4 * scale);
+    ctx.lineTo(pad, leadY + 78 * scale);
+    ctx.stroke();
 
     if (clean(data.subtitle)) {
-      ctx.fillStyle = COLORS.muted;
-      ctx.font = `700 ${36 * scale}px ${BODY_FONT}`;
-      wrapParagraph(data.subtitle, pad, h * 0.41, w - pad * 2, 36 * scale, 44 * scale, 2);
+      ctx.fillStyle = COLORS.white;
+      ctx.font = `900 italic ${36 * scale}px ${TITLE_FONT}`;
+      wrapParagraph(data.subtitle, pad + 42 * scale, leadY, w - pad * 2 - 42 * scale, 36 * scale, 43 * scale, 2);
     }
 
     if (clean(data.shortText)) {
-      ctx.fillStyle = COLORS.white;
-      ctx.font = `600 ${30 * scale}px ${BODY_FONT}`;
-      wrapParagraph(data.shortText, pad, h * 0.48, w - pad * 2, 30 * scale, 38 * scale, 2);
+      ctx.fillStyle = COLORS.redBright;
+      ctx.font = `800 italic ${30 * scale}px ${BODY_FONT}`;
+      wrapParagraph(data.shortText, pad + 42 * scale, leadY + 74 * scale, w - pad * 2 - 42 * scale, 30 * scale, 36 * scale, 2);
     }
 
-    const facts = [data.date, data.time, data.location];
-    if (facts.some((value) => clean(value))) {
-      ctx.fillStyle = 'rgba(3,3,3,.68)';
-      ctx.fillRect(pad, h * 0.55, w - pad * 2, h * 0.075);
-      ctx.fillStyle = COLORS.white;
-      ctx.font = `700 ${27 * scale}px ${BODY_FONT}`;
-      const columns = [pad + 22 * scale, w * 0.36, w * 0.6];
-      facts.forEach((value, index) => {
-        if (clean(value)) wrapParagraph(value, columns[index], h * 0.57, index === 2 ? w * 0.31 : w * 0.22, 27 * scale, 33 * scale, 2);
-      });
-    }
-
+    const cardX = pad;
+    const cardW = w - pad * 2;
+    const summaryY = h * 0.485;
+    const summaryH = h * 0.15;
+    drawPosterCard(cardX, summaryY, cardW * 0.76, summaryH, scale);
+    drawPosterIcon('toast', cardX + 92 * scale, summaryY + summaryH * 0.48, 82 * scale, scale);
     if (clean(data.summary)) {
       ctx.fillStyle = COLORS.white;
-      ctx.font = `600 ${30 * scale}px ${BODY_FONT}`;
-      wrapParagraph(data.summary, pad, h * 0.66, w - pad * 2, 30 * scale, 42 * scale, 4);
+      ctx.font = `900 italic ${31 * scale}px ${TITLE_FONT}`;
+      wrapParagraph(data.summary, cardX + 210 * scale, summaryY + 34 * scale, cardW * 0.54, 31 * scale, 38 * scale, 3);
+    } else {
+      drawPosterAccentText(data.template === 'universal' ? 'INFO RCC' : TEMPLATE_TITLES[data.template], cardX + 210 * scale, summaryY + 42 * scale, 35 * scale, COLORS.white, scale);
     }
 
-    if (clean(data.contact)) {
-      ctx.fillStyle = COLORS.redBright;
-      ctx.font = `700 ${26 * scale}px ${BODY_FONT}`;
-      wrapParagraph(data.contact, pad, h * 0.8, w - pad * 2, 26 * scale, 34 * scale, 2);
+    const infoY = h * 0.675;
+    const infoH = h * 0.132;
+    drawPosterCard(cardX, infoY, cardW, infoH, scale, { splitX: w * 0.52 });
+    drawPosterIcon('date', cardX + 92 * scale, infoY + infoH * 0.5, 78 * scale, scale);
+    if (clean(data.date)) drawPosterAccentText(data.date, cardX + 198 * scale, infoY + 22 * scale, 53 * scale, COLORS.redBright, scale);
+    if (clean(data.time)) {
+      ctx.fillStyle = COLORS.white;
+      ctx.font = `900 italic ${31 * scale}px ${TITLE_FONT}`;
+      ctx.fillText(upper(data.time), cardX + 198 * scale, infoY + 80 * scale);
     }
-
-    ctx.strokeStyle = 'rgba(255,248,239,.22)';
-    ctx.beginPath();
-    ctx.moveTo(pad, h * 0.885);
-    ctx.lineTo(w - pad, h * 0.885);
-    ctx.stroke();
-
-    if (clean(data.website)) {
-      ctx.fillStyle = 'rgba(255,248,239,.84)';
-      ctx.font = `600 ${21 * scale}px ${BODY_FONT}`;
-      ctx.fillText(data.website, pad, h * 0.91);
-    }
-
-    if (clean(data.social)) {
-      ctx.fillStyle = 'rgba(255,248,239,.84)';
-      ctx.font = `600 ${21 * scale}px ${BODY_FONT}`;
-      ctx.textAlign = 'right';
-      ctx.fillText(data.social, w - pad, h * 0.91);
+    drawPosterIcon('pin', w * 0.66, infoY + infoH * 0.43, 78 * scale, scale);
+    if (clean(data.location)) {
+      ctx.fillStyle = COLORS.white;
+      ctx.font = `900 italic ${27 * scale}px ${TITLE_FONT}`;
+      ctx.textAlign = 'center';
+      wrapParagraph(data.location, w * 0.61, infoY + 68 * scale, cardW * 0.32, 27 * scale, 32 * scale, 2);
       ctx.textAlign = 'left';
     }
 
-    if (clean(data.footer)) {
-      ctx.fillStyle = 'rgba(255,248,239,.84)';
-      ctx.font = `600 ${18 * scale}px ${BODY_FONT}`;
-      ctx.fillText(data.footer, pad, h * 0.965);
+    const contactY = h * 0.82;
+    const contactH = h * 0.085;
+    drawPosterCard(cardX, contactY, cardW, contactH, scale);
+    drawPosterIcon('info', cardX + 92 * scale, contactY + contactH * 0.5, 74 * scale, scale);
+    if (clean(data.contact)) {
+      ctx.fillStyle = COLORS.white;
+      ctx.font = `900 italic ${28 * scale}px ${TITLE_FONT}`;
+      ctx.fillText('POUR LES RENSEIGNEMENTS', cardX + 190 * scale, contactY + 19 * scale);
+      ctx.fillStyle = COLORS.redBright;
+      drawSingleLine(upper(data.contact), cardX + 190 * scale, contactY + 53 * scale, cardW - 220 * scale, 50 * scale, IMPACT_FONT);
     }
+
+    drawPosterFooter(w, h, data, scale);
     ctx.restore();
     drawGrid(w, h);
   }
