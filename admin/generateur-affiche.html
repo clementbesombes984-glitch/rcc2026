@@ -63,105 +63,42 @@
         <button id="studio-tab-newsletter" type="button" role="tab" aria-selected="false" aria-controls="studio-panel-newsletter" data-studio-tab="newsletter">Newsletter</button>
       </nav>
 
-      <section class="studio-layout studio-tab-panel is-active" id="studio-panel-publications" role="tabpanel" aria-labelledby="studio-tab-publications" aria-hidden="false" data-studio-tab-panel="publications">
-        <aside class="studio-sidebar studio-left">
-          <div class="poster-panel-head">
-            <span>Modèle</span>
-            <strong>Affiche</strong>
-          </div>
-          <label class="studio-compact-select">Type d'affiche
-            <select data-compact-template>
-              <option value="upcoming">Match</option>
-              <option value="news">Actualite</option>
-              <option value="club">Evenement</option>
-            </select>
-          </label>
-          <div class="poster-panel-head compact">
-            <span>Source</span>
-            <strong>CMS</strong>
-          </div>
-          <label class="studio-compact-select">Source
-            <select data-compact-source>
-              <option value="blank">Nouvelle affiche</option>
-              <option value="news">Actualite existante</option>
-              <option value="event">Calendrier</option>
-            </select>
-          </label>
-          <label class="studio-source-select">Element a charger
-            <select data-source-select>
-              <option value="">Choisir une source</option>
-            </select>
-          </label>
-
-          <div class="poster-panel-head compact">
-            <span>Rendu</span>
-            <strong>Style et format</strong>
-          </div>
-          <label class="studio-compact-select">Style graphique
-            <select data-direct-style>
-              <option value="match">Top 14</option>
-              <option value="magazine">Magazine</option>
-              <option value="club">Vie du club</option>
-            </select>
-          </label>
-          <label class="studio-compact-select">Format
-            <select data-direct-format>
-              <option value="portrait">Instagram portrait</option>
-              <option value="facebook">Facebook paysage</option>
-              <option value="story">Story</option>
-              <option value="a4">Impression A4</option>
-              <option value="a3">Impression A3</option>
-            </select>
-          </label>
-
-          <p class="poster-help" data-poster-status role="status" aria-live="polite">Chargement du Studio RCC...</p>
-        </aside>
+      <section class="studio-layout studio-publication-universal studio-tab-panel is-active" id="studio-panel-publications" role="tabpanel" aria-labelledby="studio-tab-publications" aria-hidden="false" data-studio-tab-panel="publications">
 
         <section class="studio-preview-panel">
           <div class="poster-preview-toolbar">
             <span>Apercu en direct</span>
-            <strong data-poster-size>1080 x 1080</strong>
-            <button class="studio-settings-toggle" type="button" data-studio-settings-toggle aria-expanded="false">Reglages</button>
+            <strong data-poster-size>1080 x 1350</strong>
           </div>
-          <div class="studio-preview-tools studio-document-tools" aria-label="Affichage du document">
-            <span>Document</span>
+          <div class="studio-preview-tools studio-universal-tools" aria-label="Outils de l'affiche">
             <button type="button" data-document-fit class="is-active">Adapter</button>
             <button type="button" data-document-zoom-out aria-label="Reduire le zoom du document">Zoom document -</button>
             <button type="button" data-document-zoom-in aria-label="Agrandir le zoom du document">Zoom document +</button>
-            <output data-document-zoom-label>Adapter</output>
-          </div>
-          <div class="studio-preview-tools studio-photo-tools" aria-label="Photo de fond">
-            <span>Photo de fond</span>
-            <label class="studio-tool-upload">Photo<input type="file" accept="image/*" data-direct-poster-image /></label>
+            <label class="studio-tool-upload">Ajouter photo<input type="file" accept="image/*" data-direct-poster-image /></label>
             <button type="button" data-zoom-out aria-label="Reduire le zoom de la photo">Zoom photo -</button>
             <button type="button" data-zoom-in aria-label="Agrandir le zoom de la photo">Zoom photo +</button>
             <button type="button" data-toggle-grid aria-label="Afficher ou masquer la grille de composition">Grille</button>
             <button type="button" data-reset-photo aria-label="Recentrer la photo principale">Recentrer photo</button>
             <button type="button" data-remove-photo aria-label="Supprimer la photo principale">Supprimer photo</button>
+            <output data-document-zoom-label>Adapter</output>
           </div>
           <div class="poster-canvas-wrap studio-canvas-wrap">
             <div class="poster-stage" data-poster-stage>
-              <canvas id="posterCanvas" width="1080" height="1080" aria-label="Apercu de la communication RCC"></canvas>
+              <canvas id="posterCanvas" width="1080" height="1350" aria-label="Apercu de la communication RCC"></canvas>
               <div class="poster-direct-layer" data-poster-direct-layer aria-label="Textes modifiables de l'affiche">
-                <span role="button" tabindex="0" data-direct-field="category">Club</span>
-                <span role="button" tabindex="0" data-direct-field="title">Reprise de la preparation</span>
-                <span role="button" tabindex="0" data-direct-field="subtitle">Le RCC retrouve le terrain</span>
-                <span role="button" tabindex="0" data-direct-field="date">Date</span>
-                <span role="button" tabindex="0" data-direct-field="time">Heure</span>
-                <span role="button" tabindex="0" data-direct-field="location">Lieu</span>
-                <span role="button" tabindex="0" data-direct-field="opponent">Adversaire</span>
-                <span role="button" tabindex="0" data-direct-field="score">Score</span>
-                <span role="button" tabindex="0" data-direct-field="summary">Informations</span>
+                <span role="button" tabindex="0" data-direct-field="category" aria-label="Modifier le petit titre"></span>
+                <span role="button" tabindex="0" data-direct-field="title" aria-label="Modifier le titre principal"></span>
+                <span role="button" tabindex="0" data-direct-field="subtitle" aria-label="Modifier le sous-titre"></span>
+                <span role="button" tabindex="0" data-direct-field="date" aria-label="Modifier la date"></span>
+                <span role="button" tabindex="0" data-direct-field="time" aria-label="Modifier l'heure"></span>
+                <span role="button" tabindex="0" data-direct-field="location" aria-label="Modifier le lieu"></span>
+                <span role="button" tabindex="0" data-direct-field="summary" aria-label="Modifier le texte libre"></span>
+                <span role="button" tabindex="0" data-direct-field="contact" aria-label="Modifier le contact"></span>
+                <span role="button" tabindex="0" data-direct-field="footer" aria-label="Modifier le texte de bas de page"></span>
               </div>
             </div>
           </div>
-          <div class="poster-context-toolbar" data-poster-context-toolbar hidden>
-            <strong data-context-label>Texte</strong>
-            <label>Taille <input type="range" min="70" max="135" value="100" data-context-size /></label>
-            <button type="button" data-context-align>Aligner</button>
-            <button type="button" data-context-hide>Masquer</button>
-            <button type="button" data-context-reset>Reinitialiser</button>
-          </div>
+          <p class="poster-help studio-universal-status" data-poster-status role="status" aria-live="polite">Cliquez sur une zone de texte pour la modifier.</p>
           <div class="poster-actions studio-direct-actions">
             <button class="button ghost" type="button" data-download-poster>PNG</button>
             <button class="button ghost" type="button" data-download-pdf>PDF</button>
@@ -169,266 +106,30 @@
           </div>
         </section>
 
-        <form class="studio-sidebar studio-right poster-form studio-state-form" data-poster-form hidden>
-          <div class="poster-panel-head">
-            <span>Etape 3</span>
-            <strong>Ajuster l'affiche</strong>
-          </div>
+        <form class="studio-state-form" data-poster-form hidden>
+          <input name="category" type="hidden" value="" />
+          <input name="title" type="hidden" value="" />
+          <input name="subtitle" type="hidden" value="" />
+          <input name="date" type="hidden" value="" />
+          <input name="time" type="hidden" value="" />
+          <input name="location" type="hidden" value="" />
+          <input name="summary" type="hidden" value="" />
+          <input name="contact" type="hidden" value="" />
+          <input name="footer" type="hidden" value="" />
+          <input name="photoZoom" type="hidden" value="112" />
+          <input name="photoOffsetX" type="hidden" value="0" />
+          <input name="photoOffsetY" type="hidden" value="0" />
 
-          <label>Format
-            <select name="format" data-poster-input>
-              <option value="portrait">Instagram portrait - 1080x1350</option>
-              <option value="facebook">Facebook paysage - 1200x630</option>
-              <option value="story">Story - 1080x1920</option>
-              <option value="a4">Impression A4</option>
-              <option value="a3">Impression A3</option>
-            </select>
-          </label>
-
-          <div class="poster-field-grid">
-            <label>Type
-              <select name="template" data-poster-input>
-                <option value="upcoming">Match</option>
-                <option value="news">Actualite</option>
-                <option value="club">Evenement</option>
-              </select>
-            </label>
-            <label>Style
-              <select name="style" data-poster-input>
-                <option value="match">Top 14</option>
-                <option value="magazine">Magazine</option>
-                <option value="club">Vie du club</option>
-              </select>
-            </label>
-          </div>
-
-          <div class="poster-panel-head compact">
-            <span>Contenu</span>
-            <strong>Texte principal</strong>
-          </div>
-          <label>Titre
-            <input name="title" type="text" value="Reprise de la preparation" maxlength="80" required placeholder="Ex. Match de rugby, Tournoi U10, Rejoins le RCC" data-poster-input />
-          </label>
-          <label>Sous-titre
-            <input name="subtitle" type="text" value="Le RCC retrouve le terrain" maxlength="90" placeholder="Ex. Ensemble au stade samedi" data-poster-input />
-          </label>
-          <label>Resume
-            <textarea name="summary" rows="3" maxlength="220" placeholder="Phrase courte pour expliquer l'information." data-poster-input>Ensemble, vivons notre passion aux couleurs du RCC.</textarea>
-          </label>
-
-          <div class="poster-panel-head compact">
-            <span>Infos</span>
-            <strong>Badges</strong>
-          </div>
-          <div class="poster-field-grid poster-field-grid-three">
-            <label>Date
-              <input name="date" type="text" value="" placeholder="Ex. 18 mai 2026" data-poster-input />
-            </label>
-            <label>Heure
-              <input name="time" type="text" value="" placeholder="Ex. 15h00" data-poster-input />
-            </label>
-            <label>Score
-              <input name="score" type="text" value="" placeholder="Ex. 28-14" data-poster-input />
-            </label>
-          </div>
-
-          <label>Lieu
-            <input name="location" type="text" value="Plaine des Sports Laurent Ricci" placeholder="Ex. Plaine des Sports Laurent Ricci" data-poster-input />
-          </label>
-          <div class="poster-field-grid">
-            <label>Categorie / competition
-              <input name="category" type="text" value="Club" placeholder="Ex. Seniors, U14, Championnat" data-poster-input />
-            </label>
-            <label>Adversaire / partenaire
-              <input name="opponent" type="text" value="" placeholder="Ex. US Bordeaux" data-poster-input />
-            </label>
-          </div>
-
-          <div class="poster-panel-head compact">
-            <span>Image</span>
-            <strong>Photos et logos</strong>
-          </div>
-          <label>Photo principale
-            <input name="image" type="file" accept="image/*" data-poster-image />
-          </label>
-          <label>Logo adverse / partenaire
-            <input name="opponentLogo" type="file" accept="image/*" data-opponent-logo />
-          </label>
-
-          <div class="poster-panel-head compact">
-            <span>Style</span>
-            <strong>Composition</strong>
-          </div>
-          <div class="poster-field-grid">
-            <label>Couleur
-              <select name="colorMode" data-poster-input>
-                <option value="red">Bordeaux RCC</option>
-                <option value="blue">Bleu marine</option>
-                <option value="dark">Noir premium</option>
-              </select>
-            </label>
-            <label>Position du texte
-              <select name="textPosition" data-poster-input>
-                <option value="left">Gauche</option>
-                <option value="center">Centre</option>
-                <option value="bottom">Bas</option>
-              </select>
-            </label>
-          </div>
-
-          <div class="poster-field-grid poster-field-grid-three">
-            <label>Titre
-              <input name="textScale" type="range" min="82" max="122" value="100" data-poster-input />
-              <span class="poster-range-help">Taille du titre</span>
-            </label>
-            <label>Overlay
-              <input name="overlay" type="range" min="45" max="82" value="65" data-poster-input />
-              <span class="poster-range-help">Photo plus sombre</span>
-            </label>
-            <label>Photo
-              <input name="photoZoom" type="range" min="100" max="170" value="112" data-poster-input />
-              <span class="poster-range-help">Recadrage</span>
-            </label>
-          </div>
-
-          <div class="poster-field-grid">
-            <label>Decalage horizontal
-              <input name="photoOffsetX" type="range" min="-35" max="35" value="0" data-poster-input />
-            </label>
-            <label>Decalage vertical
-              <input name="photoOffsetY" type="range" min="-35" max="35" value="0" data-poster-input />
-            </label>
-          </div>
-
-          <label class="poster-check">
-            <input name="showBadges" type="checkbox" value="yes" checked data-poster-input />
-            Afficher les badges
-          </label>
-          <label class="poster-check">
-            <input name="showQr" type="checkbox" value="yes" data-poster-input />
-            Afficher le QR code
-          </label>
-
-          <div class="poster-panel-head compact">
-            <span>Diffusion</span>
-            <strong>Canaux</strong>
-          </div>
-          <div class="studio-distribution" data-distribution-options>
-            <label class="poster-check">
-              <input name="publishSite" type="checkbox" value="yes" checked data-poster-input />
-              Publier sur le site
-            </label>
-            <label class="poster-check">
-              <input name="publishFacebook" type="checkbox" value="yes" data-poster-input />
-              Publier sur Facebook
-            </label>
-            <label class="poster-check">
-              <input name="publishInstagram" type="checkbox" value="yes" data-poster-input />
-              Publier sur Instagram
-            </label>
-            <label class="poster-check">
-              <input name="publishPush" type="checkbox" value="yes" data-poster-input />
-              Envoyer une notification Push
-            </label>
-          </div>
-          <div class="studio-push-settings" data-push-settings hidden>
-            <div class="poster-panel-head compact">
-              <span>Notification Push</span>
-              <strong>Reglages</strong>
-            </div>
-            <label>Titre de la notification
-              <input name="pushTitle" type="text" maxlength="48" placeholder="Titre court" data-poster-input />
-            </label>
-            <label>Message court
-              <textarea name="pushBody" rows="2" maxlength="140" placeholder="Message court affiche sur le telephone" data-poster-input></textarea>
-            </label>
-            <div class="poster-field-grid">
-              <label>Categorie ciblee
-                <select name="pushAudience" data-poster-input>
-                  <option value="actualites">Actualités</option>
-                  <option value="seniors">Seniors</option>
-                  <option value="cadettes">Cadettes</option>
-                  <option value="u19">U19</option>
-                  <option value="u16">U16</option>
-                  <option value="u14">U14</option>
-                  <option value="u12">U12</option>
-                  <option value="u10">U10</option>
-                  <option value="u8">U8</option>
-                  <option value="u6">U6</option>
-                </select>
-              </label>
-              <label>Importance
-                <select name="pushImportance" data-poster-input>
-                  <option value="normal">Normale</option>
-                  <option value="important">Importante</option>
-                </select>
-              </label>
-            </div>
-            <label>Lien de destination
-              <input name="pushUrl" type="text" value="/actualites.html" placeholder="/actualites.html" data-poster-input />
-            </label>
-            <label>Envoi
-              <select name="pushMode" data-poster-input>
-                <option value="now">Envoyer maintenant</option>
-                <option value="draft">Preparer seulement</option>
-              </select>
-            </label>
-          </div>
-          <p class="poster-help studio-publish-help">
-            Pour activer la publication sur le site, ajoute la variable <code>RCC_GITHUB_TOKEN</code> dans
-            Cloudflare Pages &gt; Settings &gt; Environment variables.
-          </p>
-
-          <div class="poster-panel-head compact">
-            <span>Apercus</span>
-            <strong>Avant diffusion</strong>
-          </div>
-          <div class="studio-channel-previews" data-channel-previews>
-            <article>
-              <span>Site</span>
-              <p data-preview-site>Le resume de la publication apparaitra ici.</p>
-            </article>
-            <article>
-              <span>Facebook</span>
-              <p data-preview-facebook>Le texte Facebook sera genere automatiquement.</p>
-            </article>
-            <article>
-              <span>Instagram</span>
-              <p data-preview-instagram>Le texte Instagram et les hashtags seront prepares ici.</p>
-            </article>
-            <article>
-              <span>Notification</span>
-              <p data-preview-push>Le titre court et le message push seront affiches ici.</p>
-            </article>
-          </div>
-
-          <label>Texte de publication
-            <textarea class="studio-caption" rows="5" data-caption-output></textarea>
-          </label>
-          <textarea class="studio-hashtags" rows="3" data-hashtag-output readonly></textarea>
-
-          <div class="poster-panel-head compact">
-            <span>Actions</span>
-            <strong>Export et publication</strong>
-          </div>
-          <div class="poster-actions studio-actions">
-            <button class="button primary" type="button" data-studio-save>Enregistrer</button>
-            <button class="button ghost" type="button" data-download-poster>PNG</button>
-            <button class="button ghost" type="button" data-download-pdf>PDF</button>
-            <details class="studio-copy-menu">
-              <summary class="button ghost">Copier</summary>
-              <div>
-                <button class="button ghost" type="button" data-copy-caption>Texte</button>
-                <button class="button ghost" type="button" data-copy-facebook>Facebook</button>
-                <button class="button ghost" type="button" data-copy-instagram>Instagram</button>
-                <button class="button ghost" type="button" data-copy-hashtags>Hashtags</button>
-              </div>
-            </details>
-            <button class="button primary" type="button" data-publish-dialog-open>Publier</button>
-            <button class="button primary studio-real-publish" type="button" data-publish-studio hidden>Publier maintenant</button>
-            <button class="button ghost" type="button" data-prepare-distribution>Preparer diffusion</button>
-            <button class="button ghost" type="button" data-check-meta>Verifier Meta</button>
-          </div>
+          <input name="publishSite" type="hidden" value="yes" />
+          <input name="publishFacebook" type="hidden" value="" />
+          <input name="publishInstagram" type="hidden" value="" />
+          <input name="publishPush" type="hidden" value="" />
+          <input name="pushTitle" type="hidden" value="" />
+          <input name="pushBody" type="hidden" value="" />
+          <input name="pushAudience" type="hidden" value="actualites" />
+          <input name="pushImportance" type="hidden" value="normal" />
+          <input name="pushUrl" type="hidden" value="/actualites.html" />
+          <input name="pushMode" type="hidden" value="now" />
         </form>
       </section>
 
@@ -728,12 +429,9 @@
             <span>Publication</span>
             <strong>Canaux</strong>
           </div>
-          <p class="poster-help">Verifie les canaux coches dans la section Diffusion avant de publier.</p>
+          <p class="poster-help">Publier cette creation sur le site du RCC.</p>
           <div class="studio-distribution compact-dialog-options">
             <span>Site</span>
-            <span>Facebook</span>
-            <span>Instagram</span>
-            <span>Notification push</span>
           </div>
           <div class="poster-actions studio-actions">
             <button class="button ghost" value="cancel" type="button" data-publish-dialog-cancel>Annuler</button>

@@ -16,6 +16,17 @@
   const CURRENT_SEASON = '2026-2027';
   const OFFICIAL_ORIGIN = 'https://rccubzaguais.fr';
   const notificationCategories = globalThis.RCCNotificationCategories;
+  const UNIVERSAL_POSTER = Object.freeze({
+    format: 'portrait',
+    template: 'universal',
+    style: 'club',
+    colorMode: 'red',
+    textPosition: 'left',
+    textScale: '100',
+    overlay: '65',
+    showBadges: '',
+    showQr: ''
+  });
 
   const COLORS = {
     black: '#020203',
@@ -80,9 +91,6 @@
   const form = document.querySelector('[data-poster-form]');
   const sizeNode = document.querySelector('[data-poster-size]');
   const statusNode = document.querySelector('[data-poster-status]');
-  const sourceSelect = document.querySelector('[data-source-select]');
-  const compactTemplateSelect = document.querySelector('[data-compact-template]');
-  const compactSourceSelect = document.querySelector('[data-compact-source]');
   const captionOutput = document.querySelector('[data-caption-output]');
   const downloadButton = document.querySelector('[data-download-poster]');
   const downloadPdfButton = document.querySelector('[data-download-pdf]');
@@ -104,11 +112,7 @@
   const resetPhotoButton = document.querySelector('[data-reset-photo]');
   const removePhotoButton = document.querySelector('[data-remove-photo]');
   const directLayer = document.querySelector('[data-poster-direct-layer]');
-  const contextToolbar = document.querySelector('[data-poster-context-toolbar]');
-  const directFormat = document.querySelector('[data-direct-format]');
-  const directStyle = document.querySelector('[data-direct-style]');
   const directImageInput = document.querySelector('[data-direct-poster-image]');
-  const settingsToggle = document.querySelector('[data-studio-settings-toggle]');
   const canvasWrap = canvas?.closest('.studio-canvas-wrap');
   const posterStage = document.querySelector('[data-poster-stage]');
   const documentFitButton = document.querySelector('[data-document-fit]');
@@ -223,7 +227,9 @@
     directOriginalValue: '',
     documentZoomMode: 'fit',
     documentZoomFactor: 1,
-    documentScale: 1
+    documentScale: 1,
+    dataLoaded: false,
+    dataPromise: null
   };
 
   const logo = new Image();
@@ -444,7 +450,10 @@
   }
 
   function readForm() {
-    return Object.fromEntries(new FormData(form).entries());
+    return {
+      ...UNIVERSAL_POSTER,
+      ...Object.fromEntries(new FormData(form).entries())
+    };
   }
 
   function setStatus(message) {
@@ -457,44 +466,31 @@
   }
 
   function directFieldLabel(name) {
-    return ({ title: 'Titre', subtitle: 'Sous-titre', summary: 'Informations', category: 'Categorie', date: 'Date', time: 'Heure', location: 'Lieu', opponent: 'Adversaire', score: 'Score' })[name] || 'Texte';
+    return ({
+      category: 'Petit titre',
+      title: 'Titre principal',
+      subtitle: 'Sous-titre',
+      date: 'Date',
+      time: 'Heure',
+      location: 'Lieu',
+      summary: 'Texte libre',
+      contact: 'Contact',
+      footer: 'Texte de bas de page'
+    })[name] || 'Texte';
   }
 
-  function directFieldLayout(data) {
-    const style = getStyleKey(data.style, data.template);
-    const layouts = {
-      match: {
-        category: [12, 8, 38, 5, 22], title: [5.5, 27, 89, 8, 48], subtitle: [5.5, 35, 89, 7, 32],
-        date: [5.5, 35, 42, 5, 21], time: [51, 35, 42, 5, 21], location: [5.5, 41, 42, 5, 21],
-        opponent: [67, 61, 25, 7, 28], score: [42, 55, 16, 8, 48], summary: [7.5, 79, 85, 10, 25]
-      },
-      magazine: {
-        category: [8.5, 18, 72, 5, 22], title: [8.5, 23, 83, 22, 48], subtitle: [8.5, 48, 83, 7, 28],
-        date: [5.5, 58, 42, 5, 21], time: [51, 58, 42, 5, 21], location: [5.5, 64, 42, 5, 21],
-        opponent: [51, 64, 42, 5, 21], score: [42, 48, 16, 8, 42], summary: [8, 76, 84, 12, 24]
-      },
-      club: {
-        category: [6, 21, 82, 5, 24], title: [6, 28, 88, 24, 50], subtitle: [6, 54, 88, 6, 27],
-        date: [5.5, 52, 42, 5, 21], time: [51, 52, 42, 5, 21], location: [5.5, 58, 42, 5, 21],
-        opponent: [51, 58, 42, 5, 21], score: [42, 47, 16, 8, 42], summary: [8, 67, 84, 13, 25]
-      },
-      recruitment: {
-        category: [5.5, 47, 89, 6, 25], title: [5.5, 20, 89, 25, 52], subtitle: [5.5, 49, 89, 7, 29],
-        date: [5.5, 42, 42, 5, 21], time: [51, 42, 42, 5, 21], location: [5.5, 48, 42, 5, 21],
-        opponent: [51, 48, 42, 5, 21], score: [42, 40, 16, 8, 42], summary: [8, 66, 84, 11, 25]
-      },
-      partner: {
-        category: [20, 24, 60, 5, 23], title: [14, 51, 72, 12, 46], subtitle: [14, 62, 72, 6, 27],
-        date: [5.5, 72, 42, 5, 21], time: [51, 72, 42, 5, 21], location: [5.5, 78, 42, 5, 21],
-        opponent: [14, 51, 72, 12, 46], score: [42, 51, 16, 8, 42], summary: [8, 77, 84, 10, 24]
-      },
-      tournament: {
-        category: [5.5, 19, 89, 5, 23], title: [5.5, 27, 89, 22, 50], subtitle: [5.5, 51, 89, 6, 27],
-        date: [5.5, 46, 42, 5, 21], time: [51, 46, 42, 5, 21], location: [5.5, 52, 42, 5, 21],
-        opponent: [51, 52, 42, 5, 21], score: [42, 40, 16, 8, 42], summary: [8, 65, 84, 11, 25]
-      }
+  function directFieldLayout() {
+    return {
+      category: [7, 16, 62, 5, 23],
+      title: [7, 22, 86, 18, 58],
+      subtitle: [7, 41, 86, 7, 30],
+      date: [7, 51, 25, 5, 22],
+      time: [36, 51, 20, 5, 22],
+      location: [60, 51, 33, 5, 22],
+      summary: [7, 64, 86, 12, 25],
+      contact: [7, 79, 86, 6, 22],
+      footer: [7, 91, 86, 4, 18]
     };
-    return layouts[style] || layouts.match;
   }
 
   function positionDirectFields(data) {
@@ -521,13 +517,12 @@
     directLayer.querySelectorAll('[data-direct-field]').forEach((node) => {
       if (node.dataset.directField === state.activeDirectField && node.isContentEditable) return;
       const value = directTextValue(data[node.dataset.directField]);
-      node.textContent = value || directFieldLabel(node.dataset.directField);
+      node.textContent = value;
+      node.dataset.placeholder = directFieldLabel(node.dataset.directField);
       node.classList.toggle('is-empty', !value);
       node.hidden = false;
     });
     positionDirectFields(data);
-    if (directFormat) directFormat.value = data.format || 'portrait';
-    if (directStyle) directStyle.value = getStyleKey(data.style, data.template);
   }
 
   function updateDocumentViewport() {
@@ -572,7 +567,6 @@
       node.classList.remove('is-editing');
     }
     state.activeDirectField = '';
-    if (contextToolbar) contextToolbar.hidden = true;
     render();
   }
 
@@ -585,27 +579,12 @@
     node.contentEditable = 'true';
     node.setAttribute('role', 'textbox');
     node.classList.add('is-editing');
-    if (contextToolbar) {
-      contextToolbar.hidden = false;
-      const label = contextToolbar.querySelector('[data-context-label]');
-      if (label) label.textContent = directFieldLabel(state.activeDirectField);
-      const size = contextToolbar.querySelector('[data-context-size]');
-      if (size) {
-        size.value = form.elements.textScale?.value || 100;
-        size.closest('label').hidden = state.activeDirectField !== 'title';
-      }
-    }
     node.focus();
     const selection = window.getSelection();
     const range = document.createRange();
     range.selectNodeContents(node);
     selection.removeAllRanges();
     selection.addRange(range);
-  }
-
-  function syncTemplateButtons(template) {
-    const simpleTemplate = ['upcoming', 'news', 'club'].includes(template) ? template : 'club';
-    if (compactTemplateSelect && compactTemplateSelect.value !== simpleTemplate) compactTemplateSelect.value = simpleTemplate;
   }
 
   function formatDate(value) {
@@ -744,8 +723,6 @@
   }
 
   async function loadSources() {
-    setStatus('Chargement des donnees du CMS...');
-    setSourceSelectLoading('Chargement...');
     const [news, matches, partners, shop, gallery, senior, academy, youth, feminines, settings, media] = await Promise.all([
       fetchJson(['../data/news.json', '/data/news.json'], { news: [] }),
       fetchJson(['../data/matches.json', '/data/matches.json'], { matches: [] }),
@@ -777,51 +754,24 @@
     ];
     buildCompositionEvents();
     state.data.settings = settings.data || {};
-    hydrateSourceSelect();
-    const count = state.data.news.length + state.data.events.length + state.data.partners.length + state.data.products.length + state.data.albums.length + state.data.teams.length;
-    setStatus(`${count} element(s) CMS disponibles pour le Studio RCC.`);
     hydrateCompositionMatches();
     hydrateCompositionPlayers();
     hydrateNewsletterSources();
     hydrateMediaLibrary();
+    state.dataLoaded = true;
     render();
   }
 
-  function setSourceSelectLoading(label) {
-    if (!sourceSelect) return;
-    sourceSelect.innerHTML = `<option value="">${label}</option>`;
-    sourceSelect.disabled = true;
-  }
-
-  function currentItems() {
-    if (state.activeSource === 'news') return state.data.news;
-    if (state.activeSource === 'event') return state.data.events;
-    if (state.activeSource === 'partner') return state.data.partners;
-    if (state.activeSource === 'shop') return state.data.products;
-    if (state.activeSource === 'gallery') return state.data.albums;
-    if (state.activeSource === 'team') return state.data.teams;
-    return [];
-  }
-
-  function labelForItem(item) {
-    if (state.activeSource === 'event') return `${item.date ? formatDate(item.date) + ' - ' : ''}${clean(item.title || item.tournamentName || item.opponent || item.team || 'Evenement RCC')}`;
-    if (state.activeSource === 'partner') return clean(item.name || 'Partenaire RCC');
-    if (state.activeSource === 'shop') return clean(`${item.name || 'Produit RCC'} ${item.price ? '- ' + item.price : ''}`);
-    if (state.activeSource === 'gallery') return clean(item.title || item.category || 'Album RCC');
-    if (state.activeSource === 'team') return clean(`${item.source || 'RCC'} - ${item.age || item.label || item.role || 'Equipe'}`);
-    return clean(item.title || 'Actualite RCC');
-  }
-
-  function hydrateSourceSelect() {
-    if (!sourceSelect) return;
-    const items = currentItems();
-    if (!items.length) {
-      sourceSelect.disabled = state.activeSource === 'blank';
-      sourceSelect.innerHTML = `<option value="">${state.activeSource === 'blank' ? 'Affiche vierge' : 'Aucun contenu disponible'}</option>`;
-      return;
+  function ensureStudioData() {
+    if (state.dataLoaded) return Promise.resolve();
+    if (!state.dataPromise) {
+      state.dataPromise = loadSources().catch((error) => {
+        state.dataPromise = null;
+        setStatus('Les donnees du Studio ne sont pas disponibles actuellement.');
+        throw error;
+      });
     }
-    sourceSelect.disabled = false;
-    sourceSelect.innerHTML = '<option value="">Choisir dans le CMS</option>' + items.map((item, index) => `<option value="${index}">${labelForItem(item)}</option>`).join('');
+    return state.dataPromise;
   }
 
   function normalizeStudioTab(tab) {
@@ -865,11 +815,17 @@
     if (!options.silentHash && location.hash !== `#${activeTab}`) {
       history.pushState({ studioTab: activeTab }, '', `#${activeTab}`);
     }
-    if (activeTab === 'composition') {
-      setCompositionStep(state.activeCompositionStep || 'match');
-      renderComposition();
+    if (activeTab === 'composition' || activeTab === 'newsletter') {
+      ensureStudioData().then(() => {
+        if (document.querySelector('[data-studio-tab].is-active')?.dataset.studioTab !== activeTab) return;
+        if (activeTab === 'composition') {
+          setCompositionStep(state.activeCompositionStep || 'match');
+          renderComposition();
+        } else {
+          renderNewsletter();
+        }
+      }).catch(() => {});
     }
-    if (activeTab === 'newsletter') renderNewsletter();
     if (activeTab === 'publications') requestAnimationFrame(updateDocumentViewport);
     if (options.scroll) {
       requestAnimationFrame(() => document.querySelector('.studio-main-modules')?.scrollIntoView({
@@ -1685,110 +1641,6 @@
     img.src = normalized;
   }
 
-  function applySource(index) {
-    const item = currentItems()[Number(index)];
-    if (!item) return;
-    state.pushAudienceManual = false;
-    state.image = null;
-    state.opponentLogo = null;
-
-    if (state.activeSource === 'news') applyNews(item);
-    if (state.activeSource === 'event') applyEvent(item);
-    if (state.activeSource === 'partner') applyPartner(item);
-    if (state.activeSource === 'shop') applyShop(item);
-    if (state.activeSource === 'gallery') applyGallery(item);
-    if (state.activeSource === 'team') applyTeam(item);
-    syncPushSettings(readForm());
-    updateCaption();
-    render();
-  }
-
-  function applyNews(item) {
-    setTemplate('news');
-    setField('title', item.title || '');
-    setField('subtitle', item.category || 'Actualite RCC');
-    setField('category', item.category || 'Club');
-    setField('date', item.date ? formatDate(item.date) : '');
-    setField('time', '');
-    setField('location', '');
-    setField('score', '');
-    setField('opponent', '');
-    setField('summary', item.summary || item.body || item.content || '');
-    if (item.image) loadRemoteImage(item.image);
-  }
-
-  function applyEvent(item) {
-    const eventType = clean(item.type_evenement || item.type || 'match').toLowerCase();
-    const isTournament = eventType === 'tournoi';
-    const isTraining = eventType === 'entrainement' || eventType === 'training';
-    const isResult = Boolean(item.result) || item.status === 'win' || item.status === 'loss';
-    const template = eventType === 'match' || isResult ? 'upcoming' : 'club';
-    const teams = asList(item.teams).length ? asList(item.teams).join(' / ') : item.team || item.category || '';
-    setTemplate(template);
-    setField('title', isTournament ? (item.tournamentName || item.title || 'Tournoi RCC') : item.title || (isTraining ? 'Entrainement RCC' : 'RC CUBZAGUAIS'));
-    setField('subtitle', teams || item.competition || '');
-    setField('category', item.competition || teams || (isTournament ? 'Tournoi' : 'Match'));
-    setField('opponent', item.opponent || item.away || '');
-    setField('date', formatDate(item.date));
-    setField('time', item.time || '');
-    setField('location', item.location || item.venue || '');
-    setField('score', item.result || '');
-    setField('summary', item.description || item.summary || '');
-    if (item.image) loadRemoteImage(item.image);
-    if (item.opponentLogo || item.partnerLogo) loadRemoteImage(item.opponentLogo || item.partnerLogo, 'opponentLogo');
-  }
-
-  function applyPartner(item) {
-    setTemplate('club');
-    setField('title', 'Merci');
-    setField('subtitle', item.name || 'Partenaire RCC');
-    setField('category', item.category || 'Partenaire');
-    setField('opponent', item.name || '');
-    setField('summary', item.description || 'Merci pour votre soutien au RC Cubzaguais.');
-    if (item.logo) loadRemoteImage(item.logo, 'opponentLogo');
-  }
-
-  function applyShop(item) {
-    setTemplate('club');
-    setField('title', item.name || 'Boutique RCC');
-    setField('subtitle', item.category || 'Boutique officielle');
-    setField('category', item.price || 'Boutique');
-    setField('summary', item.description || 'Retrouvez cet article dans la boutique officielle du RCC.');
-    if (item.image) loadRemoteImage(item.image);
-  }
-
-  function applyGallery(item) {
-    setTemplate('club');
-    setField('title', item.title || 'Vie du club');
-    setField('subtitle', item.category || 'Galerie RCC');
-    setField('category', item.category || 'Club');
-    setField('date', item.date ? formatDate(item.date) : '');
-    setField('summary', item.description || '');
-    if (item.cover) loadRemoteImage(item.cover);
-    else if (item.photos?.[0]?.image) loadRemoteImage(item.photos[0].image);
-  }
-
-  function applyTeam(item) {
-    setTemplate('club');
-    setField('title', item.age || 'Equipe RCC');
-    setField('subtitle', item.label || item.role || item.source || '');
-    setField('category', item.source || 'Equipe RCC');
-    setField('date', '');
-    setField('time', item.training || '');
-    setField('location', item.location || 'Plaine des Sports Laurent Ricci');
-    setField('summary', item.summary || item.position || item.role || 'Presentation officielle du RC Cubzaguais.');
-    if (item.teamPhoto) loadRemoteImage(item.teamPhoto);
-  }
-
-  function setTemplate(template) {
-    const simpleTemplate = ['upcoming', 'news', 'club'].includes(template)
-      ? template
-      : (template === 'result' ? 'upcoming' : 'club');
-    setField('template', simpleTemplate);
-    setField('style', STYLE_DEFAULTS[simpleTemplate] || 'match');
-    syncTemplateButtons(simpleTemplate);
-  }
-
   function loadImageFromFile(file, key) {
     if (!file) return;
     const reader = new FileReader();
@@ -2438,6 +2290,76 @@
     wrapParagraph(data.summary || data.subtitle || data.title || 'Retrouvez les informations du RCC.', pad + 24 * scale, y + 58 * scale, w - pad * 2 - 48 * scale, Math.min(w * 0.036, h * 0.028), Math.min(w * 0.043, h * 0.033), 3);
   }
 
+  function drawUniversalPoster(w, h, data, scale) {
+    drawBackground(w, h, data, 'club');
+    applyPreviewStyle('club');
+
+    const pad = w * 0.07;
+    const logoSize = w * 0.105;
+    fitImage(logo, pad, h * 0.045, logoSize, logoSize);
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(211,26,82,.72)';
+    ctx.lineWidth = Math.max(2, 2 * scale);
+    ctx.beginPath();
+    ctx.moveTo(pad, h * 0.145);
+    ctx.lineTo(w - pad, h * 0.145);
+    ctx.stroke();
+
+    if (clean(data.category)) {
+      ctx.fillStyle = COLORS.redBright;
+      ctx.font = `800 ${28 * scale}px ${BODY_FONT}`;
+      ctx.fillText(upper(data.category), pad, h * 0.16);
+    }
+
+    if (clean(data.title)) {
+      drawFittedLines(data.title, pad, h * 0.22, w - pad * 2, 78 * scale, 72 * scale, 3, COLORS.white, TITLE_FONT);
+    }
+
+    if (clean(data.subtitle)) {
+      ctx.fillStyle = COLORS.muted;
+      ctx.font = `700 ${36 * scale}px ${BODY_FONT}`;
+      wrapParagraph(data.subtitle, pad, h * 0.41, w - pad * 2, 36 * scale, 44 * scale, 2);
+    }
+
+    const facts = [data.date, data.time, data.location].filter((value) => clean(value));
+    if (facts.length) {
+      ctx.fillStyle = 'rgba(3,3,3,.68)';
+      ctx.fillRect(pad, h * 0.495, w - pad * 2, h * 0.085);
+      ctx.fillStyle = COLORS.white;
+      ctx.font = `700 ${27 * scale}px ${BODY_FONT}`;
+      const columns = [pad + 22 * scale, w * 0.36, w * 0.6];
+      facts.forEach((value, index) => {
+        wrapParagraph(value, columns[index], h * 0.52, index === 2 ? w * 0.31 : w * 0.22, 27 * scale, 33 * scale, 2);
+      });
+    }
+
+    if (clean(data.summary)) {
+      ctx.fillStyle = COLORS.white;
+      ctx.font = `600 ${30 * scale}px ${BODY_FONT}`;
+      wrapParagraph(data.summary, pad, h * 0.64, w - pad * 2, 30 * scale, 42 * scale, 4);
+    }
+
+    if (clean(data.contact)) {
+      ctx.fillStyle = COLORS.redBright;
+      ctx.font = `700 ${26 * scale}px ${BODY_FONT}`;
+      wrapParagraph(data.contact, pad, h * 0.79, w - pad * 2, 26 * scale, 34 * scale, 2);
+    }
+
+    ctx.strokeStyle = 'rgba(255,248,239,.22)';
+    ctx.beginPath();
+    ctx.moveTo(pad, h * 0.885);
+    ctx.lineTo(w - pad, h * 0.885);
+    ctx.stroke();
+    if (clean(data.footer)) {
+      ctx.fillStyle = 'rgba(255,248,239,.84)';
+      ctx.font = `600 ${21 * scale}px ${BODY_FONT}`;
+      ctx.fillText(data.footer, pad, h * 0.91);
+    }
+    ctx.restore();
+    drawGrid(w, h);
+  }
+
   function renderPoster(data, w, h, scale) {
     const style = getStyleKey(data.style, data.template);
     applyPreviewStyle(style);
@@ -2454,10 +2376,10 @@
   function render() {
     if (!canvas || !ctx || !form) return;
     const data = readForm();
-    const format = resizeCanvas(data.format);
+    const format = resizeCanvas(UNIVERSAL_POSTER.format);
     const scale = Math.min(format.width / 1080, format.height / 1080);
     const renderData = state.activeDirectField ? { ...data, [state.activeDirectField]: ' ' } : data;
-    renderPoster(renderData, format.width, format.height, scale);
+    drawUniversalPoster(format.width, format.height, renderData, scale);
     syncDirectEditor(data);
     updateCaption(data);
     requestAnimationFrame(updateDocumentViewport);
@@ -3372,14 +3294,9 @@
   });
   form?.addEventListener('change', (event) => {
     if (event.target?.name === 'pushAudience') state.pushAudienceManual = true;
-    if (event.target?.name === 'template') {
-      setTemplate(event.target.value);
-    }
     syncPushSettings(readForm());
     render();
   });
-  document.querySelector('[data-poster-image]')?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'image'));
-  document.querySelector('[data-opponent-logo]')?.addEventListener('change', (event) => loadImageFromFile(event.target.files?.[0], 'opponentLogo'));
   downloadButton?.addEventListener('click', downloadPng);
   downloadPdfButton?.addEventListener('click', downloadPdf);
   copyCaptionButton?.addEventListener('click', copyCaption);
@@ -3405,16 +3322,6 @@
   }));
   prepareDistributionButton?.addEventListener('click', prepareDistribution);
   checkMetaButton?.addEventListener('click', checkMetaStatus);
-  compactTemplateSelect?.addEventListener('change', (event) => {
-    setTemplate(event.target.value);
-    render();
-  });
-  compactSourceSelect?.addEventListener('change', (event) => {
-    const value = event.target.value || 'blank';
-    state.activeSource = value;
-    hydrateSourceSelect();
-  });
-  sourceSelect?.addEventListener('change', (event) => applySource(event.target.value));
   zoomInButton?.addEventListener('click', () => {
     const field = form.elements.photoZoom;
     field.value = String(clamp(Number(field.value || 112) + 8, 100, 170));
@@ -3447,14 +3354,6 @@
   documentFitButton?.addEventListener('click', fitDocumentToViewport);
   documentZoomOutButton?.addEventListener('click', () => changeDocumentZoom(-0.25));
   documentZoomInButton?.addEventListener('click', () => changeDocumentZoom(0.25));
-  directFormat?.addEventListener('change', (event) => {
-    setField('format', event.target.value);
-    render();
-  });
-  directStyle?.addEventListener('change', (event) => {
-    setField('style', event.target.value);
-    render();
-  });
   directLayer?.addEventListener('click', (event) => {
     const node = event.target.closest('[data-direct-field]');
     if (!node) return;
@@ -3486,34 +3385,8 @@
   directLayer?.addEventListener('focusout', (event) => {
     if (!event.target.matches('[data-direct-field]')) return;
     window.setTimeout(() => {
-      if (!contextToolbar?.contains(document.activeElement)) closeDirectEditor(true);
+      closeDirectEditor(true);
     }, 0);
-  });
-  contextToolbar?.querySelector('[data-context-size]')?.addEventListener('input', (event) => {
-    if (state.activeDirectField !== 'title') return;
-    setField('textScale', event.target.value);
-    render();
-  });
-  contextToolbar?.querySelector('[data-context-align]')?.addEventListener('click', () => {
-    const options = ['left', 'center', 'bottom'];
-    const current = form.elements.textPosition?.value || 'left';
-    setField('textPosition', options[(options.indexOf(current) + 1) % options.length]);
-    render();
-  });
-  contextToolbar?.querySelector('[data-context-hide]')?.addEventListener('click', () => {
-    if (state.activeDirectField) setField(state.activeDirectField, '');
-    closeDirectEditor(true);
-  });
-  contextToolbar?.querySelector('[data-context-reset]')?.addEventListener('click', () => {
-    if (state.activeDirectField) setField(state.activeDirectField, state.directOriginalValue);
-    setField('textScale', 100);
-    closeDirectEditor(true);
-  });
-  settingsToggle?.addEventListener('click', () => {
-    const sidebar = document.querySelector('#studio-panel-publications .studio-left');
-    const open = sidebar?.classList.toggle('is-mobile-open') || false;
-    settingsToggle.setAttribute('aria-expanded', String(open));
-    requestAnimationFrame(updateDocumentViewport);
   });
   canvasWrap?.addEventListener('pointerdown', (event) => {
     if (event.target !== canvas || !state.image) return;
@@ -3547,11 +3420,8 @@
   if (canvasWrap) documentResizeObserver?.observe(canvasWrap);
   window.addEventListener('resize', updateDocumentViewport, { passive: true });
 
-  setSourceSelectLoading('Chargement du CMS...');
-  syncTemplateButtons(readForm().template || 'upcoming');
   syncPushSettings(readForm());
   loadFonts();
-  loadSources();
   setCompositionStep('match');
   switchStudioTab((location.hash || '').replace('#', '') || sessionStorage.getItem('rcc-studio-active-module') || 'posters', { silentHash: true });
   render();

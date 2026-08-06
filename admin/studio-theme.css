@@ -690,3 +690,97 @@
     white-space: normal !important;
   }
 }
+
+/* Publications : un seul modele universel, sans panneau lateral. */
+.studio-page #studio-panel-publications.studio-publication-universal {
+  display: block !important;
+  width: 100%;
+}
+
+.studio-page #studio-panel-publications .studio-preview-panel {
+  position: static !important;
+  width: 100% !important;
+  padding: 12px !important;
+}
+
+.studio-page #studio-panel-publications .studio-universal-tools {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center;
+  gap: 7px;
+  margin: 10px 0;
+  overflow: visible !important;
+}
+
+.studio-page #studio-panel-publications .studio-universal-tools :is(button, .studio-tool-upload) {
+  flex: 0 0 auto !important;
+  min-height: 36px !important;
+  min-width: 0 !important;
+  padding: 8px 10px !important;
+  white-space: nowrap !important;
+}
+
+.studio-page #studio-panel-publications .studio-universal-tools output {
+  flex: 0 0 auto !important;
+  min-width: 58px;
+  margin-left: auto;
+  color: var(--studio-muted);
+  font-size: .75rem;
+  text-align: right;
+}
+
+.studio-page #studio-panel-publications .studio-canvas-wrap {
+  height: calc(100dvh - 286px) !important;
+  min-height: 520px !important;
+}
+
+.studio-page #studio-panel-publications .studio-direct-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.studio-page #studio-panel-publications .studio-universal-status {
+  margin: 8px 0 0;
+}
+
+.studio-page .poster-direct-layer [data-direct-field].is-empty::before {
+  color: rgba(255, 248, 239, .5);
+  content: attr(data-placeholder);
+  font-family: var(--studio-text);
+  font-size: .78em;
+  font-weight: 600;
+}
+
+.studio-page .poster-direct-layer [data-direct-field].is-empty.is-editing::before {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .studio-page #studio-panel-publications .studio-canvas-wrap {
+    height: 64dvh !important;
+    min-height: 420px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .studio-page #studio-panel-publications .studio-preview-panel {
+    padding: 8px !important;
+  }
+
+  .studio-page #studio-panel-publications .studio-universal-tools {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px;
+  }
+
+  .studio-page #studio-panel-publications .studio-universal-tools output {
+    margin-left: 0;
+  }
+
+  .studio-page #studio-panel-publications .studio-canvas-wrap {
+    height: 62dvh !important;
+    min-height: 360px !important;
+  }
+}
