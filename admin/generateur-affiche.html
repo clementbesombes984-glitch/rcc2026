@@ -71,15 +71,27 @@
             <strong data-poster-size>1080 x 1350</strong>
           </div>
           <div class="studio-preview-tools studio-universal-tools" aria-label="Outils de l'affiche">
-            <button type="button" data-document-fit class="is-active">Adapter</button>
-            <button type="button" data-document-zoom-out aria-label="Reduire le zoom du document">Zoom document -</button>
-            <button type="button" data-document-zoom-in aria-label="Agrandir le zoom du document">Zoom document +</button>
-            <label class="studio-tool-upload">Ajouter photo<input type="file" accept="image/*" data-direct-poster-image /></label>
-            <button type="button" data-zoom-out aria-label="Reduire le zoom de la photo">Zoom photo -</button>
-            <button type="button" data-zoom-in aria-label="Agrandir le zoom de la photo">Zoom photo +</button>
-            <button type="button" data-toggle-grid aria-label="Afficher ou masquer la grille de composition">Grille</button>
-            <button type="button" data-reset-photo aria-label="Recentrer la photo principale">Recentrer photo</button>
-            <button type="button" data-remove-photo aria-label="Supprimer la photo principale">Supprimer photo</button>
+            <div class="studio-tool-group" aria-label="Document">
+              <span>Document</span>
+              <button type="button" data-document-fit class="is-active">Adapter</button>
+              <button type="button" data-document-zoom-out aria-label="Reduire le zoom du document">-</button>
+              <button type="button" data-document-zoom-in aria-label="Agrandir le zoom du document">+</button>
+              <button type="button" data-toggle-grid aria-label="Afficher ou masquer la grille de composition">Grille</button>
+            </div>
+            <div class="studio-tool-group studio-tool-group-photo" aria-label="Photo">
+              <span>Photo</span>
+              <label class="studio-tool-upload">Importer<input type="file" accept="image/*" data-direct-poster-image /></label>
+              <button type="button" data-zoom-out aria-label="Reduire le zoom de la photo">-</button>
+              <button type="button" data-zoom-in aria-label="Agrandir le zoom de la photo">+</button>
+              <button type="button" data-reset-photo aria-label="Recentrer la photo principale">Recentrer</button>
+              <button type="button" data-remove-photo aria-label="Supprimer la photo principale">Retirer</button>
+            </div>
+            <div class="studio-tool-group studio-tool-group-export" aria-label="Export et publication">
+              <span>Sortie</span>
+              <button class="button ghost" type="button" data-download-poster>PNG</button>
+              <button class="button ghost" type="button" data-download-pdf>PDF</button>
+              <button class="button primary" type="button" data-publish-dialog-open>Publier</button>
+            </div>
           </div>
           <div class="poster-canvas-wrap studio-canvas-wrap">
             <div class="poster-stage" data-poster-stage>
@@ -102,10 +114,8 @@
             </div>
           </div>
           <p class="poster-help studio-universal-status" data-poster-status role="status" aria-live="polite">Cliquez sur une zone de texte pour la modifier.</p>
-          <div class="poster-actions studio-direct-actions">
-            <button class="button ghost" type="button" data-download-poster>PNG</button>
-            <button class="button ghost" type="button" data-download-pdf>PDF</button>
-            <button class="button primary" type="button" data-publish-dialog-open>Publier</button>
+          <div class="poster-actions studio-direct-actions" aria-label="Actions rapides">
+            <span>Edition directe : cliquez sur un texte de l'affiche.</span>
           </div>
         </section>
 

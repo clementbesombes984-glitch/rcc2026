@@ -244,6 +244,12 @@
     .replace(/\u00a0/g, ' ')
     .replace(/[\r\n]+/g, ' ')
     .trim();
+  const isDirectTextInputKey = (event) => {
+    const key = event.key || '';
+    if (key.length === 1 || ['Backspace', 'Delete'].includes(key)) return true;
+    if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x', 'z', 'y'].includes(key.toLowerCase())) return true;
+    return false;
+  };
   const upper = (value) => clean(value).toUpperCase();
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const asList = (value) => Array.isArray(value) ? value.filter(Boolean) : (value ? [value] : []);
@@ -3395,10 +3401,11 @@
     if (!event.target.isContentEditable && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
       openDirectEditor(event.target);
-    } else if (event.target.isContentEditable && event.key === ' ') {
-      event.preventDefault();
-      document.execCommand('insertText', false, ' ');
-    } else if (event.key === 'Enter' && !event.shiftKey) {
+      return;
+    }
+    if (!event.target.isContentEditable) return;
+    if (isDirectTextInputKey(event)) event.stopPropagation();
+    if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       closeDirectEditor(true);
     } else if (event.key === 'Escape') {

@@ -813,3 +813,368 @@
     min-height: 390px !important;
   }
 }
+
+/* Refonte ergonomique Studio RCC : l'aperçu devient l'espace de travail principal. */
+.studio-page {
+  --studio-work-bg: #020817;
+  --studio-chip-bg: rgba(255, 255, 255, .055);
+  --studio-chip-hover: rgba(208, 23, 82, .18);
+  --studio-panel-soft: rgba(7, 26, 55, .72);
+  background:
+    linear-gradient(120deg, rgba(177, 24, 69, .16), transparent 32rem),
+    linear-gradient(180deg, #071a37 0, #020817 42%, #01040b 100%);
+}
+
+.studio-page::before {
+  opacity: .08;
+}
+
+.studio-page .studio-shell {
+  width: min(calc(100% - 24px), 1880px) !important;
+  min-height: 100dvh;
+  padding: 12px 0 18px !important;
+}
+
+.studio-page .studio-topbar {
+  position: sticky !important;
+  top: 8px;
+  z-index: 30;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px !important;
+  margin-bottom: 10px !important;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+  background: rgba(4, 13, 30, .92) !important;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .24) !important;
+  backdrop-filter: blur(18px);
+}
+
+.studio-page .studio-topbar::after {
+  display: none;
+}
+
+.studio-page .poster-admin-brand {
+  grid-template-columns: 34px auto !important;
+  gap: 9px !important;
+  text-decoration: none;
+}
+
+.studio-page .poster-admin-brand img {
+  width: 34px !important;
+  height: 34px !important;
+}
+
+.studio-page .poster-admin-brand span {
+  font-size: 1rem !important;
+}
+
+.studio-page .studio-topbar-title {
+  gap: 8px !important;
+}
+
+.studio-page .studio-topbar h1 {
+  font-size: clamp(1.45rem, 2.1vw, 2.45rem) !important;
+  letter-spacing: 0 !important;
+}
+
+.studio-page .studio-current-module,
+.studio-page .studio-doc-status {
+  min-height: 26px !important;
+  padding-inline: 9px !important;
+  font-size: .68rem !important;
+}
+
+.studio-page .studio-topbar-actions {
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+}
+
+.studio-page .studio-topbar-actions .button,
+.studio-page .studio-mobile-actions .button {
+  min-height: 34px !important;
+  padding-inline: 11px !important;
+}
+
+.studio-page .studio-main-modules {
+  position: sticky;
+  top: 84px;
+  z-index: 25;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto !important;
+  margin-bottom: 10px !important;
+  border-radius: 999px !important;
+  background: rgba(4, 13, 30, .82) !important;
+  backdrop-filter: blur(16px);
+}
+
+.studio-page .studio-main-modules button {
+  min-height: 34px !important;
+  border-radius: 999px !important;
+  padding-inline: 16px !important;
+}
+
+.studio-page .studio-main-modules button.is-active {
+  background: linear-gradient(135deg, var(--studio-red), var(--studio-burgundy)) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.studio-page .studio-main-modules button.is-active::after {
+  display: none !important;
+}
+
+.studio-page #studio-panel-publications.studio-publication-universal {
+  min-height: calc(100dvh - 132px);
+}
+
+.studio-page #studio-panel-publications .studio-preview-panel {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  min-height: calc(100dvh - 132px);
+}
+
+.studio-page #studio-panel-publications .poster-preview-toolbar {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 34px;
+  padding-inline: 2px !important;
+}
+
+.studio-page #studio-panel-publications .poster-preview-toolbar span {
+  color: rgba(255, 255, 255, .72) !important;
+}
+
+.studio-page #studio-panel-publications .poster-preview-toolbar strong {
+  min-height: 24px;
+  padding: 5px 8px;
+  border: 1px solid var(--studio-line);
+  border-radius: 999px;
+  background: var(--studio-chip-bg);
+  color: var(--studio-muted) !important;
+  font-family: var(--studio-text) !important;
+  font-size: .68rem !important;
+  font-weight: 700 !important;
+}
+
+.studio-page #studio-panel-publications .studio-universal-tools {
+  display: grid !important;
+  grid-template-columns: minmax(250px, auto) minmax(360px, 1fr) auto;
+  align-items: center;
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+  padding: 8px !important;
+  border: 1px solid var(--studio-line) !important;
+  border-radius: 10px !important;
+  background: rgba(4, 13, 30, .72) !important;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .18) !important;
+  backdrop-filter: blur(14px);
+}
+
+.studio-page .studio-tool-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.studio-page .studio-tool-group > span {
+  flex: 0 0 auto;
+  padding: 0 7px;
+  color: var(--studio-muted);
+  font: 750 .66rem/1 var(--studio-text);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.studio-page #studio-panel-publications .studio-universal-tools .studio-tool-group :is(button, .studio-tool-upload) {
+  flex: 0 0 auto !important;
+  min-height: 30px !important;
+  border: 1px solid var(--studio-line) !important;
+  border-radius: 6px !important;
+  background: var(--studio-chip-bg) !important;
+  color: #eef3fb !important;
+  padding: 0 9px !important;
+  font: 700 .7rem/1 var(--studio-text) !important;
+  letter-spacing: .02em !important;
+}
+
+.studio-page #studio-panel-publications .studio-universal-tools .studio-tool-group :is(button, .studio-tool-upload):hover,
+.studio-page #studio-panel-publications .studio-universal-tools .studio-tool-group button.is-active {
+  border-color: rgba(208, 23, 82, .6) !important;
+  background: var(--studio-chip-hover) !important;
+  color: #fff !important;
+}
+
+.studio-page #studio-panel-publications .studio-tool-group-export {
+  justify-content: flex-end;
+}
+
+.studio-page #studio-panel-publications .studio-tool-group-export .button.primary {
+  border-color: var(--studio-burgundy) !important;
+  background: linear-gradient(135deg, var(--studio-red), var(--studio-burgundy)) !important;
+}
+
+.studio-page #studio-panel-publications .studio-canvas-wrap {
+  display: grid;
+  place-items: center;
+  height: calc(100dvh - 246px) !important;
+  min-height: 620px !important;
+  padding: 16px !important;
+  border: 1px solid rgba(255, 255, 255, .08) !important;
+  border-radius: 12px !important;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px),
+    radial-gradient(circle at 50% 18%, rgba(177, 24, 69, .16), transparent 34rem),
+    #030815 !important;
+  background-size: 28px 28px, 28px 28px, auto, auto !important;
+  overflow: auto !important;
+  resize: vertical;
+}
+
+.studio-page #studio-panel-publications .poster-stage {
+  border-radius: 3px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .58) !important;
+  transition: width .16s ease, height .16s ease, transform .16s ease;
+}
+
+.studio-page #studio-panel-publications .poster-stage canvas {
+  display: block;
+}
+
+.studio-page .poster-direct-layer [data-direct-field] {
+  border-radius: 6px;
+  outline: 0;
+}
+
+.studio-page .poster-direct-layer [data-direct-field]:is(:hover, :focus) {
+  border-color: rgba(255, 255, 255, .5) !important;
+  background: rgba(4, 13, 30, .68) !important;
+}
+
+.studio-page .poster-direct-layer [data-direct-field].is-editing {
+  border-color: var(--studio-red) !important;
+  background: rgba(4, 13, 30, .94) !important;
+  color: #fff !important;
+  caret-color: #fff;
+  box-shadow: 0 0 0 3px rgba(208, 23, 82, .18), 0 14px 34px rgba(0, 0, 0, .28) !important;
+}
+
+.studio-page #studio-panel-publications .studio-universal-status {
+  justify-self: center;
+  max-width: 720px;
+  margin-top: 8px !important;
+  color: rgba(255, 255, 255, .64) !important;
+  text-align: center;
+}
+
+.studio-page #studio-panel-publications .studio-direct-actions {
+  justify-content: center;
+  padding-top: 4px !important;
+}
+
+.studio-page #studio-panel-publications .studio-direct-actions span {
+  color: var(--studio-muted);
+  font-size: .76rem;
+}
+
+.studio-page :is(.newsletter-library, .newsletter-properties, .composition-card-panel) {
+  resize: horizontal;
+  overflow: auto;
+}
+
+.studio-page .newsletter-workspace {
+  gap: 12px !important;
+}
+
+.studio-page .newsletter-commandbar,
+.studio-page .newsletter-actionbar,
+.studio-page .newsletter-previewbar {
+  border-radius: 10px !important;
+}
+
+@media (min-width: 1600px) {
+  .studio-page #studio-panel-publications .studio-canvas-wrap {
+    height: calc(100dvh - 228px) !important;
+    min-height: 700px !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  .studio-page #studio-panel-publications .studio-universal-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .studio-page #studio-panel-publications .studio-tool-group-export {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 820px) {
+  .studio-page .studio-topbar {
+    position: relative !important;
+    top: auto;
+    grid-template-columns: 1fr auto;
+  }
+
+  .studio-page .studio-topbar-title {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+
+  .studio-page .studio-topbar-actions {
+    display: none !important;
+  }
+
+  .studio-page .studio-mobile-actions {
+    display: block !important;
+  }
+
+  .studio-page .studio-main-modules {
+    position: relative;
+    top: auto;
+    width: 100%;
+  }
+
+  .studio-page #studio-panel-publications .studio-preview-panel {
+    min-height: 0;
+  }
+
+  .studio-page #studio-panel-publications .studio-canvas-wrap {
+    height: min(70dvh, 700px) !important;
+    min-height: 460px !important;
+    resize: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .studio-page .studio-shell {
+    width: min(calc(100% - 14px), 1880px) !important;
+  }
+
+  .studio-page #studio-panel-publications .studio-universal-tools {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+  }
+
+  .studio-page .studio-tool-group {
+    flex: 0 0 max-content;
+  }
+
+  .studio-page #studio-panel-publications .studio-canvas-wrap {
+    height: min(64dvh, 620px) !important;
+    min-height: 390px !important;
+    padding: 8px !important;
+  }
+}
