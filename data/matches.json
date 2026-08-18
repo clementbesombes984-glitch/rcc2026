@@ -27,6 +27,20 @@
       "location": "Plaine des Sports Laurent Ricci",
       "home": false,
       "notification": false
+    },
+    {
+      "title": "Reprise Entraînement U14",
+      "type_evenement": "entrainement",
+      "team": "U14",
+      "date": "2026-08-18",
+      "time": "18h00",
+      "location": "Plaine des sports ",
+      "home": false,
+      "category": "u14",
+      "notification": true,
+      "audience": [
+        "u14"
+      ]
     }
   ]
 }
