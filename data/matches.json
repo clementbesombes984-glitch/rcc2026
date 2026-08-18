@@ -59,6 +59,19 @@
         "u16",
         "u19"
       ]
+    },
+    {
+      "title": "Entraînement École de rugby ",
+      "type_evenement": "entrainement",
+      "team": "Ecole de rugby",
+      "date": "2026-09-05",
+      "time": "10h00",
+      "location": "Plaine des sports",
+      "home": false,
+      "notification": true,
+      "audience": [
+        "ecole"
+      ]
     }
   ]
 }
