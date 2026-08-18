@@ -41,6 +41,24 @@
       "audience": [
         "u14"
       ]
+    },
+    {
+      "title": "Entraînement U16 U19",
+      "type_evenement": "entrainement",
+      "team": "U16",
+      "teams": [
+        "U16",
+        "U19"
+      ],
+      "date": "2026-08-21",
+      "time": "19h30",
+      "location": "Plaine des sports ",
+      "home": false,
+      "notification": true,
+      "audience": [
+        "u16",
+        "u19"
+      ]
     }
   ]
 }
