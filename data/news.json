@@ -272,6 +272,20 @@
       "notification": true,
       "featured": true,
       "date": "2026-08-06"
+    },
+    {
+      "id": "Reprise Entraînement U14 ",
+      "title": "Reprise des entraînements U14",
+      "body": "🏉 REPRISE DES U14 🔴🔵\nHier soir, nos U14 ont retrouvé le chemin des terrains ! 💪\nUne première séance pour reprendre les automatismes, retrouver le ballon et surtout le plaisir de jouer ensemble.\nLa saison est lancée ! 🔥\n#RCC #U14 #Reprise #Rugby #SaintAndréDeCubzac",
+      "image": "/assets/uploads/img-20260818-wa0028.jpg",
+      "category": "Ecole de rugby",
+      "audience": [
+        "u14"
+      ],
+      "important": false,
+      "notification": true,
+      "featured": true,
+      "date": "2026-08-19"
     }
   ]
 }
