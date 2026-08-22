@@ -286,6 +286,20 @@
       "notification": true,
       "featured": true,
       "date": "2026-08-19"
+    },
+    {
+      "id": "Reprise Entraînement U16 U19 ",
+      "title": "Reprise Entraînement U16 U19 ",
+      "body": "🏉 REPRISE U16 & U19 🔴🔵\nHier soir, nos U16 et U19 ont retrouvé le terrain pour lancer leur saison ! 💪\nDu ballon, du rythme et surtout le plaisir de retrouver le groupe. 🔥\nLa saison 2026/2027 est lancée !\n#RCC #U16 #U19 #Rugby #Reprise #SaintAndréDeCubzac",
+      "category": "Pole jeunes",
+      "audience": [
+        "u16",
+        "u19"
+      ],
+      "important": false,
+      "notification": true,
+      "featured": true,
+      "date": "2026-08-22"
     }
   ]
 }
