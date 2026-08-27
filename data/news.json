@@ -300,6 +300,20 @@
       "notification": true,
       "featured": true,
       "date": "2026-08-22"
+    },
+    {
+      "id": "Info entraînement ",
+      "title": "HORAIRE D'ENTRAÎNEMENT ECOLE DE RUGBY ",
+      "body": "Lieu, jours et heures d'entraînement de l'école de rugby U6 U8 U10 U12 U14",
+      "image": "/assets/uploads/file00000000c23881f48a7141e3187d504c.png",
+      "category": "Ecole de rugby",
+      "audience": [
+        "ecole"
+      ],
+      "important": false,
+      "notification": true,
+      "featured": false,
+      "date": "2026-08-27"
     }
   ]
 }
