@@ -314,6 +314,21 @@
       "notification": true,
       "featured": false,
       "date": "2026-08-27"
+    },
+    {
+      "id": "Entraînement 2",
+      "title": "HORAIRE D'ENTRAÎNEMENT POLE JEUNES CADETTES SENIORS ",
+      "image": "/assets/uploads/file00000000154082468e15c69313678eec-1.png",
+      "category": "Pole jeunes",
+      "audience": [
+        "cadettes",
+        "cadettes",
+        "jeunes"
+      ],
+      "important": false,
+      "notification": true,
+      "featured": false,
+      "date": "2026-08-27"
     }
   ]
 }
